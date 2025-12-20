@@ -12,10 +12,20 @@ if (menuToggle) {
       navLinks.style.top = "80px";
       navLinks.style.left = "0";
       navLinks.style.width = "100%";
-      navLinks.style.background = "rgba(5, 5, 8, 0.95)";
+      navLinks.style.background = "rgba(255, 255, 255, 0.98)";
       navLinks.style.padding = "2rem";
-      navLinks.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+      navLinks.style.borderBottom = "1px solid rgba(0,0,0,0.1)";
+      navLinks.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)";
     }
+  });
+
+  // Close menu when a link is clicked
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        navLinks.style.display = "none";
+      }
+    });
   });
 }
 
@@ -424,4 +434,34 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
+
+  // Scroll Spy: Highlight nav link based on scroll position
+  const spySections = document.querySelectorAll("section");
+  const navItems = document.querySelectorAll(".nav-link");
+
+  const spyOptions = {
+    root: null,
+    rootMargin: "-20% 0px -80% 0px", // Trigger when section is in the top part of the viewport
+    threshold: 0,
+  };
+
+  const sectionSpy = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // Remove active class from all
+        navItems.forEach((link) => link.classList.remove("active"));
+        
+        // Add to current
+        const id = entry.target.getAttribute("id");
+        const activeLink = document.querySelector(`.nav-link[href="#${id}"]`);
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
+    });
+  }, spyOptions);
+
+  spySections.forEach((section) => {
+    sectionSpy.observe(section);
+  });
 });
