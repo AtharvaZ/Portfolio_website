@@ -5,15 +5,18 @@ A stunning, professional portfolio website featuring a modern light theme design
 ## 🎨 Features
 
 ### Portfolio Website (`index.html`)
-- **Premium Cyber-Nature Theme**: Sophisticated light theme featuring a unique dark-to-light forest green gradient palette (Emerald, Mint, and Forest Green).
+- **Premium Cyber-Nature Theme**: Sophisticated light theme featuring a unique light-to-dark forest green gradient palette (Mint, Emerald, and Deep Forest Green).
 - **Subtle Sage Background**: Custom-tinted background replacing sterile white for a more organic, high-end feel.
 - **Glassmorphism UI**: Beautiful frosted-glass navigation and project cards.
 - **Responsive Layout**: Fully optimized for mobile, tablet, and desktop viewing.
+- **Centered Navigation**: Desktop navbar with perfectly centered links and dynamic active-state underlines.
 - **Dynamic Projects**: 2x2 grid layout that pulls projects directly from the backend API.
 - **Interactive Animations**:
   - Floating hero particles.
   - Smooth scroll-reveal effects.
   - Multi-stage typewriter effect for the hero tagline.
+  - **Scroll-spy integration** that highlights the current section in the navigation bar.
+  - **Refined Hero Content**: Including a prominent "Software Developer" title and a personalized greeting.
   - Advanced hover states with 3D scaling and brightness filters.
 
 ### Admin Dashboard (`admin.html`)
