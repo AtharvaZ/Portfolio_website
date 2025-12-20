@@ -63,7 +63,6 @@ class Project(BaseModel):
     desc: str
     tech: List[str]
     links: dict
-    image: Optional[str] = None  # Base64 encoded image or URL
 
 class ResumeResponse(BaseModel):
     success: bool
@@ -141,6 +140,7 @@ def verify_session(session_token: str):
 # Email configuration from environment variables
 RESEND_API_KEY = os.getenv("EMAIL_SECRET_KEY", "")
 RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL", "")
+RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")  # Your verified domain email
 
 # Initialize Resend
 if RESEND_API_KEY:
@@ -270,12 +270,18 @@ async def submit_contact_form(form: ContactForm):
 
         # Send email using Resend
         try:
+            if not RESEND_API_KEY:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Resend API key not configured. Please set EMAIL_SECRET_KEY in .env"
+                )
+            
             params = {
-                "from": "Personal Website Contact <onboarding@resend.dev>",
+                "from": f"Personal Website Contact <{RESEND_FROM_EMAIL}>",
                 "to": [RECIPIENT_EMAIL],
                 "subject": f"New Contact Form Submission from {form.name}",
                 "html": f"""
-                <h2>Contact Personal Webste Submission</h2>
+                <h2>Contact Personal Website Submission</h2>
                 <p>You've received a new message from your portfolio website:</p>
 
                 <h3>Contact Information:</h3>
@@ -285,7 +291,7 @@ async def submit_contact_form(form: ContactForm):
                 </ul>
 
                 <h3>Message:</h3>
-                <p>{form.message}</p>
+                <p>{form.message.replace(chr(10), '<br>')}</p>
 
                 <hr>
                 <p style="color: #666; font-size: 12px;">This email was sent from your portfolio contact form.</p>

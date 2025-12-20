@@ -168,57 +168,8 @@ async function renderAdminProjects() {
     });
 }
 
-// Image upload handling
-let projectImage = null;
+// Project Image Handling Removed
 
-const imageDropZone = document.getElementById('project-image-drop-zone');
-const imageUpload = document.getElementById('project-image-upload');
-const imagePreview = document.getElementById('image-preview');
-const previewImg = document.getElementById('preview-img');
-const removeImageBtn = document.getElementById('remove-image');
-
-imageDropZone.addEventListener('click', () => imageUpload.click());
-
-imageDropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    imageDropZone.style.borderColor = 'var(--accent-primary)';
-});
-
-imageDropZone.addEventListener('dragleave', () => {
-    imageDropZone.style.borderColor = '';
-});
-
-imageDropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    imageDropZone.style.borderColor = '';
-    const files = e.dataTransfer.files;
-    if (files.length > 0) handleImageFile(files[0]);
-});
-
-imageUpload.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) handleImageFile(e.target.files[0]);
-});
-
-removeImageBtn.addEventListener('click', () => {
-    projectImage = null;
-    imagePreview.style.display = 'none';
-    imageUpload.value = '';
-});
-
-function handleImageFile(file) {
-    if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        projectImage = e.target.result;
-        previewImg.src = projectImage;
-        imagePreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-}
 
 projectForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -233,8 +184,7 @@ projectForm.addEventListener('submit', async (e) => {
         title,
         desc,
         tech,
-        links: { github, demo },
-        image: projectImage || null
+        links: { github, demo }
     };
 
     try {
@@ -263,8 +213,6 @@ projectForm.addEventListener('submit', async (e) => {
         }
         await renderAdminProjects();
         projectForm.reset();
-        projectImage = null;
-        imagePreview.style.display = 'none';
         resetFormState();
     } catch (error) {
         console.error('Error saving project:', error);
@@ -287,16 +235,6 @@ window.editProject = async (id) => {
     document.getElementById('project-tech').value = project.tech.join(', ');
     document.getElementById('project-github').value = project.links.github;
     document.getElementById('project-demo').value = project.links.demo;
-
-    // Load existing image if present
-    if (project.image) {
-        projectImage = project.image;
-        previewImg.src = projectImage;
-        imagePreview.style.display = 'block';
-    } else {
-        projectImage = null;
-        imagePreview.style.display = 'none';
-    }
 
     submitBtn.textContent = 'Update Project';
     cancelBtn.style.display = 'inline-block';

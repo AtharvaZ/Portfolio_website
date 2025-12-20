@@ -221,15 +221,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         project.links.demo !== "#" &&
         project.links.demo !== "";
 
-      // Display project image or placeholder
-      const imageContent = project.image
-        ? `<img src="${project.image}" alt="${project.title}" style="width: 100%; height: 100%; object-fit: cover;">`
-        : `<span>${project.title} Screenshot</span>`;
-
       card.innerHTML = `
-                <div class="project-img-placeholder">
-                    ${imageContent}
-                </div>
                 <div class="project-info">
                     <h3>${project.title}</h3>
                     <p>${project.desc}</p>
@@ -284,26 +276,80 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
   await updateResumeLinks();
 
-  // Skills Rendering
-  const skills = [
-    "HTML5",
-    "CSS3",
-    "JavaScript",
-    "React.js",
-    "Node.js",
-    "Three.js",
-    "WebGL",
-    "Git",
-    "Figma",
-  ];
+  // Skills Rendering - Organized by Categories
+  const techStack = {
+    "Languages": [
+      { name: "Python", icon: "devicon-python-plain colored" },
+      { name: "Java", icon: "devicon-java-plain colored" },
+      { name: "C++", icon: "devicon-cplusplus-plain colored" },
+      { name: "C#", icon: "devicon-csharp-plain colored" },
+      { name: "SQL", icon: "devicon-azuresqldatabase-plain colored" },
+      { name: "HTML/CSS", icon: "devicon-html5-plain colored" }
+    ],
+    "Frameworks & Libraries": [
+      { name: "FastAPI", icon: "devicon-fastapi-plain colored" },
+      { name: "Flask", icon: "devicon-flask-original" },
+      { name: "JavaFX", icon: "devicon-java-plain colored" },
+      { name: "sentence-transformers", icon: "devicon-python-plain colored" },
+      { name: "FAISS", img: "assets/faiss.png", extraLarge: true },
+      { name: "HuggingFace", img: "assets/huggingface.png", enlarged: true },
+      { name: "Tkinter", icon: "devicon-python-plain colored" },
+      { name: "SQLAlchemy", icon: "devicon-sqlalchemy-plain" }
+    ],
+    "Tools & Technologies": [
+      { name: "Git", icon: "devicon-git-plain colored" },
+      { name: "Maven", icon: "devicon-maven-plain colored" },
+      { name: "SQLite", icon: "devicon-sqlite-plain colored" },
+      { name: "H2 Database", img: "assets/h2-database.png" },
+      { name: "Claude API", img: "assets/claude.png", extraLarge: true },
+      { name: "Gemini API", img: "assets/gemini.png", enlarged: true },
+      { name: "Ollama", img: "assets/ollama.png" },
+      { name: "Piston API", icon: "fa-solid fa-code" },
+      { name: "Linux", icon: "devicon-linux-plain" },
+      { name: "JUnit", icon: "devicon-junit-plain colored" }
+    ]
+  };
 
   const skillsContainer = document.getElementById("skills-wrapper");
   if (skillsContainer) {
-    skills.forEach((skill) => {
-      const skillEl = document.createElement("div");
-      skillEl.className = "skill-item";
-      skillEl.textContent = skill;
-      skillsContainer.appendChild(skillEl);
+    // Clear existing content
+    skillsContainer.innerHTML = "";
+    
+    // Create category sections
+    Object.entries(techStack).forEach(([category, skills]) => {
+      const categorySection = document.createElement("div");
+      categorySection.className = "skills-category";
+      
+      const categoryTitle = document.createElement("h3");
+      categoryTitle.className = "skills-category-title";
+      categoryTitle.textContent = category;
+      categorySection.appendChild(categoryTitle);
+      
+      const skillsGrid = document.createElement("div");
+      skillsGrid.className = "skills-grid";
+      
+      skills.forEach((skill) => {
+        const skillEl = document.createElement("div");
+        skillEl.className = "skill-item";
+        
+        let iconContent = "";
+        if (skill.img) {
+          const enlargedClass = skill.enlarged ? "enlarged-icon" : "";
+          const extraLargeClass = skill.extraLarge ? "extra-enlarged-icon" : "";
+          iconContent = `<img src="${skill.img}" alt="${skill.name}" class="skill-icon-img ${enlargedClass} ${extraLargeClass}" />`;
+        } else {
+          iconContent = `<i class="${skill.icon}"></i>`;
+        }
+
+        skillEl.innerHTML = `
+          ${iconContent}
+          <span>${skill.name}</span>
+        `;
+        skillsGrid.appendChild(skillEl);
+      });
+      
+      categorySection.appendChild(skillsGrid);
+      skillsContainer.appendChild(categorySection);
     });
   }
 
