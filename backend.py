@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Header, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 import os
@@ -253,6 +253,32 @@ async def upload_resume(resume: ResumeResponse, session_token: str = Header(None
         save_resume(resume.data)
         return {"success": True, "message": "Resume uploaded successfully"}
     raise HTTPException(status_code=400, detail="No resume data provided")
+
+@app.get("/api/resume/AtharvaZ")
+async def view_resume():
+    """Serve resume PDF for viewing in browser"""
+    resume_data = get_resume()
+    if not resume_data:
+        return HTMLResponse(content="<h1>No resume uploaded</h1>", status_code=404)
+    
+    # Handle Data URI if present
+    pdf_b64 = resume_data
+    if "base64," in resume_data:
+        pdf_b64 = resume_data.split("base64,")[1]
+        
+    try:
+        # Decode base64 to bytes
+        pdf_bytes = base64.b64decode(pdf_b64)
+        
+        # Return as PDF with inline disposition
+        return Response(
+            content=pdf_bytes, 
+            media_type="application/pdf", 
+            headers={"Content-Disposition": "inline; filename=AtharvaZ.pdf"}
+        )
+    except Exception as e:
+        print(f"Error decoding PDF: {e}")
+        return HTMLResponse(content="<h1>Error loading resume</h1>", status_code=500)
 
 # Contact Form API
 @app.post("/api/contact")

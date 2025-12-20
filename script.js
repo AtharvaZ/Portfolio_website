@@ -189,8 +189,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     revealObserver.observe(el);
   });
 
-  // API Configuration - automatically uses current domain
-  const API_URL = window.location.origin + "/api";
+  // API Configuration
+  const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+    ? "http://127.0.0.1:8000/api" 
+    : window.location.origin + "/api";
 
   const getProjects = async () => {
     try {
@@ -266,25 +268,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderProjects();
 
   // Dynamic Resume Link Update
-  const updateResumeLinks = async () => {
-    try {
-      const response = await fetch(`${API_URL}/resume`);
-      const data = await response.json();
-      if (data.success && data.data) {
-        const resumeLinks = document.querySelectorAll('a[href="resume.pdf"]');
-        resumeLinks.forEach((link) => {
-          link.href = data.data;
-          link.download = "resume.pdf";
-        });
-        console.log("Resume link updated successfully");
-      } else {
-        console.log("No resume uploaded yet");
-      }
-    } catch (error) {
-      console.log("Resume fetch error:", error);
-    }
+  const updateResumeLinks = () => {
+    const resumeLinks = document.querySelectorAll('#resume-btn');
+    resumeLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // Open the backend endpoint that serves the PDF with inline disposition
+        window.open(`${API_URL}/resume/AtharvaZ`, 'AtharvaZ_resume');
+      });
+      
+      // Update visual state
+      link.removeAttribute('href');
+      link.style.cursor = 'pointer';
+    });
   };
-  await updateResumeLinks();
+  updateResumeLinks();
 
   // Skills Rendering - Organized by Categories
   const techStack = {
