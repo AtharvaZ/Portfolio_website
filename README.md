@@ -103,4 +103,4 @@ Personal_website/
 The admin dashboard uses token-based session management. For a production environment, ensure the `.env` file is never committed to version control and consider implementing HTTPS and more robust JWT-based authentication.
 
 ---
-**Designed & Built with ❤️ by Atharva Zaveri**
+**Designed & Built by Atharva Zaveri**
