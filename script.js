@@ -33,11 +33,11 @@ if (canvas) {
       this.x = Math.random() * canvas.width;
       this.y = Math.random() * canvas.height;
       this.size = Math.random() * 2;
-      this.speedX = Math.random() * 0.5 - 0.25;
-      this.speedY = Math.random() * 0.5 - 0.25;
+      this.speedX = Math.random() * 0.2 - 0.1;
+      this.speedY = Math.random() * 0.2 - 0.1;
       // Updated colors for light theme (grey/blue)
       this.color =
-        Math.random() > 0.5 ? "rgba(59, 130, 246, 0.2)" : "rgba(0, 0, 0, 0.1)";
+        Math.random() > 0.5 ? "rgba(6, 78, 59, 0.4)" : "rgba(5, 150, 105, 0.35)";
     }
     update() {
       this.x += this.speedX;
@@ -60,7 +60,7 @@ if (canvas) {
 
   function initParticles() {
     particlesArray = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 50; i++) {
       particlesArray.push(new Particle());
     }
   }
@@ -111,8 +111,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const typeWriterElement = document.getElementById("typewriter");
   if (typeWriterElement) {
     const phrases = [
-      "am a Problem Solver",
-      "Build Meaningful Programs",
+      "Build Meaningful Programs.",
+      "am a Problem Solver.",
       "Build Creative Solutions.",
     ];
     let phraseIndex = 0;
