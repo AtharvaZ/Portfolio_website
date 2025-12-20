@@ -1,207 +1,106 @@
-# Modern Portfolio Website with Admin Dashboard
+# Atharva Zaveri - Modern Portfolio Website
 
-A stunning, modern portfolio website featuring a light theme design with a full-featured admin dashboard for managing projects and resume uploads.
+A stunning, professional portfolio website featuring a modern light theme design, integrated AI tech stack, and a full-featured admin dashboard for management.
 
 ## 🎨 Features
 
 ### Portfolio Website (`index.html`)
-- **Modern Light Theme**: Clean, professional design with a unique color palette
-- **Responsive Layout**: Fully responsive across all devices
-- **Smooth Animations**: Scroll-reveal animations and particle effects
-- **Hero Section**: Eye-catching hero with typewriter effect
-- **About Section**: Showcase your background and expertise
-- **Projects Grid**: 2x2 grid layout displaying your featured projects
-- **Skills Section**: Display your tech stack with interactive hover effects
-- **Contact Form**: Professional contact form with social media links
+- **Modern Light Theme**: Clean, professional design with a unique royal blue and vibrant orange color palette.
+- **AI-Powered Tech Stack**: Custom-styled skill section featuring AI/ML tools like FAISS, HuggingFace, and Claude/Gemini APIs with high-quality custom icons.
+- **Glassmorphism UI**: Beautiful frosted-glass navigation and project cards.
+- **Responsive Layout**: Fully optimized for mobile, tablet, and desktop viewing.
+- **Dynamic Projects**: 2x2 grid layout that pulls projects directly from the backend API.
+- **Interactive Animations**:
+  - Floating hero particles.
+  - Smooth scroll-reveal effects.
+  - Multi-stage typewriter effect for the hero tagline.
+  - Advanced hover states with 3D scaling and brightness filters.
 
 ### Admin Dashboard (`admin.html`)
-- **Secure Login**: Protected admin area with username/password authentication
-- **Project Management**: Full CRUD operations for portfolio projects
-  - ✅ Create new projects
-  - ✅ Read/View existing projects
-  - ✅ Update project details
-  - ✅ Delete projects
-- **Resume Upload**: Drag-and-drop PDF resume upload functionality
-- **Real-time Updates**: Changes reflect immediately on the portfolio
+- **Secure Management**: Protected area for the portfolio owner to manage content.
+- **Project CRUD Operations**:
+  - **Create**: Add new projects with custom tech tags and links.
+  - **Read**: View all live projects in an organized dashboard.
+  - **Update**: Edit existing project titles, descriptions, and technologies.
+  - **Delete**: Remove outdated projects instantly.
+- **Resume Management**: Drag-and-drop PDF upload that automatically updates all resume links across the site.
+- **Contact Monitoring**: Backend integration for receiving and routing contact form messages.
+
+## 🛠️ Technical Stack
+
+- **Frontend**:
+  - HTML5 (Semantic Structure)
+  - CSS3 (Custom Properties, Grid, Flexbox, Glassmorphism)
+  - Vanilla JavaScript (Async/Await, Intersection Observer, Canvas API)
+- **Backend**:
+  - **FastAPI** (Python 3.10+)
+  - **Uvicorn** (ASGI Server)
+  - **Resend SDK** (Email notifications)
+- **Data & Assets**:
+  - JSON-based file persistence for projects and resume metadata.
+  - Custom assets for high-end AI tool visualization (FAISS, Ollama, Claude, etc.).
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- A local web server (Python, Node.js, or any HTTP server)
+- Python 3.10 or higher
+- Pip (Python package manager)
+- A [Resend](https://resend.com/) API key for contact form functionality.
 
-### Installation
+### Installation & Setup
 
-1. **Clone or download** this repository to your local machine
-
-2. **Start a local web server** in the project directory:
-
-   **Using Python 3:**
+1. **Clone the repository**:
    ```bash
-   python3 -m http.server 8000
+   git clone https://github.com/AtharvaZ/Portfolio_website.git
+   cd Portfolio_website
    ```
 
-   **Using Node.js (http-server):**
+2. **Set up a virtual environment**:
    ```bash
-   npx http-server -p 8000
+   python3 -m venv venv
+   source venv/bin/activate  # Mac/Linux
+   # or
+   .\venv\Scripts\activate   # Windows
    ```
 
-3. **Open your browser** and navigate to:
-   - Portfolio: `http://localhost:8000/index.html`
-   - Admin Dashboard: `http://localhost:8000/admin.html`
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## 🔐 Admin Access
+4. **Configure environment variables**:
+   Create a `.env` file in the root directory:
+   ```env
+   ADMIN_USERNAME=your_admin_username
+   ADMIN_PASSWORD=your_secure_password
+   EMAIL_SECRET_KEY=re_your_resend_api_key
+   RECIPIENT_EMAIL=your_email@example.com
+   RESEND_FROM_EMAIL=onboarding@resend.dev
+   ```
 
-**Default Login Credentials:**
-- Username: `admin`
-- Password: `password123`
-
-> ⚠️ **Security Note**: For production use, implement proper backend authentication and change these default credentials!
+5. **Run the application**:
+   ```bash
+   python3 backend.py
+   ```
+   The site will be available at `http://localhost:8000`.
 
 ## 📁 Project Structure
 
 ```
 Personal_website/
-├── index.html          # Main portfolio page
-├── admin.html          # Admin dashboard
-├── styles.css          # Main stylesheet (light theme)
-├── admin.css           # Admin-specific styles
-├── script.js           # Portfolio functionality
-├── admin.js            # Admin dashboard logic
-└── README.md           # This file
+├── assets/             # Custom tech icons and images
+├── data/               # Persistent JSON storage
+├── index.html          # Main portfolio
+├── admin.html          # Dashboard interface
+├── styles.css          # Design system and layout
+├── script.js           # Portfolio logic & API integration
+├── admin.js            # Dashboard CRUD logic
+├── backend.py          # FastAPI server & Email handling
+└── requirements.txt    # Python dependencies
 ```
 
-## 🎯 Customization Guide
-
-### 1. Update Personal Information
-
-**In `index.html`:**
-- Line 49: Replace `"Your Name"` with your actual name
-- Line 66: Update `[Your Background]` with your background
-- Lines 110-113: Add your social media links
-
-### 2. Customize Colors
-
-**In `styles.css` (lines 6-18):**
-```css
-:root {
-    --accent-primary: #3B82F6;    /* Primary color */
-    --accent-secondary: #F97316;  /* Secondary color */
-    --accent-tertiary: #1F2937;   /* Tertiary color */
-}
-```
-
-### 3. Add/Edit Projects
-
-**Option A: Using Admin Dashboard (Recommended)**
-1. Navigate to `admin.html`
-2. Login with credentials
-3. Use the "Add New Project" form
-4. Fill in project details and submit
-
-**Option B: Manually in Code**
-
-Edit the `defaultProjects` array in both `script.js` (line 153) and `admin.js` (line 6):
-
-```javascript
-{
-    id: 1,
-    title: "Your Project Title",
-    desc: "Project description",
-    tech: ["React", "Node.js", "MongoDB"],
-    links: { 
-        github: "https://github.com/yourusername/project",
-        demo: "https://yourproject.com"
-    }
-}
-```
-
-### 4. Update Skills
-
-**In `script.js` (lines 239-242):**
-```javascript
-const skills = [
-    "HTML5", "CSS3", "JavaScript", "React.js", 
-    "Node.js", "Your", "Custom", "Skills"
-];
-```
-
-## 💾 Data Storage
-
-The website uses a **FastAPI backend** to persist data:
-- Projects are stored in `data/projects.json` on the server
-- Resume is stored in `data/resume.json` on the server
-- Admin authentication uses session tokens (stored in browser sessionStorage)
-
-> 📝 **Note**: All data is stored on the server. The frontend fetches data from the backend API. See `README_BACKEND.md` for backend setup instructions.
-
-## 🎨 Design Philosophy
-
-This portfolio follows modern web design principles:
-- **Clean & Minimal**: Focus on content, not clutter
-- **Professional**: Suitable for job applications and client presentations
-- **Interactive**: Engaging hover effects and smooth animations
-- **Accessible**: Semantic HTML and proper contrast ratios
-- **Performance**: Optimized for fast loading
-
-## 🔧 Technical Stack
-
-- **HTML5**: Semantic markup
-- **CSS3**: Modern styling with CSS Grid and Flexbox
-- **Vanilla JavaScript**: No frameworks, pure JS
-- **FastAPI Backend**: Server-side data persistence and API
-- **Canvas API**: Particle animation effects
-- **Intersection Observer API**: Scroll-reveal animations
-
-## 📱 Browser Support
-
-- ✅ Chrome (latest)
-- ✅ Firefox (latest)
-- ✅ Safari (latest)
-- ✅ Edge (latest)
-
-## 🚀 Deployment
-
-### GitHub Pages
-1. Push your code to a GitHub repository
-2. Go to Settings → Pages
-3. Select your branch and save
-4. Your site will be live at `https://yourusername.github.io/repository-name`
-
-### Netlify
-1. Drag and drop your project folder to [Netlify Drop](https://app.netlify.com/drop)
-2. Your site will be live instantly with a custom URL
-
-### Vercel
-1. Install Vercel CLI: `npm i -g vercel`
-2. Run `vercel` in your project directory
-3. Follow the prompts
-
-## 🎓 Learning Resources
-
-This project demonstrates:
-- Modern CSS techniques (Grid, Flexbox, Custom Properties)
-- JavaScript DOM manipulation
-- RESTful API integration
-- Form handling and validation
-- File upload with FileReader API
-- Backend API development with FastAPI
-- Server-side data persistence
-- Responsive design patterns
-- Animation and transitions
-
-## 📄 License
-
-This project is open source and available for personal and commercial use.
-
-## 🤝 Contributing
-
-Feel free to fork this project and customize it for your own use!
-
-## 📧 Support
-
-If you encounter any issues or have questions, please open an issue in the repository.
+## 🔐 Security Note
+The admin dashboard uses token-based session management. For a production environment, ensure the `.env` file is never committed to version control and consider implementing HTTPS and more robust JWT-based authentication.
 
 ---
-
-**Made with ❤️ for developers who want to showcase their work beautifully**
+**Designed & Built with ❤️ by Atharva Zaveri**
