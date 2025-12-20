@@ -212,11 +212,12 @@ img {
     position: absolute;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(6, 78, 59, 0.2) 0%, rgba(5, 150, 105, 0.1) 50%, rgba(232, 238, 236, 0) 80%);
+    background: radial-gradient(circle, rgba(6, 78, 59, 0.15) 0%, rgba(5, 150, 105, 0.05) 40%, rgba(232, 238, 236, 0) 100%);
     top: -150px;
     right: -150px;
     pointer-events: none;
     animation: pulse 12s infinite alternate;
+    filter: blur(60px); /* Extra softening */
 }
 
 #hero-particles {
@@ -233,11 +234,12 @@ img {
     position: absolute;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 50%, rgba(232, 238, 236, 0) 80%);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 40%, rgba(232, 238, 236, 0) 100%);
     bottom: -150px;
     left: -150px;
     pointer-events: none;
     animation: pulse 18s infinite alternate-reverse;
+    filter: blur(60px); /* Extra softening */
 }
 
 @keyframes pulse {
