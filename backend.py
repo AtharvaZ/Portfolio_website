@@ -252,21 +252,25 @@ async def fix_sequence(session_token: str = Header(None, alias="X-Session-Token"
         return {"success": False, "message": "This operation is only required for PostgreSQL (SQLite handles autocrement automatically)."}
 
     try:
-        # Reset sequence for projects table
-        
-        # Check current max
+        # 1. Get current max ID for reporting
         result = db.execute(text("SELECT MAX(id) FROM projects"))
-        max_id = result.scalar()
-        
-        if max_id is None:
-             return {"success": False, "message": "Projects table is empty, no sequence to fix."}
+        current_max = result.scalar() or 0
 
-        # Reset sequence
-        # 'projects_id_seq' is the standard naming convention for serial/identity columns 
-        db.execute(text(f"SELECT setval('projects_id_seq', {max_id})"))
+        # 2. Reset sequence
+        # Using user requested query: MAX(id) + 1
+        # This bumps the sequence past the current max to ensure no collisions
+        query = text("SELECT setval('projects_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM projects))")
+        seq_result = db.execute(query)
+        new_val = seq_result.scalar()
+        
         db.commit()
         
-        return {"success": True, "message": f"Sequence reset. Next ID will be {max_id + 1}"}
+        return {
+            "success": True, 
+            "current_max_id": current_max,
+            "new_sequence_value": new_val,
+            "message": f"Sequence reset. Max ID was {current_max}. New sequence value is {new_val}."
+        }
         
     except Exception as e:
         print(f"Error resetting sequence: {e}")
