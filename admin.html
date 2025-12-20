@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="login-screen" class="full-screen-center">
+        <form id="login-form" class="admin-card">
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <input type="text" id="username" placeholder="Username" required class="form-input">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password" required class="form-input">
+            </div>
+            <button type="submit" class="form-btn">Login</button>
+            <p id="login-error" class="error-text" style="display: none;">Invalid credentials</p>
+        </form>
+    </div>
+
+    <div id="admin-dashboard" class="container section-padding" style="display: none;">
+        <header class="admin-header">
+            <h1>Project Manager</h1>
+            <button id="logout-btn" class="btn-secondary">Logout</button>
+        </header>
+
+        <section class="admin-card" style="margin-bottom: 3rem;">
+            <h3>Manage Resume</h3>
+            <div id="resume-drop-zone" class="drop-zone">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Drag & Drop Resume (PDF) or click to browse</p>
+                <input type="file" id="resume-upload" accept=".pdf" style="display: none;">
+            </div>
+            <p id="resume-status" class="status-text"></p>
+        </section>
+
+        <section class="admin-card">
+            <h3>Add New Project</h3>
+            <form id="project-form">
+                <input type="hidden" id="project-id">
+                <div class="form-group">
+                    <input type="text" id="project-title" placeholder="Project Title" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <textarea id="project-desc" placeholder="Description" required class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="project-tech" placeholder="Tech Stack (comma separated)" required class="form-input">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="project-github" placeholder="GitHub Link" class="form-input">
+                    <input type="text" id="project-demo" placeholder="Live Demo Link" class="form-input">
+                </div>
+                <button type="submit" id="submit-project" class="form-btn">Add Project</button>
+                <button type="button" id="cancel-edit" class="btn-secondary" style="display: none;">Cancel</button>
+            </form>
+        </section>
+
+        <section class="admin-project-list">
+            <h3>Existing Projects</h3>
+            <div id="projects-list-container" class="admin-grid">
+                <!-- Projects will be listed here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

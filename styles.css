@@ -369,21 +369,14 @@ img {
 */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Increased min-width */
+    grid-template-columns: repeat(2, 1fr); /* 2 columns side by side */
     gap: 3rem;
-    grid-auto-flow: dense; /* Helps fill gaps */
 }
 
-/* Asymmetrical Layout Logic for Desktop */
-@media (min-width: 900px) {
-    .project-card:nth-child(1) {
-        grid-column: span 2;
+@media (max-width: 900px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
     }
-    
-    .project-card:nth-child(4) {
-        grid-column: span 2;
-    }
-    /* You can add more complex patterns here */
 }
 
 .project-card {
@@ -394,9 +387,7 @@ img {
     transition: transform 0.4s ease, box-shadow 0.4s ease;
     /* Removed 3D tilt perspective for cleaner feel, using subtle shadow instead */
     position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    aspect-ratio: 16 / 10; /* Enforce rectangular shape */
     box-shadow: var(--shadow-sm);
 }
 
@@ -556,7 +547,8 @@ img {
 }
 
 .form-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted);
+    opacity: 0.5;
 }
 
 .form-btn {

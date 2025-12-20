@@ -137,6 +137,104 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(type, 1500);
     }
 
+    // Unified observer for all reveal elements
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                entry.target.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    // Project Data & Injection
+    const defaultProjects = [
+        {
+            id: 1,
+            title: "Project Title 01",
+            desc: "A brief description of the project, including the problem solved and the key features implemented.",
+            tech: ["React", "Node.js", "WebGL"],
+            links: { github: "#", demo: "#" }
+        },
+        {
+            id: 2,
+            title: "Project Title 02",
+            desc: "Description for the second project. Highlight unique challenges or specific technologies you mastered.",
+            tech: ["Vue.js", "Three.js", "Firebase"],
+            links: { github: "#", demo: "#" }
+        },
+        {
+            id: 3,
+            title: "Project Title 03",
+            desc: "A creative coding experiment or a full-stack application. Demonstrates versatility and attention to detail.",
+            tech: ["Vanilla JS", "GSAP", "CSS Grid"],
+            links: { github: "#", demo: "#" }
+        },
+        {
+            id: 4,
+            title: "Project Title 04",
+            desc: "Interactive dashboard or data visualization tool. Shows ability to handle complex data and UI states.",
+            tech: ["D3.js", "TypeScript", "Next.js"],
+            links: { github: "#", demo: "#" }
+        }
+    ];
+
+    const getProjects = () => {
+        const saved = localStorage.getItem('portfolio_projects');
+        return saved ? JSON.parse(saved) : defaultProjects;
+    };
+
+    const renderProjects = () => {
+        const projectsContainer = document.querySelector('.projects-grid');
+        if (!projectsContainer) return;
+        
+        projectsContainer.innerHTML = '';
+        const projects = getProjects();
+        
+        projects.forEach(project => {
+            const card = document.createElement('div');
+            card.className = 'project-card scroll-reveal';
+            card.innerHTML = `
+                <div class="project-img-placeholder">
+                    <span>${project.title} Screenshot</span>
+                </div>
+                <div class="project-info">
+                    <h3>${project.title}</h3>
+                    <p>${project.desc}</p>
+                    <div class="tech-stack">
+                        ${project.tech.map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                    </div>
+                    <div class="project-links">
+                        <a href="${project.links.github}" class="project-link"><i class="fa-brands fa-github"></i> Code</a>
+                        <a href="${project.links.demo}" class="project-link"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+                    </div>
+                </div>
+            `;
+            projectsContainer.appendChild(card);
+            
+            // Set initial hidden state for observer
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(50px)';
+            revealObserver.observe(card);
+        });
+    };
+
+    renderProjects();
+
+    // Dynamic Resume Link Update
+    const updateResumeLinks = () => {
+        const savedResume = localStorage.getItem('portfolio_resume_data');
+        if (savedResume) {
+            const resumeLinks = document.querySelectorAll('a[href="resume.pdf"]');
+            resumeLinks.forEach(link => {
+                link.href = savedResume;
+            });
+        }
+    };
+    updateResumeLinks();
+
     // Skills Rendering
     const skills = [
         "HTML5", "CSS3", "JavaScript", "React.js", 
@@ -172,9 +270,12 @@ const Observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 document.querySelectorAll('.scroll-reveal').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(50px)';
-    Observer.observe(el);
+    // Check if it's already being handled by renderProjects or other logic
+    if (el.style.opacity === '') {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(50px)';
+        Observer.observe(el);
+    }
 });
 
 // Removed 3D Tilt for cleaner performance
