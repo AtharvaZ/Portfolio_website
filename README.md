@@ -5,8 +5,8 @@ A stunning, professional portfolio website featuring a modern light theme design
 ## 🎨 Features
 
 ### Portfolio Website (`index.html`)
-- **Modern Light Theme**: Clean, professional design with a unique royal blue and vibrant orange color palette.
-- **AI-Powered Tech Stack**: Custom-styled skill section featuring AI/ML tools like FAISS, HuggingFace, and Claude/Gemini APIs with high-quality custom icons.
+- **Premium Cyber-Nature Theme**: Sophisticated light theme featuring a unique dark-to-light forest green gradient palette (Emerald, Mint, and Forest Green).
+- **Subtle Sage Background**: Custom-tinted background replacing sterile white for a more organic, high-end feel.
 - **Glassmorphism UI**: Beautiful frosted-glass navigation and project cards.
 - **Responsive Layout**: Fully optimized for mobile, tablet, and desktop viewing.
 - **Dynamic Projects**: 2x2 grid layout that pulls projects directly from the backend API.
@@ -38,7 +38,7 @@ A stunning, professional portfolio website featuring a modern light theme design
   - **Resend SDK** (Email notifications)
 - **Data & Assets**:
   - JSON-based file persistence for projects and resume metadata.
-  - Custom assets for high-end AI tool visualization (FAISS, Ollama, Claude, etc.).
+  - Custom assets for high-end AI tool visualization (FAISS, Ollama, Claude, Gemini API, etc.) with uniform card styling.
 
 ## 🚀 Getting Started
 
