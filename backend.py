@@ -493,8 +493,10 @@ async def submit_contact_form(form: ContactForm):
                 <p style="color: #666; font-size: 12px;">This email was sent from your portfolio contact form.</p>
                 """,
             }
-
+            
+            print(f"Attempting to send email to: {RECIPIENT_EMAIL}")
             email_response = resend.Emails.send(params)
+            print(f"Resend API Response: {email_response}")
 
             return {
                 "success": True,
