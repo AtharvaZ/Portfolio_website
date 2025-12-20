@@ -3,6 +3,7 @@
 
 # Data storage
 data/
+*.db
 
 # Python
 __pycache__/
