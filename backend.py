@@ -11,7 +11,7 @@ import base64
 from pathlib import Path
 from dotenv import load_dotenv
 import secrets
-from sqlalchemy import create_engine, Column, Integer, String, Text, select
+from sqlalchemy import create_engine, Column, Integer, String, Text, select, text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 import subprocess
 
@@ -235,6 +235,43 @@ async def verify_admin(session_token: str = Header(None, alias="X-Session-Token"
         raise HTTPException(status_code=401, detail="Session token required")
     verify_session(session_token)
     return {"success": True}
+
+# TEMPORARY: Fix sequence endpoint
+@app.post("/api/admin/fix-sequence")
+async def fix_sequence(session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """
+    TEMPORARY: Fix PostgreSQL sequence out of sync error.
+    Run this once after migration if you get duplicate key errors.
+    """
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    
+    # Check if we are on Postgres
+    if "sqlite" in str(engine.url):
+        return {"success": False, "message": "This operation is only required for PostgreSQL (SQLite handles autocrement automatically)."}
+
+    try:
+        # Reset sequence for projects table
+        
+        # Check current max
+        result = db.execute(text("SELECT MAX(id) FROM projects"))
+        max_id = result.scalar()
+        
+        if max_id is None:
+             return {"success": False, "message": "Projects table is empty, no sequence to fix."}
+
+        # Reset sequence
+        # 'projects_id_seq' is the standard naming convention for serial/identity columns 
+        db.execute(text(f"SELECT setval('projects_id_seq', {max_id})"))
+        db.commit()
+        
+        return {"success": True, "message": f"Sequence reset. Next ID will be {max_id + 1}"}
+        
+    except Exception as e:
+        print(f"Error resetting sequence: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to reset sequence: {str(e)}")
 
 # Projects API
 @app.get("/api/projects")
