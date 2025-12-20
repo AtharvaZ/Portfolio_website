@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).parent
 # CORS middleware to allow frontend to communicate with backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your actual domain
+    allow_origins=["www.azaveri.dev"],  # In production, replace with your actual domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -473,7 +473,7 @@ async def submit_contact_form(form: ContactForm):
                 )
             
             params = {
-                "from": f"Personal Website Contact <{RESEND_FROM_EMAIL}>",
+                "from": RESEND_FROM_EMAIL,
                 "to": [RECIPIENT_EMAIL],
                 "subject": f"New Contact Form Submission from {form.name}",
                 "html": f"""
