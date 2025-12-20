@@ -447,7 +447,7 @@ img {
 .project-card:hover .project-info h3,
 .project-card:hover .project-info p,
 .project-card:hover .tech-stack {
-    opacity: 0.2;
+    opacity: 0.05;
 }
 
 /* Removed .project-img-placeholder */
