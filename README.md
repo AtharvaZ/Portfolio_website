@@ -128,12 +128,12 @@ const skills = [
 
 ## 💾 Data Storage
 
-The website uses **localStorage** to persist data:
-- `portfolio_projects`: Stores all project data
-- `portfolio_resume_data`: Stores uploaded resume (base64 encoded)
-- `portfolio_admin_auth`: Session authentication token
+The website uses a **FastAPI backend** to persist data:
+- Projects are stored in `data/projects.json` on the server
+- Resume is stored in `data/resume.json` on the server
+- Admin authentication uses session tokens (stored in browser sessionStorage)
 
-> 📝 **Note**: Data is stored locally in the browser. Clearing browser data will reset everything to defaults.
+> 📝 **Note**: All data is stored on the server. The frontend fetches data from the backend API. See `README_BACKEND.md` for backend setup instructions.
 
 ## 🎨 Design Philosophy
 
@@ -149,7 +149,7 @@ This portfolio follows modern web design principles:
 - **HTML5**: Semantic markup
 - **CSS3**: Modern styling with CSS Grid and Flexbox
 - **Vanilla JavaScript**: No frameworks, pure JS
-- **LocalStorage API**: Client-side data persistence
+- **FastAPI Backend**: Server-side data persistence and API
 - **Canvas API**: Particle animation effects
 - **Intersection Observer API**: Scroll-reveal animations
 
@@ -182,9 +182,11 @@ This portfolio follows modern web design principles:
 This project demonstrates:
 - Modern CSS techniques (Grid, Flexbox, Custom Properties)
 - JavaScript DOM manipulation
-- LocalStorage API usage
+- RESTful API integration
 - Form handling and validation
 - File upload with FileReader API
+- Backend API development with FastAPI
+- Server-side data persistence
 - Responsive design patterns
 - Animation and transitions
 

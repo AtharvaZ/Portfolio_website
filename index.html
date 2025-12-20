@@ -1,141 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portfolio | Creative Developer</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- FontAwesome for Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="logo">
-            <span class="gradient-text">PORTFOLIO</span>
-        </div>
-        <ul class="nav-links">
-            <li><a href="#about" class="nav-link" data-link>About</a></li>
-            <li><a href="#projects" class="nav-link" data-link>Projects</a></li>
-            <li><a href="#skills" class="nav-link" data-link>Skills</a></li>
-            <li><a href="#contact" class="nav-link" data-link>Contact</a></li>
-        </ul>
-        <div class="menu-toggle">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </div>
+      <div class="logo">
+        <span class="gradient-text">PORTFOLIO</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#about" class="nav-link" data-link>About</a></li>
+        <li><a href="#projects" class="nav-link" data-link>Projects</a></li>
+        <li><a href="#skills" class="nav-link" data-link>Skills</a></li>
+        <li><a href="#contact" class="nav-link" data-link>Contact</a></li>
+      </ul>
+      <div class="menu-toggle">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </div>
     </nav>
 
     <main>
-        <!-- Hero Section -->
-        <section id="hero" class="hero">
-            <canvas id="hero-particles"></canvas>
-            <div class="hero-bg-accent"></div>
-            <div class="hero-bg-accent-2"></div>
-            
-            <div class="hero-content">
-                <p class="hero-eyebrow" data-animate>Hello, I am</p>
-                <h1 class="hero-title" data-animate>
-                    <span class="gradient-text glitch" data-text="Your Name">Your Name</span>
-                </h1>
-                <p class="hero-tagline" data-animate>
-                    I build <span id="typewriter"></span>
-                </p>
-                <a href="#projects" class="btn-primary" data-animate>View Work</a>
-            </div>
-        </section>
+      <!-- Hero Section -->
+      <section id="hero" class="hero">
+        <canvas id="hero-particles"></canvas>
+        <div class="hero-bg-accent"></div>
+        <div class="hero-bg-accent-2"></div>
 
-        <!-- About Section -->
-        <section id="about" class="section-padding">
-            <div class="container about-grid">
-                <div class="about-card scroll-reveal">
-                    <h2 class="section-title">About Me</h2>
-                    <div class="about-text">
-                        <!-- PLACEHOLDER: Add your bio here -->
-                        <p>I'm a passionate creative developer focused on building immersive digital experiences. I blend technical expertise with design sensibility to create unique, memorable websites.</p>
-                        <p>With a background in [Your Background], I specialize in turning complex problems into simple, beautiful, and intuitive interface designs.</p>
-                    </div>
-                </div>
-                <div class="about-visual scroll-reveal">
-                    <!-- PLACEHOLDER: Image or Creative Visual -->
-                    <div style="width: 100%; height: 400px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; position: relative;">
-                        <i class="fa-solid fa-code" style="font-size: 5rem; color: var(--accent-secondary); opacity: 0.5;"></i>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="hero-content">
+          <p class="hero-eyebrow" data-animate>Hello, I am</p>
+          <h1 class="hero-title" data-animate>
+            <span class="gradient-text glitch" data-text="Your Name"
+              >Atharva Zaveri</span
+            >
+          </h1>
+          <p class="hero-tagline" data-animate>
+            I <span id="typewriter"></span>
+          </p>
+          <a href="#projects" class="btn-primary" data-animate style="opacity: 0; transform: translateY(20px);">View Work</a>
+        </div>
+      </section>
 
-        <!-- Projects Section -->
-        <section id="projects" class="section-padding">
-            <div class="container">
-                <h2 class="section-title scroll-reveal">Featured Projects</h2>
-                <div class="projects-grid">
-                    <!-- Projects will be injected via JS from script.js -->
-                </div>
+      <!-- About Section -->
+      <section id="about" class="section-padding">
+        <div class="container">
+          <div class="about-card scroll-reveal" style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-text">
+              <p>
+                I'm a CS grad student at ASU building AI-powered tools that
+                solve real problems. From real-time safety systems to semantic
+                search engines, I focus on making complex AI accessible and
+                practical.
+              </p>
+              <p>
+                I specialize in backend development and AI integration, turning
+                research-grade models into production systems. Always exploring
+                new ways to build technology that makes a difference.
+              </p>
+              <a href="resume.pdf" class="btn-primary" id="resume-btn" target="_blank" rel="noopener noreferrer" style="margin-top: 1.5rem; display: inline-block; opacity: 1; transform: translateY(0);">Resume</a>
             </div>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        <!-- Skills Section -->
-        <section id="skills" class="section-padding">
-            <div class="container" style="text-align: center;">
-                <h2 class="section-title scroll-reveal">Tech Stack</h2>
-                <p class="scroll-reveal" style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Technologies and tools I work with to bring ideas to life.</p>
-                
-                <div class="skills-container scroll-reveal" id="skills-wrapper">
-                    <!-- Skills will be injected via JS -->
-                </div>
-            </div>
-        </section>
+      <!-- Projects Section -->
+      <section id="projects" class="section-padding">
+        <div class="container" style="text-align: center;">
+          <h2 class="section-title scroll-reveal">Featured Projects</h2>
+          <div class="projects-grid">
+            <!-- Projects will be injected via JS from script.js -->
+          </div>
+        </div>
+      </section>
 
-        <!-- Contact Section -->
-        <section id="contact" class="section-padding">
-            <div class="container contact-wrapper">
-                <div class="contact-info scroll-reveal">
-                    <h2 class="section-title">Let's Connect</h2>
-                    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem;">
-                        Interested in working together? Have a question or just want to say hi? Drop me a message and I'll get back to you as soon as possible.
-                    </p>
-                    
-                    <div class="social-links">
-                        <a href="#" class="social-icon"><i class="fa-brands fa-github"></i></a>
-                        <a href="#" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#" class="social-icon"><i class="fa-brands fa-twitter"></i></a>
-                        <a href="#" class="social-icon"><i class="fa-solid fa-envelope"></i></a>
-                    </div>
-                </div>
-                
-                <form class="contact-form scroll-reveal">
-                    <div class="form-group">
-                        <input type="text" class="form-input" placeholder="Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" class="form-input" placeholder="Email" required>
-                    </div>
-                    <div class="form-group">
-                        <textarea class="form-input" rows="4" placeholder="Message" required></textarea>
-                    </div>
-                    <button type="submit" class="form-btn">Send Message</button>
-                </form>
+      <!-- Skills Section -->
+      <section id="skills" class="section-padding">
+        <div class="container" style="text-align: center">
+          <h2 class="section-title scroll-reveal">Tech Stack</h2>
+          <p
+            class="scroll-reveal"
+            style="color: var(--text-muted); max-width: 600px; margin: 0 auto"
+          >
+            Technologies and tools I work with to bring ideas to life.
+          </p>
+
+          <div class="skills-container scroll-reveal" id="skills-wrapper">
+            <!-- Skills will be injected via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="section-padding">
+        <div class="container contact-wrapper">
+          <div class="contact-info scroll-reveal">
+            <h2 class="section-title">Let's Connect</h2>
+            <p
+              style="
+                color: var(--text-muted);
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+              "
+            >
+              Interested in working together? Have a question or just want to
+              say hi? Drop me a message and I'll get back to you as soon as
+              possible.
+            </p>
+
+            <div class="social-links">
+              <a href="#" class="social-icon"
+                ><i class="fa-brands fa-github"></i
+              ></a>
+              <a href="#" class="social-icon"
+                ><i class="fa-brands fa-linkedin-in"></i
+              ></a>
+              <a href="#" class="social-icon"
+                ><i class="fa-brands fa-twitter"></i
+              ></a>
+              <a href="#" class="social-icon"
+                ><i class="fa-solid fa-envelope"></i
+              ></a>
             </div>
-        </section>
+          </div>
+
+          <form class="contact-form scroll-reveal">
+            <div class="form-group">
+              <input
+                type="text"
+                class="form-input"
+                placeholder="Name"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <input
+                type="email"
+                class="form-input"
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <textarea
+                class="form-input"
+                rows="4"
+                placeholder="Message"
+                required
+              ></textarea>
+            </div>
+            <button type="submit" class="form-btn">Send Message</button>
+          </form>
+        </div>
+      </section>
     </main>
 
     <footer>
-        <div class="container">
-            <p style="color: var(--text-muted);">© 2024 Portfolio. Designed & Built with Creativity.</p>
-        </div>
+      <div class="container">
+        <p style="color: var(--text-muted)">
+          © 2024 Portfolio. Designed & Built with Creativity.
+        </p>
+      </div>
     </footer>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
