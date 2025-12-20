@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import secrets
 from sqlalchemy import create_engine, Column, Integer, String, Text, select
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
+import subprocess
 
 # Load environment variables
 load_dotenv()
@@ -67,6 +68,66 @@ class SiteConfigModel(Base):
 
 # Initialize Tables
 Base.metadata.create_all(bind=engine)
+
+def attempt_auto_migration():
+    """
+    Automatically migrate data from SQLite to Postgres on first run in production
+    """
+    # 1. Check if we are in production (PostgreSQL)
+    if not DATABASE_URL or DATABASE_URL.startswith("sqlite"):
+        return
+        
+    # 2. Check if we have source data locally (portfolio.db)
+    # Note: On Render, you must commit portfolio.db to your repo for this to succeed
+    if not os.path.exists(DB_PATH):
+        print(f"Auto-migration: Source DB {DB_PATH} not found. Skipping.")
+        return
+        
+    try:
+        # 3. Check if destination database is empty
+        db = SessionLocal()
+        try:
+            count = db.query(ProjectModel).count()
+        finally:
+            db.close()
+        
+        if count > 0:
+            print(f"Auto-migration: Database already has {count} projects. Skipping.")
+            return
+            
+        print("Auto-migration: Database empty. Starting migration from SQLite...")
+        
+        # 4. Run migration script
+        migration_script = BASE_DIR / "migrate_sqlite_to_postgres.py"
+        if not migration_script.exists():
+            print(f"Auto-migration: Script {migration_script} not found!")
+            return
+
+        # Execute migration script
+        # passing os.environ to ensure DATABASE_URL is available to the subprocess
+        result = subprocess.run(
+            ["python3", str(migration_script)],
+            capture_output=True,
+            text=True,
+            env=os.environ.copy()
+        )
+        
+        if result.returncode == 0:
+            print("Auto-migration: SUCCESS")
+            print("------------------------------------------")
+            print(result.stdout)
+            print("------------------------------------------")
+        else:
+            print("Auto-migration: FAILED")
+            print("------------------------------------------")
+            print(result.stderr)
+            print("------------------------------------------")
+            
+    except Exception as e:
+        print(f"Auto-migration error: {e}")
+
+# Run auto-migration check on startup
+attempt_auto_migration()
 
 # Admin credentials (should be in .env in production)
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
