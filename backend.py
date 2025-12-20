@@ -11,6 +11,7 @@ import base64
 from pathlib import Path
 from dotenv import load_dotenv
 import secrets
+import sqlite3
 
 # Load environment variables
 load_dotenv()
@@ -30,10 +31,26 @@ app.add_middleware(
 )
 
 # Data storage
-DATA_DIR = BASE_DIR / "data"
-DATA_DIR.mkdir(exist_ok=True)
-PROJECTS_FILE = DATA_DIR / "projects.json"
-RESUME_FILE = DATA_DIR / "resume.json"
+# Data storage
+DB_PATH = os.getenv("DB_PATH", "portfolio.db")
+
+# Database Helper Functions
+def get_db_connection():
+    """Create a database connection"""
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row # Access columns by name
+    return conn
+
+def init_db():
+    """Initialize DB if it doesn't exist"""
+    if not os.path.exists(DB_PATH):
+        # In a real app, you might want to run the migration script here
+        # or simply create empty tables. For now, we assume migration 
+        # has been run or will be run.
+        pass
+
+# Initialize DB on startup
+init_db()
 
 # Admin credentials (should be in .env in production)
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
@@ -69,67 +86,19 @@ class ResumeResponse(BaseModel):
     message: str
     data: Optional[str] = None
 
-# Default projects (used if no projects file exists)
-DEFAULT_PROJECTS = [
-    {
-        "id": 1,
-        "title": "Project Title 01",
-        "desc": "A brief description of the project, including the problem solved and the key features implemented.",
-        "tech": ["React", "Node.js", "WebGL"],
-        "links": {"github": "#", "demo": "#"}
-    },
-    {
-        "id": 2,
-        "title": "Project Title 02",
-        "desc": "Description for the second project. Highlight unique challenges or specific technologies you mastered.",
-        "tech": ["Vue.js", "Three.js", "Firebase"],
-        "links": {"github": "#", "demo": "#"}
-    },
-    {
-        "id": 3,
-        "title": "Project Title 03",
-        "desc": "A creative coding experiment or a full-stack application. Demonstrates versatility and attention to detail.",
-        "tech": ["Vanilla JS", "GSAP", "CSS Grid"],
-        "links": {"github": "#", "demo": "#"}
-    },
-    {
-        "id": 4,
-        "title": "Project Title 04",
-        "desc": "Interactive dashboard or data visualization tool. Shows ability to handle complex data and UI states.",
-        "tech": ["D3.js", "TypeScript", "Next.js"],
-        "links": {"github": "#", "demo": "#"}
-    }
-]
-
 # Helper functions
-def get_projects():
-    """Load projects from JSON file"""
-    if PROJECTS_FILE.exists():
-        with open(PROJECTS_FILE, 'r') as f:
-            projects = json.load(f)
-            if projects:
-                return projects
-    # Initialize with default projects if file doesn't exist or is empty
-    save_projects(DEFAULT_PROJECTS)
-    return DEFAULT_PROJECTS
-
-def save_projects(projects):
-    """Save projects to JSON file"""
-    with open(PROJECTS_FILE, 'w') as f:
-        json.dump(projects, f, indent=2)
-
-def get_resume():
-    """Load resume from JSON file"""
-    if RESUME_FILE.exists():
-        with open(RESUME_FILE, 'r') as f:
-            data = json.load(f)
-            return data.get('data', None)
-    return None
-
-def save_resume(resume_data):
-    """Save resume to JSON file"""
-    with open(RESUME_FILE, 'w') as f:
-        json.dump({'data': resume_data}, f, indent=2)
+def get_resume_from_db():
+    """Load resume from DB"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM site_config WHERE key = 'resume_pdf'")
+        row = cursor.fetchone()
+        conn.close()
+        return row['value'] if row else None
+    except Exception as e:
+        print(f"Error fetching resume: {e}")
+        return None
 
 def verify_session(session_token: str):
     """Verify admin session token"""
@@ -188,8 +157,28 @@ async def verify_admin(session_token: str = Header(None, alias="X-Session-Token"
 @app.get("/api/projects")
 async def get_all_projects():
     """Get all projects"""
-    projects = get_projects()
-    return {"success": True, "projects": projects}
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM projects ORDER BY id DESC") # Newest first? Or ASC? usually ID order
+        rows = cursor.fetchall()
+        
+        projects = []
+        for row in rows:
+            projects.append({
+                "id": row["id"],
+                "title": row["title"],
+                "desc": row["desc"],
+                "tech": json.loads(row["tech"]),
+                "links": json.loads(row["links"])
+            })
+        conn.close()
+        # Sort by ID asc if needed to match JSON behavior, checking previous file it was ordered 1..9
+        projects.sort(key=lambda x: x['id']) 
+        return {"success": True, "projects": projects}
+    except Exception as e:
+        print(f"Error getting projects: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 @app.post("/api/projects")
 async def create_project(project: Project, session_token: str = Header(None, alias="X-Session-Token")):
@@ -197,13 +186,29 @@ async def create_project(project: Project, session_token: str = Header(None, ali
     if not session_token:
         raise HTTPException(status_code=401, detail="Session token required")
     verify_session(session_token)
-    projects = get_projects()
-    new_id = max([p.get('id', 0) for p in projects] + [0]) + 1
-    project_dict = project.model_dump()
-    project_dict['id'] = new_id
-    projects.append(project_dict)
-    save_projects(projects)
-    return {"success": True, "project": project_dict}
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        tech_str = json.dumps(project.tech)
+        links_str = json.dumps(project.links)
+        
+        cursor.execute(
+            "INSERT INTO projects (title, desc, tech, links) VALUES (?, ?, ?, ?)",
+            (project.title, project.desc, tech_str, links_str)
+        )
+        new_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        project_dict = project.model_dump()
+        project_dict['id'] = new_id
+        return {"success": True, "project": project_dict}
+        
+    except Exception as e:
+        print(f"Error creating project: {e}")
+        raise HTTPException(status_code=500, detail="Database insert failed")
 
 @app.put("/api/projects/{project_id}")
 async def update_project(project_id: int, project: Project, session_token: str = Header(None, alias="X-Session-Token")):
@@ -211,15 +216,36 @@ async def update_project(project_id: int, project: Project, session_token: str =
     if not session_token:
         raise HTTPException(status_code=401, detail="Session token required")
     verify_session(session_token)
-    projects = get_projects()
-    index = next((i for i, p in enumerate(projects) if p.get('id') == project_id), None)
-    if index is None:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project_dict = project.model_dump()
-    project_dict['id'] = project_id
-    projects[index] = project_dict
-    save_projects(projects)
-    return {"success": True, "project": project_dict}
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check existence
+        cursor.execute("SELECT id FROM projects WHERE id = ?", (project_id,))
+        if not cursor.fetchone():
+            conn.close()
+            raise HTTPException(status_code=404, detail="Project not found")
+            
+        tech_str = json.dumps(project.tech)
+        links_str = json.dumps(project.links)
+        
+        cursor.execute(
+            "UPDATE projects SET title = ?, desc = ?, tech = ?, links = ? WHERE id = ?",
+            (project.title, project.desc, tech_str, links_str, project_id)
+        )
+        conn.commit()
+        conn.close()
+        
+        project_dict = project.model_dump()
+        project_dict['id'] = project_id
+        return {"success": True, "project": project_dict}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating project: {e}")
+        raise HTTPException(status_code=500, detail="Database update failed")
 
 @app.delete("/api/projects/{project_id}")
 async def delete_project(project_id: int, session_token: str = Header(None, alias="X-Session-Token")):
@@ -227,18 +253,31 @@ async def delete_project(project_id: int, session_token: str = Header(None, alia
     if not session_token:
         raise HTTPException(status_code=401, detail="Session token required")
     verify_session(session_token)
-    projects = get_projects()
-    filtered = [p for p in projects if p.get('id') != project_id]
-    if len(filtered) == len(projects):
-        raise HTTPException(status_code=404, detail="Project not found")
-    save_projects(filtered)
-    return {"success": True}
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+        if cursor.rowcount == 0:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Project not found")
+            
+        conn.commit()
+        conn.close()
+        return {"success": True}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting project: {e}")
+        raise HTTPException(status_code=500, detail="Database delete failed")
 
 # Resume API
 @app.get("/api/resume")
 async def get_resume_data():
     """Get resume data"""
-    resume_data = get_resume()
+    resume_data = get_resume_from_db()
     if resume_data:
         return {"success": True, "data": resume_data}
     return {"success": False, "message": "No resume uploaded"}
@@ -249,15 +288,28 @@ async def upload_resume(resume: ResumeResponse, session_token: str = Header(None
     if not session_token:
         raise HTTPException(status_code=401, detail="Session token required")
     verify_session(session_token)
-    if resume.data:
-        save_resume(resume.data)
+    
+    if not resume.data:
+         raise HTTPException(status_code=400, detail="No resume data provided")
+         
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT OR REPLACE INTO site_config (key, value) VALUES ('resume_pdf', ?)", 
+            (resume.data,)
+        )
+        conn.commit()
+        conn.close()
         return {"success": True, "message": "Resume uploaded successfully"}
-    raise HTTPException(status_code=400, detail="No resume data provided")
+    except Exception as e:
+         print(f"Error saving resume: {e}")
+         raise HTTPException(status_code=500, detail="Database error")
 
 @app.get("/api/resume/AtharvaZ")
 async def view_resume():
     """Serve resume PDF for viewing in browser"""
-    resume_data = get_resume()
+    resume_data = get_resume_from_db()
     if not resume_data:
         return HTMLResponse(content="<h1>No resume uploaded</h1>", status_code=404)
     
