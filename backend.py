@@ -14,6 +14,7 @@ import secrets
 from sqlalchemy import create_engine, Column, Integer, String, Text, select, text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 import subprocess
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -201,6 +202,15 @@ if RESEND_API_KEY:
 # ============================================
 # API ROUTES (must come before catch-all routes)
 # ============================================
+#health check
+@app.api_route("/api/health", methods=["GET", "HEAD"])
+async def health_check():
+    """Health check endpoint for monitoring services (supports GET and HEAD)"""
+    return {
+        "status": "healthy",
+        "service": "Portfolio API",
+        "timestamp": datetime.now().isoformat()
+    }
 
 # Admin Authentication
 @app.post("/api/admin/login")
