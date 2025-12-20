@@ -205,7 +205,6 @@ img {
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: hidden;
     padding-top: var(--header-height);
 }
 
@@ -213,7 +212,7 @@ img {
     position: absolute;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(6, 78, 59, 0.2) 0%, rgba(5, 150, 105, 0.1) 50%, rgba(255, 255, 255, 0) 70%);
+    background: radial-gradient(circle, rgba(6, 78, 59, 0.2) 0%, rgba(5, 150, 105, 0.1) 50%, rgba(232, 238, 236, 0) 80%);
     top: -150px;
     right: -150px;
     pointer-events: none;
@@ -234,7 +233,7 @@ img {
     position: absolute;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 50%, rgba(255, 255, 255, 0) 70%);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 50%, rgba(232, 238, 236, 0) 80%);
     bottom: -150px;
     left: -150px;
     pointer-events: none;
