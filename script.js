@@ -267,6 +267,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await renderProjects();
 
+  // Project Card Click Toggle for Touch Devices
+  // This allows mobile/tablet users to tap to show/hide project links
+  const projectCards = document.querySelectorAll('.project-card');
+  projectCards.forEach((card) => {
+    card.addEventListener('click', (e) => {
+      // Don't toggle if clicking on actual links
+      if (e.target.closest('.project-link')) {
+        return;
+      }
+
+      // Toggle the 'active' class on click
+      card.classList.toggle('active');
+
+      // Close other cards when one is opened
+      projectCards.forEach((otherCard) => {
+        if (otherCard !== card) {
+          otherCard.classList.remove('active');
+        }
+      });
+    });
+  });
+
+  // Close active project card when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.project-card')) {
+      projectCards.forEach((card) => {
+        card.classList.remove('active');
+      });
+    }
+  });
+
   // Dynamic Resume Link Update
   const updateResumeLinks = () => {
     const resumeLinks = document.querySelectorAll('#resume-btn');

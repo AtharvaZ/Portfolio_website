@@ -517,6 +517,19 @@ img {
     pointer-events: auto;
 }
 
+/* Active state for touch devices (click toggle) */
+.project-card.active .project-info h3,
+.project-card.active .project-info p,
+.project-card.active .tech-stack {
+    opacity: 0.05;
+}
+
+.project-card.active .project-links {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
 .project-link {
     font-size: 0.85rem;
     font-weight: 600;
