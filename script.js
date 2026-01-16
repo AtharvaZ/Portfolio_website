@@ -268,31 +268,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderProjects();
 
   // Project Card Click Toggle for Touch Devices
-  // This allows mobile/tablet users to tap to show/hide project links
-  const projectCards = document.querySelectorAll('.project-card');
-  projectCards.forEach((card) => {
-    card.addEventListener('click', (e) => {
-      // Don't toggle if clicking on actual links
-      if (e.target.closest('.project-link')) {
-        return;
-      }
+  // Uses event delegation to work with dynamically loaded projects
+  document.addEventListener('click', (e) => {
+    const clickedCard = e.target.closest('.project-card');
 
-      // Toggle the 'active' class on click
-      card.classList.toggle('active');
+    // If clicking on a project link, let it navigate normally
+    if (e.target.closest('.project-link')) {
+      return;
+    }
 
-      // Close other cards when one is opened
-      projectCards.forEach((otherCard) => {
-        if (otherCard !== card) {
-          otherCard.classList.remove('active');
+    // If clicked on a project card, toggle its active state
+    if (clickedCard) {
+      // Close all other cards
+      document.querySelectorAll('.project-card').forEach((card) => {
+        if (card !== clickedCard) {
+          card.classList.remove('active');
         }
       });
-    });
-  });
-
-  // Close active project card when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.project-card')) {
-      projectCards.forEach((card) => {
+      // Toggle the clicked card
+      clickedCard.classList.toggle('active');
+    } else {
+      // Clicked outside - close all cards
+      document.querySelectorAll('.project-card.active').forEach((card) => {
         card.classList.remove('active');
       });
     }
