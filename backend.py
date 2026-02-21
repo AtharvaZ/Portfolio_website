@@ -16,8 +16,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base, Session
 import subprocess
 from datetime import datetime
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from the .env file next to this script
+load_dotenv(Path(__file__).parent / ".env")
 
 app = FastAPI(title="Portfolio API")
 
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).parent
 # CORS middleware to allow frontend to communicate with backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["www.azaveri.dev"],  # In production, replace with your actual domain
+    allow_origins=["www.azaveri.dev", "http://127.0.0.1:8000/"],  # In production, replace with your actual domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,6 +61,7 @@ class ProjectModel(Base):
     desc = Column(Text, nullable=False)
     tech = Column(Text, nullable=False)  # Stored as JSON string
     links = Column(Text, nullable=False) # Stored as JSON string
+    image = Column(String, nullable=True)
 
 class SiteConfigModel(Base):
     __tablename__ = "site_config"
@@ -69,6 +70,21 @@ class SiteConfigModel(Base):
 
 # Initialize Tables
 Base.metadata.create_all(bind=engine)
+
+def migrate_add_image_column():
+    """Add image column to projects table if it doesn't exist yet."""
+    try:
+        with engine.connect() as conn:
+            if DATABASE_URL.startswith("sqlite"):
+                conn.execute(text("ALTER TABLE projects ADD COLUMN image TEXT"))
+            else:
+                conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS image TEXT"))
+            conn.commit()
+        print("Migration: added image column to projects table.")
+    except Exception:
+        pass  # Column already exists — safe to ignore
+
+migrate_add_image_column()
 
 def attempt_auto_migration():
     """
@@ -158,6 +174,7 @@ class Project(BaseModel):
     desc: str
     tech: List[str]
     links: dict
+    image: Optional[str] = None
 
 class ResumeResponse(BaseModel):
     success: bool
@@ -301,7 +318,8 @@ async def get_all_projects(db: Session = Depends(get_db)):
                 "title": p.title,
                 "desc": p.desc,
                 "tech": json.loads(p.tech),
-                "links": json.loads(p.links)
+                "links": json.loads(p.links),
+                "image": p.image
             })
         return {"success": True, "projects": projects}
     except Exception as e:
@@ -323,7 +341,8 @@ async def create_project(project: Project, session_token: str = Header(None, ali
             title=project.title,
             desc=project.desc,
             tech=tech_str,
-            links=links_str
+            links=links_str,
+            image=project.image
         )
         db.add(new_project)
         db.commit()
@@ -353,6 +372,7 @@ async def update_project(project_id: int, project: Project, session_token: str =
         existing_project.desc = project.desc
         existing_project.tech = json.dumps(project.tech)
         existing_project.links = json.dumps(project.links)
+        existing_project.image = project.image
         
         db.commit()
         db.refresh(existing_project)

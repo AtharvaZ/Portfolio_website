@@ -1,8 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Atharva Zaveri</title>
 
     <!-- Fonts -->
@@ -29,6 +32,9 @@
     />
   </head>
   <body>
+    <!-- Background Particles for entire site -->
+    <canvas id="site-particles"></canvas>
+
     <!-- Navigation -->
     <nav class="navbar">
       <div class="logo">
@@ -40,6 +46,13 @@
         <li><a href="#skills" class="nav-link" data-link>Skills</a></li>
         <li><a href="#contact" class="nav-link" data-link>Contact</a></li>
       </ul>
+      <button
+        id="theme-toggle"
+        class="theme-toggle"
+        aria-label="Toggle dark mode"
+      >
+        <i class="fas fa-moon"></i>
+      </button>
       <div class="menu-toggle">
         <span class="bar"></span>
         <span class="bar"></span>
@@ -50,7 +63,6 @@
     <main>
       <!-- Hero Section -->
       <section id="hero" class="hero">
-        <canvas id="hero-particles"></canvas>
         <div class="hero-bg-accent"></div>
         <div class="hero-bg-accent-2"></div>
 
@@ -85,18 +97,23 @@
             <h2 class="section-title">About Me</h2>
             <div class="about-text">
               <p>
-                I'm a Computer Science student at ASU who gets unreasonably excited about making AI do useful things. 
-                I've built tools that help students tackle impossible assignments, 
-                keep kids safe online, and search through files like you're having a conversation with your computer.
+                I'm a Computer Science student at ASU who gets unreasonably
+                excited about making AI do useful things. I've built tools that
+                help students tackle impossible assignments, keep kids safe
+                online, and search through files like you're having a
+                conversation with your computer.
               </p>
               <p>
-                When I'm not optimizing code or experimenting with LLMs, 
-                I'm probably exploring how design and AI can work together to build things people actually want to use. 
-                Currently trying to dive into iOS development and figuring out how to make apps that don't feel like homework.
+                When I'm not optimizing code or experimenting with LLMs, I'm
+                probably exploring how design and AI can work together to build
+                things people actually want to use. Currently trying to dive
+                into iOS development and figuring out how to make apps that
+                don't feel like homework.
               </p>
               <p>
-                I believe the best tech is the kind that quietly makes life better without making you read a manual.
-                Contact me to build something great together!!
+                I believe the best tech is the kind that quietly makes life
+                better without making you read a manual. Contact me to build
+                something great together!!
               </p>
               <a
                 class="btn-primary"
