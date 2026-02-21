@@ -302,6 +302,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       ? "http://127.0.0.1:8000/api"
       : window.location.origin + "/api";
 
+  // Load profile photo from API, fall back to static file if not uploaded
+  (async () => {
+    try {
+      const response = await fetch(`${API_URL}/photo`);
+      const data = await response.json();
+      if (data.success && data.data) {
+        const img = document.getElementById("about-photo-img");
+        if (img) img.src = data.data;
+      }
+    } catch (e) {
+      // Keep static fallback — no action needed
+    }
+  })();
+
   const getProjects = async () => {
     try {
       const response = await fetch(`${API_URL}/projects`);
@@ -316,32 +330,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  const renderProjects = async () => {
-    const projectsContainer = document.querySelector(".projects-grid");
-    if (!projectsContainer) {
-      console.warn("Projects container not found");
-      return;
-    }
+  let allProjects = [];
+  let visibleProjectCount = 0;
+  const PROJECTS_PAGE_SIZE = 3;
 
-    projectsContainer.innerHTML = "";
-    const projects = await getProjects();
-    console.log("Loaded projects:", projects);
+  const appendProjectCard = (project, container) => {
+    const card = document.createElement("div");
+    card.className = "project-card scroll-reveal";
 
-    projects.forEach((project) => {
-      const card = document.createElement("div");
-      card.className = "project-card scroll-reveal";
+    const hasGithub =
+      project.links.github &&
+      project.links.github !== "#" &&
+      project.links.github !== "";
+    const hasDemo =
+      project.links.demo &&
+      project.links.demo !== "#" &&
+      project.links.demo !== "";
 
-      // Check if links are valid (not # or empty)
-      const hasGithub =
-        project.links.github &&
-        project.links.github !== "#" &&
-        project.links.github !== "";
-      const hasDemo =
-        project.links.demo &&
-        project.links.demo !== "#" &&
-        project.links.demo !== "";
-
-      card.innerHTML = `
+    card.innerHTML = `
                 <div class="project-card-image">
                     ${project.image
                       ? `<img src="${project.image}" alt="${project.title}" loading="lazy" />`
@@ -370,16 +376,166 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 </div>
             `;
-      projectsContainer.appendChild(card);
+    card.style.opacity = "0";
+    card.style.transform = "translateY(50px)";
+    container.appendChild(card);
+    revealObserver.observe(card);
+  };
 
-      // Set initial hidden state for observer
-      card.style.opacity = "0";
-      card.style.transform = "translateY(50px)";
-      revealObserver.observe(card);
-    });
+  const renderProjects = async () => {
+    const projectsContainer = document.querySelector(".projects-grid");
+    if (!projectsContainer) {
+      console.warn("Projects container not found");
+      return;
+    }
+
+    projectsContainer.innerHTML = "";
+    allProjects = await getProjects();
+    visibleProjectCount = 0;
+
+    // Render first batch
+    allProjects.slice(0, PROJECTS_PAGE_SIZE).forEach((p) =>
+      appendProjectCard(p, projectsContainer)
+    );
+    visibleProjectCount = Math.min(PROJECTS_PAGE_SIZE, allProjects.length);
+
+    // Show button only if there are more projects
+    const showMoreBtn = document.getElementById("projects-show-more");
+    if (showMoreBtn) {
+      showMoreBtn.style.display =
+        allProjects.length > PROJECTS_PAGE_SIZE ? "flex" : "none";
+    }
   };
 
   await renderProjects();
+
+  // ── Work Experience ───────────────────────────────
+  const getExperience = async () => {
+    try {
+      const response = await fetch(`${API_URL}/experience`);
+      const data = await response.json();
+      return data.success ? data.items : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const renderExperience = async () => {
+    const items = await getExperience();
+    const container = document.getElementById("timeline-container");
+    const section = document.getElementById("experience-work-section");
+    if (!container) return;
+    container.innerHTML = "";
+    if (items.length === 0) { section.style.display = "none"; return; }
+    section.style.display = "";
+    items.forEach((item) => {
+      const el = document.createElement("div");
+      el.className = "timeline-item scroll-reveal";
+      el.style.opacity = "0";
+      el.style.transform = "translateY(50px)";
+      el.innerHTML = `
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-header">
+            <div>
+              <h3 class="timeline-role">${item.role}</h3>
+              <p class="timeline-company">${item.company}</p>
+            </div>
+            <span class="timeline-date">${item.date_range}</span>
+          </div>
+          <p class="timeline-desc">${item.desc}</p>
+          <div class="timeline-tags">
+            ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
+          </div>
+        </div>`;
+      container.appendChild(el);
+      revealObserver.observe(el);
+    });
+  };
+
+  // ── Hackathons ────────────────────────────────────
+  const getHackathons = async () => {
+    try {
+      const response = await fetch(`${API_URL}/hackathons`);
+      const data = await response.json();
+      return data.success ? data.items : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  const renderHackathons = async () => {
+    const items = await getHackathons();
+    const container = document.getElementById("hackathon-container");
+    const section = document.getElementById("experience-hackathon-section");
+    if (!container) return;
+    container.innerHTML = "";
+    if (items.length === 0) { section.style.display = "none"; return; }
+    section.style.display = "";
+    items.forEach((item) => {
+      const el = document.createElement("div");
+      el.className = "hackathon-card scroll-reveal";
+      el.style.opacity = "0";
+      el.style.transform = "translateY(50px)";
+      el.innerHTML = `
+        <div class="hackathon-header">
+          <span class="hackathon-placement">${item.placement}</span>
+          <span class="hackathon-date">${item.date}</span>
+        </div>
+        <h3 class="hackathon-name">${item.name}</h3>
+        <p class="hackathon-desc">${item.desc}</p>
+        <div class="timeline-tags">
+          ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
+        </div>`;
+      container.appendChild(el);
+      revealObserver.observe(el);
+    });
+  };
+
+  // ── Show/hide entire section + nav link ───────────
+  const renderExperienceSection = async () => {
+    await Promise.all([renderExperience(), renderHackathons()]);
+    const workEmpty = document.getElementById("timeline-container").children.length === 0;
+    const hackEmpty = document.getElementById("hackathon-container").children.length === 0;
+    const section = document.getElementById("experience");
+    const navLink = document.querySelector('a[href="#experience"]');
+    const hide = workEmpty && hackEmpty;
+    if (section) section.style.display = hide ? "none" : "";
+    if (navLink) navLink.parentElement.style.display = hide ? "none" : "";
+  };
+
+  await renderExperienceSection();
+
+  // Show More / Show Less button handlers
+  const showMoreBtn = document.getElementById("projects-show-more");
+  const showLessBtn = document.getElementById("projects-show-less");
+
+  if (showMoreBtn) {
+    showMoreBtn.addEventListener("click", () => {
+      const projectsContainer = document.querySelector(".projects-grid");
+      const nextBatch = allProjects.slice(
+        visibleProjectCount,
+        visibleProjectCount + PROJECTS_PAGE_SIZE
+      );
+      nextBatch.forEach((p) => appendProjectCard(p, projectsContainer));
+      visibleProjectCount += nextBatch.length;
+      if (visibleProjectCount >= allProjects.length) {
+        showMoreBtn.style.display = "none";
+      }
+      if (showLessBtn) showLessBtn.style.display = "flex";
+    });
+  }
+
+  if (showLessBtn) {
+    showLessBtn.addEventListener("click", () => {
+      const projectsContainer = document.querySelector(".projects-grid");
+      const cards = [...projectsContainer.querySelectorAll(".project-card")];
+      cards.slice(PROJECTS_PAGE_SIZE).forEach((card) => card.remove());
+      visibleProjectCount = PROJECTS_PAGE_SIZE;
+      showLessBtn.style.display = "none";
+      if (showMoreBtn) showMoreBtn.style.display = "flex";
+    });
+  }
 
   // Project Card Click Toggle for Touch Devices
   // Uses event delegation to work with dynamically loaded projects

@@ -131,6 +131,9 @@ async function showDashboard() {
   dashboard.style.display = "block";
   await renderAdminProjects();
   await loadResumeStatus();
+  await loadPhotoStatus();
+  await renderAdminExperience();
+  await renderAdminHackathons();
 }
 
 // Check if already logged in
@@ -178,6 +181,18 @@ async function getProjects() {
   }
 }
 
+let dragSrcEl = null;
+
+async function saveOrder() {
+  const items = [...projectsListContainer.querySelectorAll(".admin-project-item")];
+  const ids = items.map((el) => parseInt(el.dataset.id));
+  await fetch(`${API_URL}/admin/projects/reorder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+    body: JSON.stringify({ ids }),
+  });
+}
+
 async function renderAdminProjects() {
   const projects = await getProjects();
   projectsListContainer.innerHTML = "";
@@ -185,7 +200,10 @@ async function renderAdminProjects() {
   projects.forEach((project) => {
     const item = document.createElement("div");
     item.className = "admin-project-item";
+    item.dataset.id = project.id;
+    item.draggable = true;
     item.innerHTML = `
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
             <h4>${project.title}</h4>
             <p>${project.desc.substring(0, 60)}...</p>
             <div class="admin-actions">
@@ -193,11 +211,104 @@ async function renderAdminProjects() {
                 <button class="action-btn delete-btn" onclick="deleteProject(${project.id})">Delete</button>
             </div>
         `;
+
+    item.addEventListener("dragstart", (e) => {
+      dragSrcEl = item;
+      item.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    item.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (item !== dragSrcEl) item.classList.add("drag-over");
+    });
+
+    item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
+
+    item.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      item.classList.remove("drag-over");
+      if (!dragSrcEl || dragSrcEl === item) return;
+
+      const allItems = [...projectsListContainer.querySelectorAll(".admin-project-item")];
+      const srcIdx = allItems.indexOf(dragSrcEl);
+      const destIdx = allItems.indexOf(item);
+
+      if (srcIdx < destIdx) {
+        item.after(dragSrcEl);
+      } else {
+        item.before(dragSrcEl);
+      }
+
+      await saveOrder();
+    });
+
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+      document.querySelectorAll(".admin-project-item").forEach((el) =>
+        el.classList.remove("drag-over"),
+      );
+      dragSrcEl = null;
+    });
+
     projectsListContainer.appendChild(item);
   });
 }
 
-// Project Image Handling Removed
+// Project Image Upload
+const imageUploadZone = document.getElementById("image-upload-zone");
+const imageFileInput = document.getElementById("project-image-file");
+const imagePreview = document.getElementById("image-preview");
+const imagePlaceholder = document.getElementById("image-upload-placeholder");
+const removeImageBtn = document.getElementById("remove-image-btn");
+const imageHiddenInput = document.getElementById("project-image");
+
+imageUploadZone.addEventListener("click", () => imageFileInput.click());
+
+imageFileInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Please select a valid image file.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const base64 = ev.target.result;
+    imageHiddenInput.value = base64;
+    imagePreview.src = base64;
+    imagePreview.style.display = "block";
+    imagePlaceholder.style.display = "none";
+    removeImageBtn.style.display = "inline-block";
+  };
+  reader.readAsDataURL(file);
+});
+
+removeImageBtn.addEventListener("click", () => {
+  imageHiddenInput.value = "";
+  imageFileInput.value = "";
+  imagePreview.src = "";
+  imagePreview.style.display = "none";
+  imagePlaceholder.style.display = "flex";
+  removeImageBtn.style.display = "none";
+});
+
+function setImagePreview(src) {
+  if (src) {
+    imageHiddenInput.value = src;
+    imagePreview.src = src;
+    imagePreview.style.display = "block";
+    imagePlaceholder.style.display = "none";
+    removeImageBtn.style.display = "inline-block";
+  } else {
+    imageHiddenInput.value = "";
+    imagePreview.src = "";
+    imagePreview.style.display = "none";
+    imagePlaceholder.style.display = "flex";
+    removeImageBtn.style.display = "none";
+  }
+}
 
 projectForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -268,7 +379,7 @@ window.editProject = async (id) => {
   document.getElementById("project-tech").value = project.tech.join(", ");
   document.getElementById("project-github").value = project.links.github;
   document.getElementById("project-demo").value = project.links.demo;
-  document.getElementById("project-image").value = project.image || "";
+  setImagePreview(project.image || null);
 
   submitBtn.textContent = "Update Project";
   cancelBtn.style.display = "inline-block";
@@ -302,7 +413,8 @@ cancelBtn.addEventListener("click", () => {
 
 function resetFormState() {
   document.getElementById("project-id").value = "";
-  document.getElementById("project-image").value = "";
+  imageFileInput.value = "";
+  setImagePreview(null);
   submitBtn.textContent = "Add Project";
   cancelBtn.style.display = "none";
 }
@@ -385,4 +497,345 @@ async function loadResumeStatus() {
   } catch (error) {
     // Resume not uploaded yet, that's okay
   }
+}
+
+// Photo Upload Logic
+const photoDropZone = document.getElementById("photo-drop-zone");
+const photoInput = document.getElementById("photo-upload");
+const photoStatus = document.getElementById("photo-status");
+const photoPreviewAdmin = document.getElementById("photo-preview-admin");
+
+photoDropZone.addEventListener("click", () => photoInput.click());
+
+photoDropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  photoDropZone.classList.add("drag-over");
+});
+
+photoDropZone.addEventListener("dragleave", () =>
+  photoDropZone.classList.remove("drag-over"),
+);
+
+photoDropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  photoDropZone.classList.remove("drag-over");
+  handlePhotoUpload(e.dataTransfer.files[0]);
+});
+
+photoInput.addEventListener("change", (e) => {
+  handlePhotoUpload(e.target.files[0]);
+});
+
+async function handlePhotoUpload(file) {
+  if (!file || !file.type.startsWith("image/")) {
+    photoStatus.textContent = "Please upload a valid image file.";
+    photoStatus.className = "status-text error-text";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64Photo = e.target.result;
+    try {
+      const response = await fetch(`${API_URL}/photo`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Session-Token": sessionToken,
+        },
+        body: JSON.stringify({ data: base64Photo }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        photoStatus.textContent = `Photo uploaded: ${file.name}`;
+        photoStatus.className = "status-text status-success";
+        photoPreviewAdmin.src = base64Photo;
+        photoPreviewAdmin.style.display = "block";
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (error) {
+      console.error("Error uploading photo:", error);
+      photoStatus.textContent = "Failed to upload photo. Please try again.";
+      photoStatus.className = "status-text error-text";
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function loadPhotoStatus() {
+  try {
+    const response = await fetch(`${API_URL}/photo`);
+    const data = await response.json();
+    if (data.success && data.data) {
+      photoStatus.textContent = "Profile photo is currently active.";
+      photoStatus.className = "status-text status-success";
+      photoPreviewAdmin.src = data.data;
+      photoPreviewAdmin.style.display = "block";
+    }
+  } catch (error) {
+    // Photo not uploaded yet, that's okay
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// WORK EXPERIENCE CRUD
+// ─────────────────────────────────────────────────────
+const expForm = document.getElementById("exp-form");
+const expListContainer = document.getElementById("exp-list-container");
+const submitExpBtn = document.getElementById("submit-exp");
+const cancelExpBtn = document.getElementById("cancel-exp");
+let dragSrcExp = null;
+
+async function getAdminExperience() {
+  try {
+    const response = await fetch(`${API_URL}/experience`);
+    const data = await response.json();
+    return data.success ? data.items : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveExpOrder() {
+  const items = [...expListContainer.querySelectorAll(".admin-project-item")];
+  const ids = items.map((el) => parseInt(el.dataset.id));
+  await fetch(`${API_URL}/admin/experience/reorder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+    body: JSON.stringify({ ids }),
+  });
+}
+
+async function renderAdminExperience() {
+  const items = await getAdminExperience();
+  expListContainer.innerHTML = "";
+  items.forEach((item) => {
+    const el = document.createElement("div");
+    el.className = "admin-project-item";
+    el.dataset.id = item.id;
+    el.draggable = true;
+    el.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <h4>${item.role}</h4>
+      <p>${item.company} · ${item.date_range}</p>
+      <div class="admin-actions">
+        <button class="action-btn edit-btn" onclick="editExperience(${item.id})">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteExperience(${item.id})">Delete</button>
+      </div>`;
+
+    el.addEventListener("dragstart", (e) => { dragSrcExp = el; el.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; });
+    el.addEventListener("dragover", (e) => { e.preventDefault(); if (el !== dragSrcExp) el.classList.add("drag-over"); });
+    el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
+    el.addEventListener("drop", async (e) => {
+      e.preventDefault(); el.classList.remove("drag-over");
+      if (!dragSrcExp || dragSrcExp === el) return;
+      const all = [...expListContainer.querySelectorAll(".admin-project-item")];
+      all.indexOf(dragSrcExp) < all.indexOf(el) ? el.after(dragSrcExp) : el.before(dragSrcExp);
+      await saveExpOrder();
+    });
+    el.addEventListener("dragend", () => {
+      el.classList.remove("dragging");
+      expListContainer.querySelectorAll(".admin-project-item").forEach((e) => e.classList.remove("drag-over"));
+      dragSrcExp = null;
+    });
+
+    expListContainer.appendChild(el);
+  });
+}
+
+expForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("exp-id").value;
+  const data = {
+    role: document.getElementById("exp-role").value,
+    company: document.getElementById("exp-company").value,
+    date_range: document.getElementById("exp-date-range").value,
+    desc: document.getElementById("exp-desc").value,
+    tech: document.getElementById("exp-tech").value.split(",").map((t) => t.trim()),
+  };
+  try {
+    const url = id ? `${API_URL}/experience/${id}` : `${API_URL}/experience`;
+    const method = id ? "PUT" : "POST";
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Save failed");
+    await renderAdminExperience();
+    expForm.reset();
+    resetExpForm();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save experience entry.");
+  }
+});
+
+window.editExperience = async (id) => {
+  const items = await getAdminExperience();
+  const item = items.find((i) => i.id == id);
+  if (!item) return;
+  document.getElementById("exp-id").value = item.id;
+  document.getElementById("exp-role").value = item.role;
+  document.getElementById("exp-company").value = item.company;
+  document.getElementById("exp-date-range").value = item.date_range;
+  document.getElementById("exp-desc").value = item.desc;
+  document.getElementById("exp-tech").value = item.tech.join(", ");
+  submitExpBtn.textContent = "Update Experience";
+  cancelExpBtn.style.display = "inline-block";
+};
+
+window.deleteExperience = async (id) => {
+  if (!confirm("Delete this experience entry?")) return;
+  try {
+    const response = await fetch(`${API_URL}/experience/${id}`, {
+      method: "DELETE",
+      headers: { "X-Session-Token": sessionToken },
+    });
+    if (response.ok) await renderAdminExperience();
+    else throw new Error("Delete failed");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete experience entry.");
+  }
+};
+
+cancelExpBtn.addEventListener("click", () => { expForm.reset(); resetExpForm(); });
+
+function resetExpForm() {
+  document.getElementById("exp-id").value = "";
+  submitExpBtn.textContent = "Add Experience";
+  cancelExpBtn.style.display = "none";
+}
+
+// ─────────────────────────────────────────────────────
+// HACKATHONS CRUD
+// ─────────────────────────────────────────────────────
+const hackForm = document.getElementById("hack-form");
+const hackListContainer = document.getElementById("hack-list-container");
+const submitHackBtn = document.getElementById("submit-hack");
+const cancelHackBtn = document.getElementById("cancel-hack");
+let dragSrcHack = null;
+
+async function getAdminHackathons() {
+  try {
+    const response = await fetch(`${API_URL}/hackathons`);
+    const data = await response.json();
+    return data.success ? data.items : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveHackOrder() {
+  const items = [...hackListContainer.querySelectorAll(".admin-project-item")];
+  const ids = items.map((el) => parseInt(el.dataset.id));
+  await fetch(`${API_URL}/admin/hackathons/reorder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+    body: JSON.stringify({ ids }),
+  });
+}
+
+async function renderAdminHackathons() {
+  const items = await getAdminHackathons();
+  hackListContainer.innerHTML = "";
+  items.forEach((item) => {
+    const el = document.createElement("div");
+    el.className = "admin-project-item";
+    el.dataset.id = item.id;
+    el.draggable = true;
+    el.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <h4>${item.name}</h4>
+      <p>${item.placement} · ${item.date}</p>
+      <div class="admin-actions">
+        <button class="action-btn edit-btn" onclick="editHackathon(${item.id})">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteHackathon(${item.id})">Delete</button>
+      </div>`;
+
+    el.addEventListener("dragstart", (e) => { dragSrcHack = el; el.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; });
+    el.addEventListener("dragover", (e) => { e.preventDefault(); if (el !== dragSrcHack) el.classList.add("drag-over"); });
+    el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
+    el.addEventListener("drop", async (e) => {
+      e.preventDefault(); el.classList.remove("drag-over");
+      if (!dragSrcHack || dragSrcHack === el) return;
+      const all = [...hackListContainer.querySelectorAll(".admin-project-item")];
+      all.indexOf(dragSrcHack) < all.indexOf(el) ? el.after(dragSrcHack) : el.before(dragSrcHack);
+      await saveHackOrder();
+    });
+    el.addEventListener("dragend", () => {
+      el.classList.remove("dragging");
+      hackListContainer.querySelectorAll(".admin-project-item").forEach((e) => e.classList.remove("drag-over"));
+      dragSrcHack = null;
+    });
+
+    hackListContainer.appendChild(el);
+  });
+}
+
+hackForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("hack-id").value;
+  const data = {
+    name: document.getElementById("hack-name").value,
+    placement: document.getElementById("hack-placement").value,
+    date: document.getElementById("hack-date").value,
+    desc: document.getElementById("hack-desc").value,
+    tech: document.getElementById("hack-tech").value.split(",").map((t) => t.trim()),
+  };
+  try {
+    const url = id ? `${API_URL}/hackathons/${id}` : `${API_URL}/hackathons`;
+    const method = id ? "PUT" : "POST";
+    const response = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Save failed");
+    await renderAdminHackathons();
+    hackForm.reset();
+    resetHackForm();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save hackathon entry.");
+  }
+});
+
+window.editHackathon = async (id) => {
+  const items = await getAdminHackathons();
+  const item = items.find((i) => i.id == id);
+  if (!item) return;
+  document.getElementById("hack-id").value = item.id;
+  document.getElementById("hack-name").value = item.name;
+  document.getElementById("hack-placement").value = item.placement;
+  document.getElementById("hack-date").value = item.date;
+  document.getElementById("hack-desc").value = item.desc;
+  document.getElementById("hack-tech").value = item.tech.join(", ");
+  submitHackBtn.textContent = "Update Hackathon";
+  cancelHackBtn.style.display = "inline-block";
+};
+
+window.deleteHackathon = async (id) => {
+  if (!confirm("Delete this hackathon?")) return;
+  try {
+    const response = await fetch(`${API_URL}/hackathons/${id}`, {
+      method: "DELETE",
+      headers: { "X-Session-Token": sessionToken },
+    });
+    if (response.ok) await renderAdminHackathons();
+    else throw new Error("Delete failed");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete hackathon.");
+  }
+};
+
+cancelHackBtn.addEventListener("click", () => { hackForm.reset(); resetHackForm(); });
+
+function resetHackForm() {
+  document.getElementById("hack-id").value = "";
+  submitHackBtn.textContent = "Add Hackathon";
+  cancelHackBtn.style.display = "none";
 }

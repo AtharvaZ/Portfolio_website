@@ -59,20 +59,45 @@
         </div>
       </header>
 
-      <section class="admin-card" style="margin-bottom: 3rem">
-        <h3>Manage Resume</h3>
-        <div id="resume-drop-zone" class="drop-zone">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <p>Drag & Drop Resume (PDF) or click to browse</p>
-          <input
-            type="file"
-            id="resume-upload"
-            accept=".pdf"
+      <div class="admin-media-row">
+        <section class="admin-card">
+          <h3>Manage Resume</h3>
+          <div id="resume-drop-zone" class="drop-zone">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <p>Drag & Drop Resume (PDF) or click to browse</p>
+            <input
+              type="file"
+              id="resume-upload"
+              accept=".pdf"
+              style="display: none"
+            />
+          </div>
+          <p id="resume-status" class="status-text"></p>
+        </section>
+
+        <section class="admin-card">
+          <h3>Profile Photo</h3>
+          <div id="photo-drop-zone" class="drop-zone">
+            <i class="fa-solid fa-user-circle"></i>
+            <p>Drag & Drop Photo or click to browse</p>
+            <small>JPG, PNG, WebP — portrait (3:4) works best</small>
+            <input
+              type="file"
+              id="photo-upload"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+          <img
+            id="photo-preview-admin"
+            src=""
+            alt="Profile photo preview"
+            class="photo-preview-admin"
             style="display: none"
           />
-        </div>
-        <p id="resume-status" class="status-text"></p>
-      </section>
+          <p id="photo-status" class="status-text"></p>
+        </section>
+      </div>
 
       <section class="admin-card">
         <h3>Add New Project</h3>
@@ -106,12 +131,17 @@
             />
           </div>
           <div class="form-group">
-            <input
-              type="text"
-              id="project-image"
-              placeholder="Image URL (optional)"
-              class="form-input"
-            />
+            <div id="image-upload-zone" class="image-upload-zone">
+              <img id="image-preview" src="" alt="Preview" style="display:none;" />
+              <div id="image-upload-placeholder">
+                <i class="fa-solid fa-image"></i>
+                <span>Click to upload project image</span>
+                <small>PNG, JPG, WebP — keep under 500KB for best performance</small>
+              </div>
+            </div>
+            <input type="file" id="project-image-file" accept="image/*" style="display:none;" />
+            <button type="button" id="remove-image-btn" class="btn-secondary remove-image-btn" style="display:none;">✕ Remove image</button>
+            <input type="hidden" id="project-image" />
           </div>
           <div class="form-row">
             <input
@@ -145,6 +175,66 @@
         <h3>Existing Projects</h3>
         <div id="projects-list-container" class="admin-grid">
           <!-- Projects will be listed here -->
+        </div>
+      </section>
+
+      <!-- Work Experience Manager -->
+      <section class="admin-card" style="margin-top: 3rem">
+        <h3>Add Work Experience</h3>
+        <form id="exp-form">
+          <input type="hidden" id="exp-id" />
+          <div class="form-row">
+            <input type="text" id="exp-role" placeholder="Role / Job Title" required class="form-input" />
+            <input type="text" id="exp-company" placeholder="Company Name" required class="form-input" />
+          </div>
+          <div class="form-group">
+            <input type="text" id="exp-date-range" placeholder="Date Range (e.g. Jun 2024 – Aug 2024)" required class="form-input" />
+          </div>
+          <div class="form-group">
+            <textarea id="exp-desc" placeholder="Description" required class="form-input" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <input type="text" id="exp-tech" placeholder="Tech Stack (comma separated)" required class="form-input" />
+          </div>
+          <button type="submit" id="submit-exp" class="form-btn">Add Experience</button>
+          <button type="button" id="cancel-exp" class="btn-secondary" style="display:none">Cancel</button>
+        </form>
+      </section>
+
+      <section class="admin-project-list">
+        <h3>Existing Experience</h3>
+        <div id="exp-list-container" class="admin-grid">
+          <!-- Experience entries will be listed here -->
+        </div>
+      </section>
+
+      <!-- Hackathons Manager -->
+      <section class="admin-card" style="margin-top: 3rem">
+        <h3>Add Hackathon</h3>
+        <form id="hack-form">
+          <input type="hidden" id="hack-id" />
+          <div class="form-row">
+            <input type="text" id="hack-name" placeholder="Hackathon Name" required class="form-input" />
+            <input type="text" id="hack-placement" placeholder="Placement (e.g. 🥇 1st Place)" required class="form-input" />
+          </div>
+          <div class="form-group">
+            <input type="text" id="hack-date" placeholder="Date (e.g. Oct 2024)" required class="form-input" />
+          </div>
+          <div class="form-group">
+            <textarea id="hack-desc" placeholder="What you built and the problem it solved" required class="form-input" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <input type="text" id="hack-tech" placeholder="Tech Stack (comma separated)" required class="form-input" />
+          </div>
+          <button type="submit" id="submit-hack" class="form-btn">Add Hackathon</button>
+          <button type="button" id="cancel-hack" class="btn-secondary" style="display:none">Cancel</button>
+        </form>
+      </section>
+
+      <section class="admin-project-list">
+        <h3>Existing Hackathons</h3>
+        <div id="hack-list-container" class="admin-grid">
+          <!-- Hackathon entries will be listed here -->
         </div>
       </section>
     </div>

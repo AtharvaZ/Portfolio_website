@@ -62,11 +62,32 @@ class ProjectModel(Base):
     tech = Column(Text, nullable=False)  # Stored as JSON string
     links = Column(Text, nullable=False) # Stored as JSON string
     image = Column(String, nullable=True)
+    position = Column(Integer, nullable=True)
 
 class SiteConfigModel(Base):
     __tablename__ = "site_config"
     key = Column(String, primary_key=True, index=True)
     value = Column(Text, nullable=True)
+
+class WorkExperienceModel(Base):
+    __tablename__ = "work_experience"
+    id         = Column(Integer, primary_key=True, index=True)
+    role       = Column(String, nullable=False)
+    company    = Column(String, nullable=False)
+    date_range = Column(String, nullable=False)
+    desc       = Column(Text, nullable=False)
+    tech       = Column(Text, nullable=False)  # JSON list
+    position   = Column(Integer, nullable=True)
+
+class HackathonModel(Base):
+    __tablename__ = "hackathons"
+    id        = Column(Integer, primary_key=True, index=True)
+    name      = Column(String, nullable=False)
+    placement = Column(String, nullable=False)
+    date      = Column(String, nullable=False)
+    desc      = Column(Text, nullable=False)
+    tech      = Column(Text, nullable=False)  # JSON list
+    position  = Column(Integer, nullable=True)
 
 # Initialize Tables
 Base.metadata.create_all(bind=engine)
@@ -85,6 +106,22 @@ def migrate_add_image_column():
         pass  # Column already exists — safe to ignore
 
 migrate_add_image_column()
+
+def migrate_add_position_column():
+    """Add position column to projects table and initialize from id order."""
+    try:
+        with engine.connect() as conn:
+            if DATABASE_URL.startswith("sqlite"):
+                conn.execute(text("ALTER TABLE projects ADD COLUMN position INTEGER"))
+            else:
+                conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS position INTEGER"))
+            conn.execute(text("UPDATE projects SET position = id WHERE position IS NULL"))
+            conn.commit()
+        print("Migration: added position column to projects table.")
+    except Exception:
+        pass  # Column already exists — safe to ignore
+
+migrate_add_position_column()
 
 def attempt_auto_migration():
     """
@@ -175,6 +212,22 @@ class Project(BaseModel):
     tech: List[str]
     links: dict
     image: Optional[str] = None
+
+class WorkExperience(BaseModel):
+    id: Optional[int] = None
+    role: str
+    company: str
+    date_range: str
+    desc: str
+    tech: List[str]
+
+class Hackathon(BaseModel):
+    id: Optional[int] = None
+    name: str
+    placement: str
+    date: str
+    desc: str
+    tech: List[str]
 
 class ResumeResponse(BaseModel):
     success: bool
@@ -305,11 +358,25 @@ async def fix_sequence(session_token: str = Header(None, alias="X-Session-Token"
         raise HTTPException(status_code=500, detail=f"Failed to reset sequence: {str(e)}")
 
 # Projects API
+@app.post("/api/admin/projects/reorder")
+async def reorder_projects(data: dict, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Update project display order (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    ids = data.get("ids", [])
+    for index, project_id in enumerate(ids):
+        db.query(ProjectModel).filter(ProjectModel.id == project_id).update({"position": index})
+    db.commit()
+    return {"success": True}
+
 @app.get("/api/projects")
 async def get_all_projects(db: Session = Depends(get_db)):
     """Get all projects"""
     try:
-        projects_orm = db.query(ProjectModel).order_by(ProjectModel.id.asc()).all()
+        projects_orm = db.query(ProjectModel).order_by(
+            ProjectModel.position.asc().nullslast(), ProjectModel.id.asc()
+        ).all()
         
         projects = []
         for p in projects_orm:
@@ -480,6 +547,44 @@ async def view_resume(db: Session = Depends(get_db)):
         print(f"Error decoding PDF: {e}")
         return HTMLResponse(content="<h1>Error loading resume</h1>", status_code=500)
 
+# Profile Photo API
+@app.get("/api/photo")
+async def get_photo(db: Session = Depends(get_db)):
+    """Get profile photo"""
+    try:
+        config = db.query(SiteConfigModel).filter(SiteConfigModel.key == "profile_photo").first()
+        if config and config.value:
+            return {"success": True, "data": config.value}
+        return {"success": False, "message": "No photo uploaded"}
+    except Exception as e:
+        print(f"Error getting photo: {e}")
+        return {"success": False, "message": "Error fetching photo"}
+
+@app.post("/api/photo")
+async def upload_photo(data: dict, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Upload profile photo (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+
+    photo_data = data.get("data")
+    if not photo_data:
+        raise HTTPException(status_code=400, detail="No photo data provided")
+
+    try:
+        config = db.query(SiteConfigModel).filter(SiteConfigModel.key == "profile_photo").first()
+        if config:
+            config.value = photo_data
+        else:
+            new_config = SiteConfigModel(key="profile_photo", value=photo_data)
+            db.add(new_config)
+        db.commit()
+        return {"success": True, "message": "Photo uploaded successfully"}
+    except Exception as e:
+        print(f"Error saving photo: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Database error")
+
 # Contact Form API
 @app.post("/api/contact")
 async def submit_contact_form(form: ContactForm):
@@ -545,6 +650,174 @@ async def submit_contact_form(form: ContactForm):
             status_code=500,
             detail=f"An error occurred: {str(e)}"
         )
+
+# Work Experience API
+@app.post("/api/admin/experience/reorder")
+async def reorder_experience(data: dict, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    ids = data.get("ids", [])
+    for index, exp_id in enumerate(ids):
+        db.query(WorkExperienceModel).filter(WorkExperienceModel.id == exp_id).update({"position": index})
+    db.commit()
+    return {"success": True}
+
+@app.get("/api/experience")
+async def get_all_experience(db: Session = Depends(get_db)):
+    try:
+        items = db.query(WorkExperienceModel).order_by(
+            WorkExperienceModel.position.asc().nullslast(), WorkExperienceModel.id.asc()
+        ).all()
+        return {"success": True, "items": [
+            {"id": e.id, "role": e.role, "company": e.company, "date_range": e.date_range,
+             "desc": e.desc, "tech": json.loads(e.tech)} for e in items
+        ]}
+    except Exception as e:
+        print(f"Error getting experience: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+@app.post("/api/experience")
+async def create_experience(exp: WorkExperience, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        new_exp = WorkExperienceModel(
+            role=exp.role, company=exp.company, date_range=exp.date_range,
+            desc=exp.desc, tech=json.dumps(exp.tech)
+        )
+        db.add(new_exp)
+        db.commit()
+        db.refresh(new_exp)
+        return {"success": True, "id": new_exp.id}
+    except Exception as e:
+        print(f"Error creating experience: {e}")
+        raise HTTPException(status_code=500, detail="Database insert failed")
+
+@app.put("/api/experience/{exp_id}")
+async def update_experience(exp_id: int, exp: WorkExperience, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        existing = db.query(WorkExperienceModel).filter(WorkExperienceModel.id == exp_id).first()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Experience not found")
+        existing.role = exp.role
+        existing.company = exp.company
+        existing.date_range = exp.date_range
+        existing.desc = exp.desc
+        existing.tech = json.dumps(exp.tech)
+        db.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating experience: {e}")
+        raise HTTPException(status_code=500, detail="Database update failed")
+
+@app.delete("/api/experience/{exp_id}")
+async def delete_experience(exp_id: int, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        existing = db.query(WorkExperienceModel).filter(WorkExperienceModel.id == exp_id).first()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Experience not found")
+        db.delete(existing)
+        db.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting experience: {e}")
+        raise HTTPException(status_code=500, detail="Database delete failed")
+
+# Hackathons API
+@app.post("/api/admin/hackathons/reorder")
+async def reorder_hackathons(data: dict, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    ids = data.get("ids", [])
+    for index, hack_id in enumerate(ids):
+        db.query(HackathonModel).filter(HackathonModel.id == hack_id).update({"position": index})
+    db.commit()
+    return {"success": True}
+
+@app.get("/api/hackathons")
+async def get_all_hackathons(db: Session = Depends(get_db)):
+    try:
+        items = db.query(HackathonModel).order_by(
+            HackathonModel.position.asc().nullslast(), HackathonModel.id.asc()
+        ).all()
+        return {"success": True, "items": [
+            {"id": h.id, "name": h.name, "placement": h.placement, "date": h.date,
+             "desc": h.desc, "tech": json.loads(h.tech)} for h in items
+        ]}
+    except Exception as e:
+        print(f"Error getting hackathons: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+@app.post("/api/hackathons")
+async def create_hackathon(hack: Hackathon, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        new_hack = HackathonModel(
+            name=hack.name, placement=hack.placement, date=hack.date,
+            desc=hack.desc, tech=json.dumps(hack.tech)
+        )
+        db.add(new_hack)
+        db.commit()
+        db.refresh(new_hack)
+        return {"success": True, "id": new_hack.id}
+    except Exception as e:
+        print(f"Error creating hackathon: {e}")
+        raise HTTPException(status_code=500, detail="Database insert failed")
+
+@app.put("/api/hackathons/{hack_id}")
+async def update_hackathon(hack_id: int, hack: Hackathon, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        existing = db.query(HackathonModel).filter(HackathonModel.id == hack_id).first()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Hackathon not found")
+        existing.name = hack.name
+        existing.placement = hack.placement
+        existing.date = hack.date
+        existing.desc = hack.desc
+        existing.tech = json.dumps(hack.tech)
+        db.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating hackathon: {e}")
+        raise HTTPException(status_code=500, detail="Database update failed")
+
+@app.delete("/api/hackathons/{hack_id}")
+async def delete_hackathon(hack_id: int, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        existing = db.query(HackathonModel).filter(HackathonModel.id == hack_id).first()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Hackathon not found")
+        db.delete(existing)
+        db.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting hackathon: {e}")
+        raise HTTPException(status_code=500, detail="Database delete failed")
 
 # ============================================
 # STATIC FILE SERVING (must come after API routes)

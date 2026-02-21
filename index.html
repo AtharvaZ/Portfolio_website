@@ -42,6 +42,7 @@
       </div>
       <ul class="nav-links">
         <li><a href="#about" class="nav-link" data-link>About</a></li>
+        <li><a href="#experience" class="nav-link" data-link>Experience</a></li>
         <li><a href="#projects" class="nav-link" data-link>Projects</a></li>
         <li><a href="#skills" class="nav-link" data-link>Skills</a></li>
         <li><a href="#contact" class="nav-link" data-link>Contact</a></li>
@@ -84,50 +85,105 @@
             style="opacity: 0; transform: translateY(20px)"
             >View Work</a
           >
+          <div
+            class="hero-social"
+            data-animate
+            style="opacity: 0; transform: translateY(20px)"
+          >
+            <a
+              href="https://github.com/AtharvaZ"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hero-social-btn hero-social-btn--github"
+              aria-label="GitHub"
+            >
+              <i class="fa-brands fa-github"></i><span>GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/atharva-zaveri/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hero-social-btn hero-social-btn--linkedin"
+              aria-label="LinkedIn"
+            >
+              <i class="fa-brands fa-linkedin"></i><span>LinkedIn</span>
+            </a>
+            <a
+              href="mailto:atharvazaveri4@gmail.com"
+              class="hero-social-btn hero-social-btn--email"
+              aria-label="Email"
+            >
+              <i class="fa-solid fa-envelope"></i><span>Email</span>
+            </a>
+          </div>
         </div>
       </section>
 
       <!-- About Section -->
       <section id="about" class="section-padding">
         <div class="container">
-          <div
-            class="about-card scroll-reveal"
-            style="max-width: 800px; margin: 0 auto; text-align: center"
-          >
-            <h2 class="section-title">About Me</h2>
-            <div class="about-text">
-              <p>
-                I'm a Computer Science student at ASU who gets unreasonably
-                excited about making AI do useful things. I've built tools that
-                help students tackle impossible assignments, keep kids safe
-                online, and search through files like you're having a
-                conversation with your computer.
-              </p>
-              <p>
-                When I'm not optimizing code or experimenting with LLMs, I'm
-                probably exploring how design and AI can work together to build
-                things people actually want to use. Currently trying to dive
-                into iOS development and figuring out how to make apps that
-                don't feel like homework.
-              </p>
-              <p>
-                I believe the best tech is the kind that quietly makes life
-                better without making you read a manual. Contact me to build
-                something great together!!
-              </p>
-              <a
-                class="btn-primary"
-                id="resume-btn"
-                style="
-                  margin-top: 1.5rem;
-                  display: inline-block;
-                  opacity: 1;
-                  transform: translateY(0);
-                "
-                >Resume</a
-              >
+          <div class="about-grid">
+            <div class="about-card scroll-reveal">
+              <h2 class="section-title">About Me</h2>
+              <div class="about-text">
+                <p>
+                  I'm a Computer Science student at ASU who gets unreasonably
+                  excited about making AI do useful things. I've built tools
+                  that help students tackle impossible assignments, keep kids
+                  safe online, and search through files like you're having a
+                  conversation with your computer.
+                </p>
+                <p>
+                  When I'm not optimizing code or experimenting with LLMs, I'm
+                  probably exploring how design and AI can work together to
+                  build things people actually want to use. Currently trying to
+                  dive into iOS development and figuring out how to make apps
+                  that don't feel like homework.
+                </p>
+                <p>
+                  I believe the best tech is the kind that quietly makes life
+                  better without making you read a manual. Contact me to build
+                  something great together!!
+                </p>
+                <a
+                  class="btn-primary"
+                  id="resume-btn"
+                  style="
+                    margin-top: 1.5rem;
+                    display: inline-block;
+                    opacity: 1;
+                    transform: translateY(0);
+                  "
+                  >Resume</a
+                >
+              </div>
+            </div>
+            <!-- Photo is loaded from the API; falls back to ./assets/photo.jpg -->
+            <div class="about-photo scroll-reveal">
+              <img
+                id="about-photo-img"
+                src="./assets/photo.jpg"
+                alt="Atharva Zaveri"
+              />
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- Experience Section — populated dynamically by script.js -->
+      <section id="experience" class="section-padding" style="display:none">
+        <div class="container">
+
+          <div id="experience-work-section">
+            <h2 class="section-title">Work Experience</h2>
+            <div class="timeline" id="timeline-container"></div>
+          </div>
+
+          <div id="experience-hackathon-section" style="margin-top: 5rem">
+            <h2 class="section-title">Hackathons</h2>
+            <div class="hackathon-grid" id="hackathon-container"></div>
+          </div>
+
         </div>
       </section>
 
@@ -148,6 +204,24 @@
           </p>
           <div class="projects-grid">
             <!-- Projects will be injected via JS from script.js -->
+          </div>
+          <div class="projects-show-more-wrapper">
+            <button
+              id="projects-show-more"
+              class="projects-show-more-btn"
+              style="display: none"
+            >
+              <span>Show more</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <button
+              id="projects-show-less"
+              class="projects-show-more-btn"
+              style="display: none"
+            >
+              <span>Show less</span>
+              <i class="fa-solid fa-chevron-up"></i>
+            </button>
           </div>
         </div>
       </section>
@@ -187,10 +261,22 @@
             </p>
 
             <div class="social-links">
-              <a href="https://github.com/AtharvaZ" class="social-icon"
+              <a
+                href="https://github.com/AtharvaZ"
+                class="social-icon"
+                aria-label="GitHub"
                 ><i class="fa-brands fa-github"></i
               ></a>
-              <a href="mailto:atharvazaveri4@gmail.com" class="social-icon"
+              <a
+                href="https://www.linkedin.com/in/atharva-zaveri/"
+                class="social-icon"
+                aria-label="LinkedIn"
+                ><i class="fa-brands fa-linkedin"></i
+              ></a>
+              <a
+                href="mailto:atharvazaveri4@gmail.com"
+                class="social-icon"
+                aria-label="Email"
                 ><i class="fa-solid fa-envelope"></i
               ></a>
             </div>
