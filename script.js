@@ -6,6 +6,36 @@ const initTheme = () => {
   }
 };
 
+// ── Security helpers ──────────────────────────────
+/** Escape HTML special characters to prevent XSS in innerHTML. */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+/** Allow only http/https/relative/# URLs to prevent javascript: injection. */
+function safeUrl(url) {
+  if (!url) return "#";
+  const u = String(url).trim();
+  if (/^https?:\/\//i.test(u) || u.startsWith("/") || u.startsWith("#"))
+    return u;
+  return "#";
+}
+
+/** Safe URL for img src — also allows data:image/ URIs (base64 uploads). */
+function safeImgSrc(url) {
+  if (!url) return "";
+  const u = String(url).trim();
+  if (/^https?:\/\//i.test(u) || u.startsWith("/") || /^data:image\//i.test(u))
+    return u;
+  return "";
+}
+
 // Initialize theme before other scripts
 initTheme();
 
@@ -378,28 +408,31 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div class="project-card-image">
                     ${
                       project.image
-                        ? `<img src="${project.image}" alt="${project.title}" loading="lazy" />`
+                        ? `<img src="${safeImgSrc(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy" />`
                         : `<div class="project-card-image-placeholder"></div>`
                     }
                 </div>
                 <div class="project-info">
-                    <h3>${project.title}</h3>
-                    <p>${project.desc}</p>
+                    <h3>${escapeHtml(project.title)}</h3>
+                    <p>${escapeHtml(project.desc)}</p>
                     <div class="tech-stack">
                         ${project.tech
-                          .map((t) => `<span class="tech-tag">${t}</span>`)
+                          .map(
+                            (t) =>
+                              `<span class="tech-tag">${escapeHtml(t)}</span>`,
+                          )
                           .join("")}
                     </div>
                 </div>
                 <div class="project-links">
                     ${
                       hasGithub
-                        ? `<a href="${project.links.github}" class="project-link" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> Code</a>`
+                        ? `<a href="${safeUrl(project.links.github)}" class="project-link" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> Code</a>`
                         : ""
                     }
                     ${
                       hasDemo
-                        ? `<a href="${project.links.demo}" class="project-link" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>`
+                        ? `<a href="${safeUrl(project.links.demo)}" class="project-link" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>`
                         : ""
                     }
                 </div>
@@ -467,18 +500,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       el.innerHTML = `
         <div class="timeline-dot"></div>
         <div class="timeline-card${item.logo ? " timeline-card--has-logo" : ""}">
-          ${item.logo ? `<img src="${item.logo}" alt="${item.company} logo" class="timeline-company-logo">` : ""}
+          ${item.logo ? `<img src="${safeImgSrc(item.logo)}" alt="${escapeHtml(item.company)} logo" class="timeline-company-logo">` : ""}
           <div class="timeline-card-content">
             <div class="timeline-header">
               <div>
-                <h3 class="timeline-role">${item.role}</h3>
-                <p class="timeline-company">${item.company}</p>
+                <h3 class="timeline-role">${escapeHtml(item.role)}</h3>
+                <p class="timeline-company">${escapeHtml(item.company)}</p>
               </div>
-              <span class="timeline-date">${item.date_range}</span>
+              <span class="timeline-date">${escapeHtml(item.date_range)}</span>
             </div>
-            <p class="timeline-desc">${item.desc}</p>
+            <p class="timeline-desc">${escapeHtml(item.desc)}</p>
             <div class="timeline-tags">
-              ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
+              ${item.tech.map((t) => `<span class="tech-tag">${escapeHtml(t)}</span>`).join("")}
             </div>
           </div>
         </div>`;
@@ -516,14 +549,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       el.style.transform = "translateY(50px)";
       el.innerHTML = `
         <div class="hackathon-header">
-          ${item.placement ? `<span class="hackathon-placement">${item.placement}</span>` : ""}
-          <span class="hackathon-date">${item.date}</span>
+          ${item.placement ? `<span class="hackathon-placement">${escapeHtml(item.placement)}</span>` : ""}
+          <span class="hackathon-date">${escapeHtml(item.date)}</span>
         </div>
-        <h3 class="hackathon-name">${item.name}</h3>
+        <h3 class="hackathon-name">${escapeHtml(item.name)}</h3>
         <div class="timeline-tags">
-          ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
+          ${item.tech.map((t) => `<span class="tech-tag">${escapeHtml(t)}</span>`).join("")}
         </div>
-        ${item.project_link ? `<a href="${item.project_link}" target="_blank" rel="noopener" class="hack-project-link">View Project ↗</a>` : ""}`;
+        ${item.project_link ? `<a href="${safeUrl(item.project_link)}" target="_blank" rel="noopener" class="hack-project-link">View Project ↗</a>` : ""}`;
       container.appendChild(el);
       revealObserver.observe(el);
     });
@@ -706,17 +739,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             const extraLargeClass = skill.extraLarge
               ? "extra-enlarged-icon"
               : "";
-            iconContent = `<img src="${skill.image}" alt="${skill.name}" class="skill-icon-img ${enlargedClass} ${extraLargeClass}" />`;
+            iconContent = `<img src="${safeImgSrc(skill.image)}" alt="${escapeHtml(skill.name)}" class="skill-icon-img ${enlargedClass} ${extraLargeClass}" />`;
           } else if (skill.img) {
             // For fallback hardcoded images (assets folder)
             const enlargedClass = skill.enlarged ? "enlarged-icon" : "";
             const extraLargeClass = skill.extraLarge
               ? "extra-enlarged-icon"
               : "";
-            iconContent = `<img src="${skill.img}" alt="${skill.name}" class="skill-icon-img ${enlargedClass} ${extraLargeClass}" />`;
+            iconContent = `<img src="${safeImgSrc(skill.img)}" alt="${escapeHtml(skill.name)}" class="skill-icon-img ${enlargedClass} ${extraLargeClass}" />`;
           } else if (skill.icon) {
-            // For devicon or font-awesome icons
-            iconContent = `<i class="${skill.icon}"></i>`;
+            // For devicon or font-awesome icons — sanitise class to prevent injection
+            const safeIcon = String(skill.icon).replace(/[^\w\s-]/g, "");
+            iconContent = `<i class="${safeIcon}"></i>`;
           } else {
             // Fallback icon if none provided
             iconContent = `<i class="fa-solid fa-code"></i>`;
@@ -724,7 +758,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           skillEl.innerHTML = `
             ${iconContent}
-            <span>${skill.name}</span>
+            <span>${escapeHtml(skill.name)}</span>
           `;
           skillsGrid.appendChild(skillEl);
         });
