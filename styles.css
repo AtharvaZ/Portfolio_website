@@ -1274,6 +1274,47 @@ body.dark-mode .tech-tag {
   margin-bottom: 1rem;
 }
 
+.hack-project-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-decoration: none;
+  border: 1px solid var(--accent-primary);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  transition: var(--transition-base);
+}
+
+.hack-project-link:hover {
+  background: var(--accent-primary);
+  color: #fff;
+}
+
+/* Timeline card with logo — two-column layout */
+.timeline-card--has-logo {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+  overflow: hidden;
+}
+
+.timeline-company-logo {
+  width: 110px;
+  flex-shrink: 0;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 13px 0 0 13px;
+  padding: 1rem 0.75rem;
+}
+
+.timeline-card-content {
+  flex: 1;
+  padding: 1.5rem 1.8rem;
+  min-width: 0;
+}
+
 @media (max-width: 768px) {
   .timeline {
     padding-left: 1.5rem;

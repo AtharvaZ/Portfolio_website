@@ -326,6 +326,56 @@ function setImagePreview(src) {
   }
 }
 
+// Company Logo Upload (for experience form)
+const expLogoZone = document.getElementById("exp-logo-upload-zone");
+const expLogoFile = document.getElementById("exp-logo-file");
+const expLogoPreview = document.getElementById("exp-logo-preview");
+const expLogoPlaceholder = document.getElementById("exp-logo-placeholder");
+const removeExpLogoBtn = document.getElementById("remove-exp-logo-btn");
+const expLogoHidden = document.getElementById("exp-logo");
+
+expLogoZone.addEventListener("click", () => expLogoFile.click());
+
+expLogoFile.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const b64 = ev.target.result;
+    expLogoHidden.value = b64;
+    expLogoPreview.src = b64;
+    expLogoPreview.style.display = "block";
+    expLogoPlaceholder.style.display = "none";
+    removeExpLogoBtn.style.display = "inline-block";
+  };
+  reader.readAsDataURL(file);
+});
+
+removeExpLogoBtn.addEventListener("click", () => {
+  expLogoHidden.value = "";
+  expLogoFile.value = "";
+  expLogoPreview.src = "";
+  expLogoPreview.style.display = "none";
+  expLogoPlaceholder.style.display = "flex";
+  removeExpLogoBtn.style.display = "none";
+});
+
+function setExpLogoPreview(src) {
+  if (src) {
+    expLogoHidden.value = src;
+    expLogoPreview.src = src;
+    expLogoPreview.style.display = "block";
+    expLogoPlaceholder.style.display = "none";
+    removeExpLogoBtn.style.display = "inline-block";
+  } else {
+    expLogoHidden.value = "";
+    expLogoPreview.src = "";
+    expLogoPreview.style.display = "none";
+    expLogoPlaceholder.style.display = "flex";
+    removeExpLogoBtn.style.display = "none";
+  }
+}
+
 projectForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("project-id").value;
@@ -633,6 +683,7 @@ async function renderAdminExperience() {
     el.draggable = true;
     el.innerHTML = `
       <span class="drag-handle" title="Drag to reorder">⠿</span>
+      ${item.logo ? `<img src="${item.logo}" alt="${item.company} logo" style="height:32px;max-width:80px;object-fit:contain;margin-bottom:0.4rem;display:block;">` : ""}
       <h4>${item.role}</h4>
       <p>${item.company} · ${item.date_range}</p>
       <div class="admin-actions">
@@ -669,6 +720,7 @@ expForm.addEventListener("submit", async (e) => {
     date_range: document.getElementById("exp-date-range").value,
     desc: document.getElementById("exp-desc").value,
     tech: document.getElementById("exp-tech").value.split(",").map((t) => t.trim()),
+    logo: document.getElementById("exp-logo").value || null,
   };
   try {
     const url = id ? `${API_URL}/experience/${id}` : `${API_URL}/experience`;
@@ -681,6 +733,7 @@ expForm.addEventListener("submit", async (e) => {
     if (!response.ok) throw new Error("Save failed");
     await renderAdminExperience();
     expForm.reset();
+    setExpLogoPreview(null);
     resetExpForm();
   } catch (err) {
     console.error(err);
@@ -698,6 +751,7 @@ window.editExperience = async (id) => {
   document.getElementById("exp-date-range").value = item.date_range;
   document.getElementById("exp-desc").value = item.desc;
   document.getElementById("exp-tech").value = item.tech.join(", ");
+  setExpLogoPreview(item.logo || null);
   submitExpBtn.textContent = "Update Experience";
   cancelExpBtn.style.display = "inline-block";
 };
@@ -721,6 +775,7 @@ cancelExpBtn.addEventListener("click", () => { expForm.reset(); resetExpForm(); 
 
 function resetExpForm() {
   document.getElementById("exp-id").value = "";
+  setExpLogoPreview(null);
   submitExpBtn.textContent = "Add Experience";
   cancelExpBtn.style.display = "none";
 }
@@ -765,7 +820,7 @@ async function renderAdminHackathons() {
     el.innerHTML = `
       <span class="drag-handle" title="Drag to reorder">⠿</span>
       <h4>${item.name}</h4>
-      <p>${item.placement} · ${item.date}</p>
+      <p>${[item.placement, item.date].filter(Boolean).join(" · ")}</p>
       <div class="admin-actions">
         <button class="action-btn edit-btn" onclick="editHackathon(${item.id})">Edit</button>
         <button class="action-btn delete-btn" onclick="deleteHackathon(${item.id})">Delete</button>
@@ -796,10 +851,11 @@ hackForm.addEventListener("submit", async (e) => {
   const id = document.getElementById("hack-id").value;
   const data = {
     name: document.getElementById("hack-name").value,
-    placement: document.getElementById("hack-placement").value,
+    placement: document.getElementById("hack-placement").value || null,
     date: document.getElementById("hack-date").value,
-    desc: document.getElementById("hack-desc").value,
+    desc: null,
     tech: document.getElementById("hack-tech").value.split(",").map((t) => t.trim()),
+    project_link: document.getElementById("hack-project-link").value || null,
   };
   try {
     const url = id ? `${API_URL}/hackathons/${id}` : `${API_URL}/hackathons`;
@@ -825,9 +881,9 @@ window.editHackathon = async (id) => {
   if (!item) return;
   document.getElementById("hack-id").value = item.id;
   document.getElementById("hack-name").value = item.name;
-  document.getElementById("hack-placement").value = item.placement;
+  document.getElementById("hack-placement").value = item.placement || "";
   document.getElementById("hack-date").value = item.date;
-  document.getElementById("hack-desc").value = item.desc;
+  document.getElementById("hack-project-link").value = item.project_link || "";
   document.getElementById("hack-tech").value = item.tech.join(", ");
   submitHackBtn.textContent = "Update Hackathon";
   cancelHackBtn.style.display = "inline-block";

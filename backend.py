@@ -78,19 +78,37 @@ class WorkExperienceModel(Base):
     desc       = Column(Text, nullable=False)
     tech       = Column(Text, nullable=False)  # JSON list
     position   = Column(Integer, nullable=True)
+    logo       = Column(Text, nullable=True)   # base64 company logo
 
 class HackathonModel(Base):
     __tablename__ = "hackathons"
-    id        = Column(Integer, primary_key=True, index=True)
-    name      = Column(String, nullable=False)
-    placement = Column(String, nullable=False)
-    date      = Column(String, nullable=False)
-    desc      = Column(Text, nullable=False)
-    tech      = Column(Text, nullable=False)  # JSON list
-    position  = Column(Integer, nullable=True)
+    id           = Column(Integer, primary_key=True, index=True)
+    name         = Column(String, nullable=False)
+    placement    = Column(String, nullable=True)
+    date         = Column(String, nullable=False)
+    desc         = Column(Text, nullable=True)
+    tech         = Column(Text, nullable=False)  # JSON list
+    position     = Column(Integer, nullable=True)
+    project_link = Column(Text, nullable=True)
 
 # Initialize Tables
 Base.metadata.create_all(bind=engine)
+
+# Runtime migrations — add new nullable columns to existing tables
+def _run_migrations():
+    with engine.connect() as conn:
+        for sql in [
+            "ALTER TABLE work_experience ADD COLUMN logo TEXT",
+            "ALTER TABLE hackathons ADD COLUMN placement TEXT",
+            "ALTER TABLE hackathons ADD COLUMN project_link TEXT",
+        ]:
+            try:
+                conn.execute(text(sql))
+                conn.commit()
+            except Exception:
+                pass  # column already exists
+
+_run_migrations()
 
 def migrate_add_image_column():
     """Add image column to projects table if it doesn't exist yet."""
@@ -220,14 +238,16 @@ class WorkExperience(BaseModel):
     date_range: str
     desc: str
     tech: List[str]
+    logo: Optional[str] = None
 
 class Hackathon(BaseModel):
     id: Optional[int] = None
     name: str
-    placement: str
+    placement: Optional[str] = None
     date: str
-    desc: str
+    desc: Optional[str] = None
     tech: List[str]
+    project_link: Optional[str] = None
 
 class ResumeResponse(BaseModel):
     success: bool
@@ -701,7 +721,7 @@ async def get_all_experience(db: Session = Depends(get_db)):
         ).all()
         return {"success": True, "items": [
             {"id": e.id, "role": e.role, "company": e.company, "date_range": e.date_range,
-             "desc": e.desc, "tech": json.loads(e.tech)} for e in items
+             "desc": e.desc, "tech": json.loads(e.tech), "logo": e.logo} for e in items
         ]}
     except Exception as e:
         print(f"Error getting experience: {e}")
@@ -715,7 +735,7 @@ async def create_experience(exp: WorkExperience, session_token: str = Header(Non
     try:
         new_exp = WorkExperienceModel(
             role=exp.role, company=exp.company, date_range=exp.date_range,
-            desc=exp.desc, tech=json.dumps(exp.tech)
+            desc=exp.desc, tech=json.dumps(exp.tech), logo=exp.logo
         )
         db.add(new_exp)
         db.commit()
@@ -739,6 +759,7 @@ async def update_experience(exp_id: int, exp: WorkExperience, session_token: str
         existing.date_range = exp.date_range
         existing.desc = exp.desc
         existing.tech = json.dumps(exp.tech)
+        existing.logo = exp.logo
         db.commit()
         return {"success": True}
     except HTTPException:
@@ -785,7 +806,7 @@ async def get_all_hackathons(db: Session = Depends(get_db)):
         ).all()
         return {"success": True, "items": [
             {"id": h.id, "name": h.name, "placement": h.placement, "date": h.date,
-             "desc": h.desc, "tech": json.loads(h.tech)} for h in items
+             "desc": h.desc, "tech": json.loads(h.tech), "project_link": h.project_link} for h in items
         ]}
     except Exception as e:
         print(f"Error getting hackathons: {e}")
@@ -799,7 +820,7 @@ async def create_hackathon(hack: Hackathon, session_token: str = Header(None, al
     try:
         new_hack = HackathonModel(
             name=hack.name, placement=hack.placement, date=hack.date,
-            desc=hack.desc, tech=json.dumps(hack.tech)
+            desc=hack.desc, tech=json.dumps(hack.tech), project_link=hack.project_link
         )
         db.add(new_hack)
         db.commit()
@@ -823,6 +844,7 @@ async def update_hackathon(hack_id: int, hack: Hackathon, session_token: str = H
         existing.date = hack.date
         existing.desc = hack.desc
         existing.tech = json.dumps(hack.tech)
+        existing.project_link = hack.project_link
         db.commit()
         return {"success": True}
     except HTTPException:

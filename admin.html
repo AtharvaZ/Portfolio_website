@@ -198,6 +198,18 @@
             <input type="text" id="exp-date-range" placeholder="Date Range (e.g. Jun 2024 – Aug 2024)" required class="form-input" />
           </div>
           <div class="form-group">
+            <div id="exp-logo-upload-zone" class="image-upload-zone" style="height:80px;">
+              <img id="exp-logo-preview" src="" alt="Logo preview" style="display:none;max-height:60px;max-width:140px;object-fit:contain;" />
+              <div id="exp-logo-placeholder">
+                <i class="fa-solid fa-building"></i>
+                <span>Click to upload company logo (optional)</span>
+              </div>
+            </div>
+            <input type="file" id="exp-logo-file" accept="image/*" style="display:none;" />
+            <button type="button" id="remove-exp-logo-btn" class="btn-secondary remove-image-btn" style="display:none;">✕ Remove logo</button>
+            <input type="hidden" id="exp-logo" />
+          </div>
+          <div class="form-group">
             <textarea id="exp-desc" placeholder="Description" required class="form-input" rows="3"></textarea>
           </div>
           <div class="form-group">
@@ -222,13 +234,13 @@
           <input type="hidden" id="hack-id" />
           <div class="form-row">
             <input type="text" id="hack-name" placeholder="Hackathon Name" required class="form-input" />
-            <input type="text" id="hack-placement" placeholder="Placement (e.g. 🥇 1st Place)" required class="form-input" />
+            <input type="text" id="hack-placement" placeholder="Placement (e.g. 🥇 1st Place) — optional" class="form-input" />
           </div>
           <div class="form-group">
             <input type="text" id="hack-date" placeholder="Date (e.g. Oct 2024)" required class="form-input" />
           </div>
           <div class="form-group">
-            <textarea id="hack-desc" placeholder="What you built and the problem it solved" required class="form-input" rows="3"></textarea>
+            <input type="text" id="hack-project-link" placeholder="Project / Demo Link (optional)" class="form-input" />
           </div>
           <div class="form-group">
             <input type="text" id="hack-tech" placeholder="Tech Stack (comma separated)" required class="form-input" />

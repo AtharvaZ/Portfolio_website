@@ -466,17 +466,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       el.style.transform = "translateY(50px)";
       el.innerHTML = `
         <div class="timeline-dot"></div>
-        <div class="timeline-card">
-          <div class="timeline-header">
-            <div>
-              <h3 class="timeline-role">${item.role}</h3>
-              <p class="timeline-company">${item.company}</p>
+        <div class="timeline-card${item.logo ? " timeline-card--has-logo" : ""}">
+          ${item.logo ? `<img src="${item.logo}" alt="${item.company} logo" class="timeline-company-logo">` : ""}
+          <div class="timeline-card-content">
+            <div class="timeline-header">
+              <div>
+                <h3 class="timeline-role">${item.role}</h3>
+                <p class="timeline-company">${item.company}</p>
+              </div>
+              <span class="timeline-date">${item.date_range}</span>
             </div>
-            <span class="timeline-date">${item.date_range}</span>
-          </div>
-          <p class="timeline-desc">${item.desc}</p>
-          <div class="timeline-tags">
-            ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
+            <p class="timeline-desc">${item.desc}</p>
+            <div class="timeline-tags">
+              ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
+            </div>
           </div>
         </div>`;
       container.appendChild(el);
@@ -513,14 +516,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       el.style.transform = "translateY(50px)";
       el.innerHTML = `
         <div class="hackathon-header">
-          <span class="hackathon-placement">${item.placement}</span>
+          ${item.placement ? `<span class="hackathon-placement">${item.placement}</span>` : ""}
           <span class="hackathon-date">${item.date}</span>
         </div>
         <h3 class="hackathon-name">${item.name}</h3>
-        <p class="hackathon-desc">${item.desc}</p>
         <div class="timeline-tags">
           ${item.tech.map((t) => `<span class="tech-tag">${t}</span>`).join("")}
-        </div>`;
+        </div>
+        ${item.project_link ? `<a href="${item.project_link}" target="_blank" rel="noopener" class="hack-project-link">View Project ↗</a>` : ""}`;
       container.appendChild(el);
       revealObserver.observe(el);
     });
