@@ -1,7 +1,8 @@
 // Theme Toggle
 const initTheme = () => {
   const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
+  // Default to dark mode if no preference is saved
+  if (savedTheme !== "light") {
     document.body.classList.add("dark-mode");
   }
 };
