@@ -100,15 +100,27 @@ if (canvas && !window.location.pathname.includes("admin")) {
       const isDark = document.body.classList.contains("dark-mode");
       if (isDark) {
         if (Math.random() > 0.5) {
-          this.r = 16; this.g = 185; this.b = 129; this.a = 0.9;
+          this.r = 16;
+          this.g = 185;
+          this.b = 129;
+          this.a = 0.9;
         } else {
-          this.r = 52; this.g = 211; this.b = 153; this.a = 0.85;
+          this.r = 52;
+          this.g = 211;
+          this.b = 153;
+          this.a = 0.85;
         }
       } else {
         if (Math.random() > 0.5) {
-          this.r = 6; this.g = 78; this.b = 59; this.a = 0.85;
+          this.r = 6;
+          this.g = 78;
+          this.b = 59;
+          this.a = 0.85;
         } else {
-          this.r = 5; this.g = 150; this.b = 105; this.a = 0.8;
+          this.r = 5;
+          this.g = 150;
+          this.b = 105;
+          this.a = 0.8;
         }
       }
     }
@@ -135,8 +147,12 @@ if (canvas && !window.location.pathname.includes("admin")) {
     draw() {
       // Simple radial gradient, no shadowBlur (expensive)
       const gradient = ctx.createRadialGradient(
-        this.x, this.y, 0,
-        this.x, this.y, this.size,
+        this.x,
+        this.y,
+        0,
+        this.x,
+        this.y,
+        this.size,
       );
       gradient.addColorStop(0, `rgba(${this.r},${this.g},${this.b},${this.a})`);
       gradient.addColorStop(1, `rgba(${this.r},${this.g},${this.b},0)`);
@@ -302,6 +318,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       ? "http://127.0.0.1:8000/api"
       : window.location.origin + "/api";
 
+  // Record visit — count once per 24 hours per browser
+  const VISIT_COOLDOWN_MS = 2 * 60 * 60 * 1000;
+  const lastVisit = parseInt(
+    localStorage.getItem("portfolio_last_visit") || "0",
+    10,
+  );
+  if (Date.now() - lastVisit > VISIT_COOLDOWN_MS) {
+    localStorage.setItem("portfolio_last_visit", Date.now().toString());
+    fetch(`${API_URL}/visit`, { method: "POST" }).catch(() => {});
+  }
+
   // Load profile photo from API, fall back to static file if not uploaded
   (async () => {
     try {
@@ -349,9 +376,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     card.innerHTML = `
                 <div class="project-card-image">
-                    ${project.image
-                      ? `<img src="${project.image}" alt="${project.title}" loading="lazy" />`
-                      : `<div class="project-card-image-placeholder"></div>`
+                    ${
+                      project.image
+                        ? `<img src="${project.image}" alt="${project.title}" loading="lazy" />`
+                        : `<div class="project-card-image-placeholder"></div>`
                     }
                 </div>
                 <div class="project-info">
@@ -394,9 +422,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     visibleProjectCount = 0;
 
     // Render first batch
-    allProjects.slice(0, PROJECTS_PAGE_SIZE).forEach((p) =>
-      appendProjectCard(p, projectsContainer)
-    );
+    allProjects
+      .slice(0, PROJECTS_PAGE_SIZE)
+      .forEach((p) => appendProjectCard(p, projectsContainer));
     visibleProjectCount = Math.min(PROJECTS_PAGE_SIZE, allProjects.length);
 
     // Show button only if there are more projects
@@ -426,7 +454,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const section = document.getElementById("experience-work-section");
     if (!container) return;
     container.innerHTML = "";
-    if (items.length === 0) { section.style.display = "none"; return; }
+    if (items.length === 0) {
+      section.style.display = "none";
+      return;
+    }
     section.style.display = "";
     items.forEach((item) => {
       const el = document.createElement("div");
@@ -470,7 +501,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const section = document.getElementById("experience-hackathon-section");
     if (!container) return;
     container.innerHTML = "";
-    if (items.length === 0) { section.style.display = "none"; return; }
+    if (items.length === 0) {
+      section.style.display = "none";
+      return;
+    }
     section.style.display = "";
     items.forEach((item) => {
       const el = document.createElement("div");
@@ -495,8 +529,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ── Show/hide entire section + nav link ───────────
   const renderExperienceSection = async () => {
     await Promise.all([renderExperience(), renderHackathons()]);
-    const workEmpty = document.getElementById("timeline-container").children.length === 0;
-    const hackEmpty = document.getElementById("hackathon-container").children.length === 0;
+    const workEmpty =
+      document.getElementById("timeline-container").children.length === 0;
+    const hackEmpty =
+      document.getElementById("hackathon-container").children.length === 0;
     const section = document.getElementById("experience");
     const navLink = document.querySelector('a[href="#experience"]');
     const hide = workEmpty && hackEmpty;
@@ -515,7 +551,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const projectsContainer = document.querySelector(".projects-grid");
       const nextBatch = allProjects.slice(
         visibleProjectCount,
-        visibleProjectCount + PROJECTS_PAGE_SIZE
+        visibleProjectCount + PROJECTS_PAGE_SIZE,
       );
       nextBatch.forEach((p) => appendProjectCard(p, projectsContainer));
       visibleProjectCount += nextBatch.length;

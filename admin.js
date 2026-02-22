@@ -129,6 +129,7 @@ async function showDashboard() {
   }
   loginScreen.style.display = "none";
   dashboard.style.display = "block";
+  await loadStats();
   await renderAdminProjects();
   await loadResumeStatus();
   await loadPhotoStatus();
@@ -158,6 +159,21 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   sessionStorage.removeItem("portfolio_admin_token");
   location.reload();
 });
+
+async function loadStats() {
+  try {
+    const response = await fetch(`${API_URL}/admin/stats`, {
+      headers: { "X-Session-Token": sessionToken },
+    });
+    const data = await response.json();
+    if (data.success) {
+      const el = document.getElementById("stat-visitors");
+      if (el) el.textContent = data.visitor_count.toLocaleString();
+    }
+  } catch (e) {
+    console.error("Error loading stats:", e);
+  }
+}
 
 // CRUD Logic
 const projectForm = document.getElementById("project-form");

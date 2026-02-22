@@ -547,6 +547,36 @@ async def view_resume(db: Session = Depends(get_db)):
         print(f"Error decoding PDF: {e}")
         return HTMLResponse(content="<h1>Error loading resume</h1>", status_code=500)
 
+# Visitor Counter API
+@app.post("/api/visit")
+async def record_visit(db: Session = Depends(get_db)):
+    """Increment visitor counter (called silently on each page load)"""
+    try:
+        config = db.query(SiteConfigModel).filter(SiteConfigModel.key == "visitor_count").first()
+        if config:
+            config.value = str(int(config.value or 0) + 1)
+        else:
+            db.add(SiteConfigModel(key="visitor_count", value="1"))
+        db.commit()
+        return {"success": True}
+    except Exception as e:
+        print(f"Error recording visit: {e}")
+        return {"success": False}
+
+@app.get("/api/admin/stats")
+async def get_stats(session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Get site stats (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    try:
+        config = db.query(SiteConfigModel).filter(SiteConfigModel.key == "visitor_count").first()
+        count = int(config.value) if config and config.value else 0
+        return {"success": True, "visitor_count": count}
+    except Exception as e:
+        print(f"Error getting stats: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
 # Profile Photo API
 @app.get("/api/photo")
 async def get_photo(db: Session = Depends(get_db)):

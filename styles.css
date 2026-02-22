@@ -710,6 +710,18 @@ body.dark-mode .btn-primary {
   .projects-grid {
     grid-template-columns: 1fr;
   }
+
+  .project-card {
+    min-height: auto;
+  }
+
+  .project-card-image {
+    height: 160px;
+  }
+
+  .project-info h3 {
+    font-size: 1.2rem;
+  }
 }
 
 /* Show More button */
@@ -1267,8 +1279,37 @@ body.dark-mode .tech-tag {
     padding-left: 1.5rem;
   }
 
+  .timeline-dot {
+    left: calc(-1.5rem - 7px);
+  }
+
+  .timeline-card {
+    padding: 1rem 1.2rem;
+  }
+
+  .timeline-role {
+    font-size: 0.95rem;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .timeline-date {
+    white-space: normal;
+  }
+
   .hackathon-grid {
     grid-template-columns: 1fr;
+  }
+
+  .hackathon-card {
+    padding: 1rem 1.2rem;
+  }
+
+  .hackathon-name {
+    font-size: 0.95rem;
   }
 }
 
@@ -1413,6 +1454,22 @@ footer {
 
   .hero-title {
     font-size: 3rem;
+  }
+
+  .section-padding {
+    padding: 5rem 0;
+  }
+
+  .about-card {
+    padding: 1.5rem;
+  }
+
+  .about-text p {
+    font-size: 0.95rem;
+  }
+
+  .about-photo img {
+    max-width: 240px;
   }
 
   .project-card {
