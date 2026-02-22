@@ -620,17 +620,16 @@ body.dark-mode .btn-primary {
 
 .section-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   position: relative;
-  display: inline-block;
+  display: block;
 }
 
 .section-title::after {
   content: "";
   position: absolute;
   bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 80px;
   height: 4px;
   background: linear-gradient(
@@ -645,12 +644,6 @@ body.dark-mode .btn-primary {
   margin-bottom: 1.5rem;
   color: var(--text-muted);
   font-size: 1.1rem;
-}
-
-/* Left-align the section title underline when inside the about card */
-.about-card .section-title::after {
-  left: 0;
-  transform: none;
 }
 
 /* Photo column */
@@ -1134,7 +1127,7 @@ body.dark-mode .tech-tag:hover {
   font-weight: 600;
   margin-bottom: 2rem;
   color: var(--text-main);
-  text-align: center;
+  text-align: left;
   position: relative;
   display: inline-block;
   width: 100%;
@@ -1144,8 +1137,7 @@ body.dark-mode .tech-tag:hover {
   content: "";
   position: absolute;
   bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 60px;
   height: 3px;
   background: linear-gradient(
