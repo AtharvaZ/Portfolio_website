@@ -1120,24 +1120,55 @@ skillForm.addEventListener("submit", async (e) => {
     'input[name="icon-type"]:checked',
   ).value;
 
+  // Debug: Log raw field values
+  console.log("Form submission debug:", {
+    skillName: document.getElementById("skill-name").value,
+    skillCategory: document.getElementById("skill-category").value,
+    iconType: iconType,
+    skillIconValue: document.getElementById("skill-icon").value,
+    skillImageValue: document.getElementById("skill-image").value,
+  });
+
+  // Get and clean the icon value
+  let iconValue = document.getElementById("skill-icon").value.trim();
+
+  // Validate icon input - reject HTML tags
+  if (iconValue && iconType !== "upload") {
+    if (iconValue.includes("<") || iconValue.includes(">")) {
+      alert(
+        'Please enter only the CSS class name, not the full HTML tag.\n\nExample: devicon-python-plain colored\nNOT: <i class="devicon-python-plain colored"></i>',
+      );
+      return;
+    }
+  }
+
   const data = {
     name: document.getElementById("skill-name").value.trim(),
     category: document.getElementById("skill-category").value,
-    icon:
-      iconType !== "upload"
-        ? document.getElementById("skill-icon").value.trim()
-        : null,
+    icon: iconType !== "upload" ? iconValue || null : null,
     image:
       iconType === "upload"
-        ? document.getElementById("skill-image").value
+        ? document.getElementById("skill-image").value || null
         : null,
   };
 
-  // Validate that either icon or image is provided
-  if (!data.icon && !data.image) {
-    alert("Please provide either an icon class or upload an image.");
+  // Validate name
+  if (!data.name) {
+    alert("Please enter a skill name.");
     return;
   }
+
+  // Validate that either icon or image is provided
+  if (!data.icon && !data.image) {
+    if (iconType === "upload") {
+      alert("Please upload an image for the skill icon.");
+    } else {
+      alert("Please enter an icon class (e.g., devicon-python-plain colored).");
+    }
+    return;
+  }
+
+  console.log("Submitting skill data:", data);
 
   try {
     const url = id ? `${API_URL}/skills/${id}` : `${API_URL}/skills`;
@@ -1151,15 +1182,19 @@ skillForm.addEventListener("submit", async (e) => {
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) throw new Error("Save failed");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Server error:", errorData);
+      throw new Error(errorData.detail || "Save failed");
+    }
 
     await renderAdminSkills();
     skillForm.reset();
     resetSkillForm();
     alert(id ? "Skill updated successfully!" : "Skill added successfully!");
   } catch (err) {
-    console.error(err);
-    alert("Failed to save skill. Please try again.");
+    console.error("Error saving skill:", err);
+    alert(`Failed to save skill: ${err.message}`);
   }
 });
 

@@ -1099,7 +1099,16 @@ async def read_root():
     try:
         with open(index_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
-        return HTMLResponse(content=html_content, media_type="text/html")
+        # Add cache control headers to prevent aggressive caching
+        return HTMLResponse(
+            content=html_content, 
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
     except Exception as e:
         return HTMLResponse(content=f"<h1>Error</h1><p>Failed to read index.html: {str(e)}</p>", status_code=500)
 
@@ -1108,34 +1117,67 @@ async def read_root():
 async def admin_page():
     admin_path = BASE_DIR / "admin.html"
     if admin_path.exists():
-        return FileResponse(admin_path, media_type="text/html")
+        with open(admin_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        # Add cache control headers to prevent aggressive caching
+        return HTMLResponse(
+            content=html_content, 
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
     raise HTTPException(status_code=404, detail="Admin page not found")
 
 # Serve static files (CSS, JS, images) - catch-all route comes last
 @app.get("/{filename:path}")
 async def serve_static(filename: str):
-    """Serve static files like CSS, JS, images"""
+    """Serve static files like CSS, JS, images with proper cache control"""
     file_path = BASE_DIR / filename
     # Security: only serve files from the base directory
     if not str(file_path).startswith(str(BASE_DIR)):
         raise HTTPException(status_code=403, detail="Access denied")
     if file_path.exists() and file_path.is_file():
-        # Set proper content type based on file extension
+        # Set proper content type and cache control based on file extension
         media_type = None
+        cache_control = "public, max-age=3600, must-revalidate"  # Default: 1 hour
+        
         if filename.endswith('.css'):
             media_type = 'text/css'
+            cache_control = "no-cache, must-revalidate"  # Always check for CSS updates
         elif filename.endswith('.js'):
             media_type = 'application/javascript'
+            cache_control = "no-cache, must-revalidate"  # Always check for JS updates
         elif filename.endswith('.html'):
             media_type = 'text/html'
+            cache_control = "no-cache, no-store, must-revalidate"  # Never cache HTML
         elif filename.endswith('.png'):
             media_type = 'image/png'
+            cache_control = "public, max-age=86400"  # Images: 24 hours
         elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
             media_type = 'image/jpeg'
+            cache_control = "public, max-age=86400"  # Images: 24 hours
         elif filename.endswith('.svg'):
             media_type = 'image/svg+xml'
+            cache_control = "public, max-age=86400"  # Images: 24 hours
         
-        return FileResponse(file_path, media_type=media_type)
+        # Read file and return with cache control headers
+        with open(file_path, 'rb') as f:
+            content = f.read()
+        
+        # Build headers dictionary, excluding None values
+        headers = {"Cache-Control": cache_control}
+        if filename.endswith(('.html', '.css', '.js')):
+            headers["Pragma"] = "no-cache"
+            headers["Expires"] = "0"
+        
+        return Response(
+            content=content,
+            media_type=media_type,
+            headers=headers
+        )
     raise HTTPException(status_code=404, detail="File not found")
 
 if __name__ == "__main__":
