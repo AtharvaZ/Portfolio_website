@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Header, Query
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Header, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse, Response
@@ -8,6 +8,8 @@ import os
 import resend
 import json
 import base64
+import html
+import time
 from pathlib import Path
 from dotenv import load_dotenv
 import secrets
@@ -28,7 +30,7 @@ BASE_DIR = Path(__file__).parent
 # add http://127.0.0.1:8000/ in allow_origins if running locally
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["www.azaveri.dev"],  # In production, replace with your actual domain
+    allow_origins=["https://www.azaveri.dev"],  # In production, replace with your actual domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -339,8 +341,38 @@ if not ADMIN_USERNAME or not ADMIN_PASSWORD:
     print("WARNING: ADMIN_USERNAME or ADMIN_PASSWORD not set in .env file!")
     print("Please set these values in your .env file for security.")
 
-# Simple session management (in production, use proper JWT tokens)
-active_sessions = set()
+# Session management with expiry
+# Maps token -> expiry timestamp (unix seconds)
+active_sessions: dict = {}
+SESSION_TIMEOUT_SECONDS = 8 * 60 * 60  # 8 hours
+
+# Brute-force login protection
+# Maps IP -> [timestamp_of_attempt, ...]
+_login_attempts: dict = {}
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_WINDOW_SECONDS = 15 * 60  # 15 minutes
+
+
+def _is_rate_limited(ip: str) -> bool:
+    """Return True if the IP has exceeded login attempt limits."""
+    now = time.time()
+    attempts = _login_attempts.get(ip, [])
+    # Drop attempts outside the window
+    attempts = [t for t in attempts if now - t < LOCKOUT_WINDOW_SECONDS]
+    _login_attempts[ip] = attempts
+    return len(attempts) >= MAX_LOGIN_ATTEMPTS
+
+
+def _record_attempt(ip: str):
+    now = time.time()
+    attempts = _login_attempts.get(ip, [])
+    attempts = [t for t in attempts if now - t < LOCKOUT_WINDOW_SECONDS]
+    attempts.append(now)
+    _login_attempts[ip] = attempts
+
+
+def _clear_attempts(ip: str):
+    _login_attempts.pop(ip, None)
 
 # Pydantic Models for API
 class ContactForm(BaseModel):
@@ -411,9 +443,12 @@ def get_resume_from_db():
         db.close()
 
 def verify_session(session_token: str):
-    """Verify admin session token"""
-    if session_token in active_sessions:
+    """Verify admin session token and check expiry."""
+    expiry = active_sessions.get(session_token)
+    if expiry and time.time() < expiry:
         return True
+    # Remove expired token
+    active_sessions.pop(session_token, None)
     raise HTTPException(status_code=401, detail="Invalid or expired session")
 
 # Email configuration from environment variables
@@ -440,28 +475,48 @@ async def health_check():
 
 # Admin Authentication
 @app.post("/api/admin/login")
-async def admin_login(credentials: LoginRequest):
-    """Admin login endpoint"""
+async def admin_login(credentials: LoginRequest, request: Request):
+    """Admin login endpoint with brute-force protection and timing-safe comparison."""
+    client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
+    # Take only the first IP if comma-separated (proxy chain)
+    client_ip = client_ip.split(",")[0].strip()
+
+    # Check brute-force lockout
+    if _is_rate_limited(client_ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many login attempts. Please wait 15 minutes before trying again."
+        )
+
     # Check if credentials are configured
     if not ADMIN_USERNAME or not ADMIN_PASSWORD:
         raise HTTPException(
             status_code=500,
-            detail="Admin credentials not configured. Please set ADMIN_USERNAME and ADMIN_PASSWORD in .env file."
+            detail="Server configuration error. Contact the administrator."
         )
-    
-    # Validate credentials
-    if credentials.username == ADMIN_USERNAME and credentials.password == ADMIN_PASSWORD:
+
+    # Constant-time comparison to prevent timing attacks
+    username_ok = secrets.compare_digest(
+        credentials.username.encode(), ADMIN_USERNAME.encode()
+    )
+    password_ok = secrets.compare_digest(
+        credentials.password.encode(), ADMIN_PASSWORD.encode()
+    )
+
+    if username_ok and password_ok:
+        _clear_attempts(client_ip)
         session_token = secrets.token_urlsafe(32)
-        active_sessions.add(session_token)
+        active_sessions[session_token] = time.time() + SESSION_TIMEOUT_SECONDS
         return {"success": True, "token": session_token}
-    
+
+    _record_attempt(client_ip)
     raise HTTPException(status_code=401, detail="Invalid username or password")
 
 @app.post("/api/admin/logout")
 async def admin_logout(session_token: str = Header(None, alias="X-Session-Token")):
     """Admin logout endpoint"""
-    if session_token and session_token in active_sessions:
-        active_sessions.remove(session_token)
+    if session_token:
+        active_sessions.pop(session_token, None)
     return {"success": True}
 
 @app.get("/api/admin/verify")
@@ -655,7 +710,11 @@ async def upload_resume(resume: ResumeResponse, session_token: str = Header(None
     verify_session(session_token)
     
     if not resume.data:
-         raise HTTPException(status_code=400, detail="No resume data provided")
+        raise HTTPException(status_code=400, detail="No resume data provided")
+    if not resume.data.startswith(ALLOWED_PDF_PREFIX):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only PDF files are allowed.")
+    if len(resume.data) > MAX_UPLOAD_B64_LEN:
+        raise HTTPException(status_code=413, detail="Resume exceeds maximum allowed size of 5 MB")
          
     try:
         config = db.query(SiteConfigModel).filter(SiteConfigModel.key == "resume_pdf").first()
@@ -746,6 +805,31 @@ async def get_photo(db: Session = Depends(get_db)):
         print(f"Error getting photo: {e}")
         return {"success": False, "message": "Error fetching photo"}
 
+# Max upload size: 5 MB as base64 (~6.7 MB encoded)
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+MAX_UPLOAD_B64_LEN = int(MAX_UPLOAD_BYTES * 1.37) + 100  # base64 overhead
+
+ALLOWED_IMAGE_PREFIXES = (
+    "data:image/jpeg",
+    "data:image/jpg",
+    "data:image/png",
+    "data:image/gif",
+    "data:image/webp",
+    "data:image/svg+xml",
+)
+ALLOWED_PDF_PREFIX = "data:application/pdf"
+
+
+def validate_image_upload(data: str, field_name: str = "image"):
+    """Validate base64 image data URI: type and size."""
+    if not data:
+        raise HTTPException(status_code=400, detail=f"No {field_name} data provided")
+    if not any(data.startswith(p) for p in ALLOWED_IMAGE_PREFIXES):
+        raise HTTPException(status_code=400, detail=f"Invalid {field_name} type. Allowed: JPEG, PNG, GIF, WEBP, SVG")
+    if len(data) > MAX_UPLOAD_B64_LEN:
+        raise HTTPException(status_code=413, detail=f"{field_name} exceeds maximum allowed size of 5 MB")
+
+
 @app.post("/api/photo")
 async def upload_photo(data: dict, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
     """Upload profile photo (admin only)"""
@@ -754,8 +838,7 @@ async def upload_photo(data: dict, session_token: str = Header(None, alias="X-Se
     verify_session(session_token)
 
     photo_data = data.get("data")
-    if not photo_data:
-        raise HTTPException(status_code=400, detail="No photo data provided")
+    validate_image_upload(photo_data, "photo")
 
     try:
         config = db.query(SiteConfigModel).filter(SiteConfigModel.key == "profile_photo").first()
@@ -803,12 +886,12 @@ async def submit_contact_form(form: ContactForm):
 
                 <h3>Contact Information:</h3>
                 <ul>
-                    <li><strong>Name:</strong> {form.name}</li>
-                    <li><strong>Email:</strong> {form.email}</li>
+                    <li><strong>Name:</strong> {html.escape(form.name)}</li>
+                    <li><strong>Email:</strong> {html.escape(str(form.email))}</li>
                 </ul>
 
                 <h3>Message:</h3>
-                <p>{form.message.replace(chr(10), '<br>')}</p>
+                <p>{html.escape(form.message).replace(chr(10), '<br>')}</p>
 
                 <hr>
                 <p style="color: #666; font-size: 12px;">This email was sent from your portfolio contact form.</p>
@@ -1128,7 +1211,16 @@ async def read_root():
     try:
         with open(index_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
-        return HTMLResponse(content=html_content, media_type="text/html")
+        # Add cache control headers to prevent aggressive caching
+        return HTMLResponse(
+            content=html_content, 
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
     except Exception as e:
         return HTMLResponse(content=f"<h1>Error</h1><p>Failed to read index.html: {str(e)}</p>", status_code=500)
 
@@ -1137,34 +1229,74 @@ async def read_root():
 async def admin_page():
     admin_path = BASE_DIR / "admin.html"
     if admin_path.exists():
-        return FileResponse(admin_path, media_type="text/html")
+        with open(admin_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        # Add cache control headers to prevent aggressive caching
+        return HTMLResponse(
+            content=html_content, 
+            media_type="text/html",
+            headers={
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
     raise HTTPException(status_code=404, detail="Admin page not found")
 
 # Serve static files (CSS, JS, images) - catch-all route comes last
 @app.get("/{filename:path}")
 async def serve_static(filename: str):
-    """Serve static files like CSS, JS, images"""
+    """Serve static files like CSS, JS, images with proper cache control"""
     file_path = BASE_DIR / filename
-    # Security: only serve files from the base directory
-    if not str(file_path).startswith(str(BASE_DIR)):
+    # Security: resolve symlinks and "../" to prevent path traversal attacks
+    try:
+        resolved = file_path.resolve()
+        base_resolved = BASE_DIR.resolve()
+    except Exception:
         raise HTTPException(status_code=403, detail="Access denied")
+    if not str(resolved).startswith(str(base_resolved)):
+        raise HTTPException(status_code=403, detail="Access denied")
+    # Use resolved path for all further operations
+    file_path = resolved
     if file_path.exists() and file_path.is_file():
-        # Set proper content type based on file extension
+        # Set proper content type and cache control based on file extension
         media_type = None
+        cache_control = "public, max-age=3600, must-revalidate"  # Default: 1 hour
+        
         if filename.endswith('.css'):
             media_type = 'text/css'
+            cache_control = "no-cache, must-revalidate"  # Always check for CSS updates
         elif filename.endswith('.js'):
             media_type = 'application/javascript'
+            cache_control = "no-cache, must-revalidate"  # Always check for JS updates
         elif filename.endswith('.html'):
             media_type = 'text/html'
+            cache_control = "no-cache, no-store, must-revalidate"  # Never cache HTML
         elif filename.endswith('.png'):
             media_type = 'image/png'
+            cache_control = "public, max-age=86400"  # Images: 24 hours
         elif filename.endswith('.jpg') or filename.endswith('.jpeg'):
             media_type = 'image/jpeg'
+            cache_control = "public, max-age=86400"  # Images: 24 hours
         elif filename.endswith('.svg'):
             media_type = 'image/svg+xml'
+            cache_control = "public, max-age=86400"  # Images: 24 hours
         
-        return FileResponse(file_path, media_type=media_type)
+        # Read file and return with cache control headers
+        with open(file_path, 'rb') as f:
+            content = f.read()
+        
+        # Build headers dictionary, excluding None values
+        headers = {"Cache-Control": cache_control}
+        if filename.endswith(('.html', '.css', '.js')):
+            headers["Pragma"] = "no-cache"
+            headers["Expires"] = "0"
+        
+        return Response(
+            content=content,
+            media_type=media_type,
+            headers=headers
+        )
     raise HTTPException(status_code=404, detail="File not found")
 
 if __name__ == "__main__":

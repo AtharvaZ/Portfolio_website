@@ -6,6 +6,27 @@ const initTheme = () => {
   }
 };
 
+// ── Security helpers ──────────────────────────────
+/** Escape HTML special characters to prevent XSS in innerHTML. */
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+/** Allow only http/https/relative URLs to prevent javascript: injection. */
+function safeUrl(url) {
+  if (!url) return "#";
+  const u = String(url).trim();
+  if (/^https?:\/\//i.test(u) || u.startsWith("/") || u.startsWith("#"))
+    return u;
+  return "#";
+}
+
 // Initialize theme before other scripts
 initTheme();
 
@@ -226,8 +247,8 @@ async function renderAdminProjects() {
     item.draggable = true;
     item.innerHTML = `
             <span class="drag-handle" title="Drag to reorder">⠿</span>
-            <h4>${project.title}</h4>
-            <p>${project.desc.substring(0, 60)}...</p>
+            <h4>${escapeHtml(project.title)}</h4>
+            <p>${escapeHtml(project.desc.substring(0, 60))}...</p>
             <div class="admin-actions">
                 <button class="action-btn edit-btn" onclick="editProject(${project.id})">Edit</button>
                 <button class="action-btn delete-btn" onclick="deleteProject(${project.id})">Delete</button>
@@ -696,9 +717,9 @@ async function renderAdminExperience() {
     el.draggable = true;
     el.innerHTML = `
       <span class="drag-handle" title="Drag to reorder">⠿</span>
-      ${item.logo ? `<img src="${item.logo}" alt="${item.company} logo" style="height:32px;max-width:80px;object-fit:contain;margin-bottom:0.4rem;display:block;">` : ""}
-      <h4>${item.role}</h4>
-      <p>${item.company} · ${item.date_range}</p>
+      ${item.logo ? `<img src="${safeImgSrc(item.logo)}" alt="${escapeHtml(item.company)} logo" style="height:32px;max-width:80px;object-fit:contain;margin-bottom:0.4rem;display:block;">` : ""}
+      <h4>${escapeHtml(item.role)}</h4>
+      <p>${escapeHtml(item.company)} · ${escapeHtml(item.date_range)}</p>
       <div class="admin-actions">
         <button class="action-btn edit-btn" onclick="editExperience(${item.id})">Edit</button>
         <button class="action-btn delete-btn" onclick="deleteExperience(${item.id})">Delete</button>
@@ -856,8 +877,8 @@ async function renderAdminHackathons() {
     el.draggable = true;
     el.innerHTML = `
       <span class="drag-handle" title="Drag to reorder">⠿</span>
-      <h4>${item.name}</h4>
-      <p>${[item.placement, item.date].filter(Boolean).join(" · ")}</p>
+      <h4>${escapeHtml(item.name)}</h4>
+      <p>${[item.placement, item.date].filter(Boolean).map(escapeHtml).join(" · ")}</p>
       <div class="admin-actions">
         <button class="action-btn edit-btn" onclick="editHackathon(${item.id})">Edit</button>
         <button class="action-btn delete-btn" onclick="deleteHackathon(${item.id})">Delete</button>
@@ -1087,23 +1108,33 @@ async function renderAdminSkills() {
 
       let iconHTML = "";
       if (skill.image) {
-        iconHTML = `<img src="${skill.image}" alt="${skill.name}" style="width: 32px; height: 32px; object-fit: contain;" />`;
+        iconHTML = `<img src="${safeImgSrc(skill.image)}" alt="${escapeHtml(skill.name)}" style="width: 32px; height: 32px; object-fit: contain;" />`;
       } else if (skill.icon) {
-        iconHTML = `<i class="${skill.icon}" style="font-size: 32px;"></i>`;
+        // icon is a CSS class name — only allow word chars, hyphens, spaces
+        const safeIcon = String(skill.icon).replace(/[^\w\s-]/g, "");
+        iconHTML = `<i class="${safeIcon}" style="font-size: 32px;"></i>`;
       } else {
         iconHTML = `<i class="fa-solid fa-code" style="font-size: 32px; color: var(--text-muted);"></i>`;
       }
 
+      skillCard.dataset.category = category; // store via dataset, not inline onclick
       skillCard.innerHTML = `
         ${iconHTML}
         <div style="flex: 1; min-width: 0;">
-          <strong style="display: block; word-break: break-word;">${skill.name}</strong>
+          <strong style="display: block; word-break: break-word;">${escapeHtml(skill.name)}</strong>
         </div>
         <div class="admin-actions" style="opacity: 1; position: static; transform: none; display: flex; gap: 0.5rem;">
-          <button class="action-btn edit-btn" onclick="editSkill(${skill.id}, '${category}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Edit</button>
-          <button class="action-btn delete-btn" onclick="deleteSkill(${skill.id})" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">✕</button>
+          <button class="action-btn edit-btn" data-id="${skill.id}" data-action="edit-skill" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Edit</button>
+          <button class="action-btn delete-btn" data-id="${skill.id}" data-action="delete-skill" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">✕</button>
         </div>
       `;
+      // Attach skill card button listeners safely (avoids onclick with user data)
+      skillCard
+        .querySelector('[data-action="edit-skill"]')
+        .addEventListener("click", () => editSkill(skill.id, category));
+      skillCard
+        .querySelector('[data-action="delete-skill"]')
+        .addEventListener("click", () => deleteSkill(skill.id));
 
       skillsGrid.appendChild(skillCard);
     });
@@ -1120,24 +1151,55 @@ skillForm.addEventListener("submit", async (e) => {
     'input[name="icon-type"]:checked',
   ).value;
 
+  // Debug: Log raw field values
+  console.log("Form submission debug:", {
+    skillName: document.getElementById("skill-name").value,
+    skillCategory: document.getElementById("skill-category").value,
+    iconType: iconType,
+    skillIconValue: document.getElementById("skill-icon").value,
+    skillImageValue: document.getElementById("skill-image").value,
+  });
+
+  // Get and clean the icon value
+  let iconValue = document.getElementById("skill-icon").value.trim();
+
+  // Validate icon input - reject HTML tags
+  if (iconValue && iconType !== "upload") {
+    if (iconValue.includes("<") || iconValue.includes(">")) {
+      alert(
+        'Please enter only the CSS class name, not the full HTML tag.\n\nExample: devicon-python-plain colored\nNOT: <i class="devicon-python-plain colored"></i>',
+      );
+      return;
+    }
+  }
+
   const data = {
     name: document.getElementById("skill-name").value.trim(),
     category: document.getElementById("skill-category").value,
-    icon:
-      iconType !== "upload"
-        ? document.getElementById("skill-icon").value.trim()
-        : null,
+    icon: iconType !== "upload" ? iconValue || null : null,
     image:
       iconType === "upload"
-        ? document.getElementById("skill-image").value
+        ? document.getElementById("skill-image").value || null
         : null,
   };
 
-  // Validate that either icon or image is provided
-  if (!data.icon && !data.image) {
-    alert("Please provide either an icon class or upload an image.");
+  // Validate name
+  if (!data.name) {
+    alert("Please enter a skill name.");
     return;
   }
+
+  // Validate that either icon or image is provided
+  if (!data.icon && !data.image) {
+    if (iconType === "upload") {
+      alert("Please upload an image for the skill icon.");
+    } else {
+      alert("Please enter an icon class (e.g., devicon-python-plain colored).");
+    }
+    return;
+  }
+
+  console.log("Submitting skill data:", data);
 
   try {
     const url = id ? `${API_URL}/skills/${id}` : `${API_URL}/skills`;
@@ -1151,15 +1213,19 @@ skillForm.addEventListener("submit", async (e) => {
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) throw new Error("Save failed");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Server error:", errorData);
+      throw new Error(errorData.detail || "Save failed");
+    }
 
     await renderAdminSkills();
     skillForm.reset();
     resetSkillForm();
     alert(id ? "Skill updated successfully!" : "Skill added successfully!");
   } catch (err) {
-    console.error(err);
-    alert("Failed to save skill. Please try again.");
+    console.error("Error saving skill:", err);
+    alert(`Failed to save skill: ${err.message}`);
   }
 });
 
