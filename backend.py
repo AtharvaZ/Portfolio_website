@@ -25,9 +25,10 @@ app = FastAPI(title="Portfolio API")
 BASE_DIR = Path(__file__).parent
 
 # CORS middleware to allow frontend to communicate with backend
+# add http://127.0.0.1:8000/ in allow_origins if running locally
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["www.azaveri.dev", "http://127.0.0.1:8000/"],  # In production, replace with your actual domain
+    allow_origins=["www.azaveri.dev"],  # In production, replace with your actual domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -166,6 +167,22 @@ def seed_default_skills():
             
             print("Skills migration: Seeding default skills...")
             
+            # Helper function to load image as base64
+            def load_image_as_base64(filename):
+                """Load an image file and return as base64 data URI"""
+                try:
+                    img_path = BASE_DIR / "assets" / filename
+                    if img_path.exists():
+                        with open(img_path, 'rb') as f:
+                            img_data = base64.b64encode(f.read()).decode('utf-8')
+                            # Detect image type from extension
+                            ext = filename.split('.')[-1].lower()
+                            mime_type = f"image/{ext}" if ext != 'svg' else "image/svg+xml"
+                            return f"data:{mime_type};base64,{img_data}"
+                except Exception as e:
+                    print(f"Warning: Could not load image {filename}: {e}")
+                return None
+            
             # Default skills organized by category
             default_skills = {
                 "Languages": [
@@ -181,8 +198,8 @@ def seed_default_skills():
                     {"name": "Flask", "icon": "devicon-flask-original"},
                     {"name": "JavaFX", "icon": "devicon-java-plain colored"},
                     {"name": "sentence-transformers", "icon": "devicon-python-plain colored"},
-                    {"name": "FAISS", "icon": "devicon-python-plain colored"},  # Can replace with custom image later
-                    {"name": "HuggingFace", "icon": "devicon-python-plain colored"},  # Can replace with custom image later
+                    {"name": "FAISS", "image": load_image_as_base64("faiss.png")},
+                    {"name": "HuggingFace", "image": load_image_as_base64("huggingface.png")},
                     {"name": "Tkinter", "icon": "devicon-python-plain colored"},
                     {"name": "SQLAlchemy", "icon": "devicon-sqlalchemy-plain"},
                 ],
@@ -190,10 +207,10 @@ def seed_default_skills():
                     {"name": "Git", "icon": "devicon-git-plain colored"},
                     {"name": "Maven", "icon": "devicon-maven-plain colored"},
                     {"name": "SQLite", "icon": "devicon-sqlite-plain colored"},
-                    {"name": "H2 Database", "icon": "devicon-sqlite-plain colored"},  # Placeholder icon
-                    {"name": "Claude API", "icon": "fa-solid fa-robot"},  # Can replace with custom image later
-                    {"name": "Gemini API", "icon": "fa-solid fa-star"},  # Can replace with custom image later
-                    {"name": "Ollama", "icon": "fa-solid fa-server"},  # Can replace with custom image later
+                    {"name": "H2 Database", "image": load_image_as_base64("h2-database.png")},
+                    {"name": "Claude API", "image": load_image_as_base64("claude.png")},
+                    {"name": "Gemini API", "image": load_image_as_base64("gemini.png")},
+                    {"name": "Ollama", "image": load_image_as_base64("ollama.png")},
                     {"name": "Piston API", "icon": "fa-solid fa-code"},
                     {"name": "Linux", "icon": "devicon-linux-plain"},
                     {"name": "JUnit", "icon": "devicon-junit-plain colored"},
@@ -206,8 +223,8 @@ def seed_default_skills():
                     new_skill = SkillModel(
                         name=skill_data["name"],
                         category=category,
-                        icon=skill_data["icon"],
-                        image=None,
+                        icon=skill_data.get("icon"),
+                        image=skill_data.get("image"),
                         position=position
                     )
                     db.add(new_skill)
