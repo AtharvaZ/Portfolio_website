@@ -25,9 +25,10 @@ app = FastAPI(title="Portfolio API")
 BASE_DIR = Path(__file__).parent
 
 # CORS middleware to allow frontend to communicate with backend
+# add http://127.0.0.1:8000/ in allow_origins if running locally
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["www.azaveri.dev", "http://127.0.0.1:8000/"],  # In production, replace with your actual domain
+    allow_origins=["www.azaveri.dev"],  # In production, replace with your actual domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -91,6 +92,15 @@ class HackathonModel(Base):
     position     = Column(Integer, nullable=True)
     project_link = Column(Text, nullable=True)
 
+class SkillModel(Base):
+    __tablename__ = "skills"
+    id       = Column(Integer, primary_key=True, index=True)
+    name     = Column(String, nullable=False)
+    category = Column(String, nullable=False)  # e.g., "Languages", "Frameworks & Libraries"
+    icon     = Column(String, nullable=True)   # devicon class name or FA icon
+    image    = Column(Text, nullable=True)     # base64 image data for custom icons
+    position = Column(Integer, nullable=True)  # ordering within category
+
 # Initialize Tables
 Base.metadata.create_all(bind=engine)
 
@@ -140,6 +150,96 @@ def migrate_add_position_column():
         pass  # Column already exists — safe to ignore
 
 migrate_add_position_column()
+
+def seed_default_skills():
+    """
+    Seed the skills table with default skills if it's empty.
+    This is a one-time migration to populate initial skills.
+    """
+    try:
+        db = SessionLocal()
+        try:
+            # Check if skills table is empty
+            count = db.query(SkillModel).count()
+            if count > 0:
+                print(f"Skills migration: Table already has {count} skills. Skipping seed.")
+                return
+            
+            print("Skills migration: Seeding default skills...")
+            
+            # Helper function to load image as base64
+            def load_image_as_base64(filename):
+                """Load an image file and return as base64 data URI"""
+                try:
+                    img_path = BASE_DIR / "assets" / filename
+                    if img_path.exists():
+                        with open(img_path, 'rb') as f:
+                            img_data = base64.b64encode(f.read()).decode('utf-8')
+                            # Detect image type from extension
+                            ext = filename.split('.')[-1].lower()
+                            mime_type = f"image/{ext}" if ext != 'svg' else "image/svg+xml"
+                            return f"data:{mime_type};base64,{img_data}"
+                except Exception as e:
+                    print(f"Warning: Could not load image {filename}: {e}")
+                return None
+            
+            # Default skills organized by category
+            default_skills = {
+                "Languages": [
+                    {"name": "Python", "icon": "devicon-python-plain colored"},
+                    {"name": "Java", "icon": "devicon-java-plain colored"},
+                    {"name": "C++", "icon": "devicon-cplusplus-plain colored"},
+                    {"name": "C#", "icon": "devicon-csharp-plain colored"},
+                    {"name": "SQL", "icon": "devicon-azuresqldatabase-plain colored"},
+                    {"name": "HTML/CSS", "icon": "devicon-html5-plain colored"},
+                ],
+                "Frameworks & Libraries": [
+                    {"name": "FastAPI", "icon": "devicon-fastapi-plain colored"},
+                    {"name": "Flask", "icon": "devicon-flask-original"},
+                    {"name": "JavaFX", "icon": "devicon-java-plain colored"},
+                    {"name": "sentence-transformers", "icon": "devicon-python-plain colored"},
+                    {"name": "FAISS", "image": load_image_as_base64("faiss.png")},
+                    {"name": "HuggingFace", "image": load_image_as_base64("huggingface.png")},
+                    {"name": "Tkinter", "icon": "devicon-python-plain colored"},
+                    {"name": "SQLAlchemy", "icon": "devicon-sqlalchemy-plain"},
+                ],
+                "Tools & Technologies": [
+                    {"name": "Git", "icon": "devicon-git-plain colored"},
+                    {"name": "Maven", "icon": "devicon-maven-plain colored"},
+                    {"name": "SQLite", "icon": "devicon-sqlite-plain colored"},
+                    {"name": "H2 Database", "image": load_image_as_base64("h2-database.png")},
+                    {"name": "Claude API", "image": load_image_as_base64("claude.png")},
+                    {"name": "Gemini API", "image": load_image_as_base64("gemini.png")},
+                    {"name": "Ollama", "image": load_image_as_base64("ollama.png")},
+                    {"name": "Piston API", "icon": "fa-solid fa-code"},
+                    {"name": "Linux", "icon": "devicon-linux-plain"},
+                    {"name": "JUnit", "icon": "devicon-junit-plain colored"},
+                ],
+            }
+            
+            # Insert skills with proper ordering
+            for category, skills in default_skills.items():
+                for position, skill_data in enumerate(skills):
+                    new_skill = SkillModel(
+                        name=skill_data["name"],
+                        category=category,
+                        icon=skill_data.get("icon"),
+                        image=skill_data.get("image"),
+                        position=position
+                    )
+                    db.add(new_skill)
+            
+            db.commit()
+            total_added = sum(len(skills) for skills in default_skills.values())
+            print(f"Skills migration: Successfully seeded {total_added} skills across {len(default_skills)} categories.")
+            
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"Skills migration error: {e}")
+
+# Run skills seed migration
+seed_default_skills()
 
 def attempt_auto_migration():
     """
@@ -248,6 +348,13 @@ class Hackathon(BaseModel):
     desc: Optional[str] = None
     tech: List[str]
     project_link: Optional[str] = None
+
+class Skill(BaseModel):
+    id: Optional[int] = None
+    name: str
+    category: str
+    icon: Optional[str] = None
+    image: Optional[str] = None
 
 class ResumeResponse(BaseModel):
     success: bool
@@ -869,6 +976,113 @@ async def delete_hackathon(hack_id: int, session_token: str = Header(None, alias
         raise
     except Exception as e:
         print(f"Error deleting hackathon: {e}")
+        raise HTTPException(status_code=500, detail="Database delete failed")
+
+# Skills API
+@app.post("/api/admin/skills/reorder")
+async def reorder_skills(data: dict, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Update skill display order within a category (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    ids = data.get("ids", [])
+    for index, skill_id in enumerate(ids):
+        db.query(SkillModel).filter(SkillModel.id == skill_id).update({"position": index})
+    db.commit()
+    return {"success": True}
+
+@app.get("/api/skills")
+async def get_all_skills(db: Session = Depends(get_db)):
+    """Get all skills grouped by category"""
+    try:
+        skills_orm = db.query(SkillModel).order_by(
+            SkillModel.category.asc(), SkillModel.position.asc().nullslast(), SkillModel.id.asc()
+        ).all()
+        
+        # Group skills by category
+        skills_by_category = {}
+        for skill in skills_orm:
+            if skill.category not in skills_by_category:
+                skills_by_category[skill.category] = []
+            skills_by_category[skill.category].append({
+                "id": skill.id,
+                "name": skill.name,
+                "icon": skill.icon,
+                "image": skill.image
+            })
+        
+        return {"success": True, "skills": skills_by_category}
+    except Exception as e:
+        print(f"Error getting skills: {e}")
+        raise HTTPException(status_code=500, detail="Database error")
+
+@app.post("/api/skills")
+async def create_skill(skill: Skill, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Create a new skill (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    
+    try:
+        new_skill = SkillModel(
+            name=skill.name,
+            category=skill.category,
+            icon=skill.icon,
+            image=skill.image
+        )
+        db.add(new_skill)
+        db.commit()
+        db.refresh(new_skill)
+        
+        return {"success": True, "id": new_skill.id}
+    except Exception as e:
+        print(f"Error creating skill: {e}")
+        raise HTTPException(status_code=500, detail="Database insert failed")
+
+@app.put("/api/skills/{skill_id}")
+async def update_skill(skill_id: int, skill: Skill, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Update a skill (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    
+    try:
+        existing = db.query(SkillModel).filter(SkillModel.id == skill_id).first()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Skill not found")
+        
+        existing.name = skill.name
+        existing.category = skill.category
+        existing.icon = skill.icon
+        existing.image = skill.image
+        
+        db.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating skill: {e}")
+        raise HTTPException(status_code=500, detail="Database update failed")
+
+@app.delete("/api/skills/{skill_id}")
+async def delete_skill(skill_id: int, session_token: str = Header(None, alias="X-Session-Token"), db: Session = Depends(get_db)):
+    """Delete a skill (admin only)"""
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Session token required")
+    verify_session(session_token)
+    
+    try:
+        existing = db.query(SkillModel).filter(SkillModel.id == skill_id).first()
+        if not existing:
+            raise HTTPException(status_code=404, detail="Skill not found")
+        
+        db.delete(existing)
+        db.commit()
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting skill: {e}")
         raise HTTPException(status_code=500, detail="Database delete failed")
 
 # ============================================
