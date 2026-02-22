@@ -1283,7 +1283,7 @@ body.dark-mode .tech-tag:hover {
 
 .timeline-dot {
   position: absolute;
-  left: -2.45rem;
+  left: calc(-2rem - 5px);
   top: 0.45rem;
   width: 12px;
   height: 12px;
@@ -1451,7 +1451,7 @@ body.dark-mode .tech-tag:hover {
   }
 
   .timeline-dot {
-    left: calc(-1.5rem - 7px);
+    left: calc(-1.5rem - 5px);
   }
 
   .timeline-card {

@@ -135,6 +135,7 @@ async function showDashboard() {
   await loadPhotoStatus();
   await renderAdminExperience();
   await renderAdminHackathons();
+  await renderAdminSkills();
 }
 
 // Check if already logged in
@@ -200,11 +201,16 @@ async function getProjects() {
 let dragSrcEl = null;
 
 async function saveOrder() {
-  const items = [...projectsListContainer.querySelectorAll(".admin-project-item")];
+  const items = [
+    ...projectsListContainer.querySelectorAll(".admin-project-item"),
+  ];
   const ids = items.map((el) => parseInt(el.dataset.id));
   await fetch(`${API_URL}/admin/projects/reorder`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-Token": sessionToken,
+    },
     body: JSON.stringify({ ids }),
   });
 }
@@ -240,14 +246,18 @@ async function renderAdminProjects() {
       if (item !== dragSrcEl) item.classList.add("drag-over");
     });
 
-    item.addEventListener("dragleave", () => item.classList.remove("drag-over"));
+    item.addEventListener("dragleave", () =>
+      item.classList.remove("drag-over"),
+    );
 
     item.addEventListener("drop", async (e) => {
       e.preventDefault();
       item.classList.remove("drag-over");
       if (!dragSrcEl || dragSrcEl === item) return;
 
-      const allItems = [...projectsListContainer.querySelectorAll(".admin-project-item")];
+      const allItems = [
+        ...projectsListContainer.querySelectorAll(".admin-project-item"),
+      ];
       const srcIdx = allItems.indexOf(dragSrcEl);
       const destIdx = allItems.indexOf(item);
 
@@ -262,9 +272,9 @@ async function renderAdminProjects() {
 
     item.addEventListener("dragend", () => {
       item.classList.remove("dragging");
-      document.querySelectorAll(".admin-project-item").forEach((el) =>
-        el.classList.remove("drag-over"),
-      );
+      document
+        .querySelectorAll(".admin-project-item")
+        .forEach((el) => el.classList.remove("drag-over"));
       dragSrcEl = null;
     });
 
@@ -668,7 +678,10 @@ async function saveExpOrder() {
   const ids = items.map((el) => parseInt(el.dataset.id));
   await fetch(`${API_URL}/admin/experience/reorder`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-Token": sessionToken,
+    },
     body: JSON.stringify({ ids }),
   });
 }
@@ -691,19 +704,31 @@ async function renderAdminExperience() {
         <button class="action-btn delete-btn" onclick="deleteExperience(${item.id})">Delete</button>
       </div>`;
 
-    el.addEventListener("dragstart", (e) => { dragSrcExp = el; el.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; });
-    el.addEventListener("dragover", (e) => { e.preventDefault(); if (el !== dragSrcExp) el.classList.add("drag-over"); });
+    el.addEventListener("dragstart", (e) => {
+      dragSrcExp = el;
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (el !== dragSrcExp) el.classList.add("drag-over");
+    });
     el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
     el.addEventListener("drop", async (e) => {
-      e.preventDefault(); el.classList.remove("drag-over");
+      e.preventDefault();
+      el.classList.remove("drag-over");
       if (!dragSrcExp || dragSrcExp === el) return;
       const all = [...expListContainer.querySelectorAll(".admin-project-item")];
-      all.indexOf(dragSrcExp) < all.indexOf(el) ? el.after(dragSrcExp) : el.before(dragSrcExp);
+      all.indexOf(dragSrcExp) < all.indexOf(el)
+        ? el.after(dragSrcExp)
+        : el.before(dragSrcExp);
       await saveExpOrder();
     });
     el.addEventListener("dragend", () => {
       el.classList.remove("dragging");
-      expListContainer.querySelectorAll(".admin-project-item").forEach((e) => e.classList.remove("drag-over"));
+      expListContainer
+        .querySelectorAll(".admin-project-item")
+        .forEach((e) => e.classList.remove("drag-over"));
       dragSrcExp = null;
     });
 
@@ -719,7 +744,10 @@ expForm.addEventListener("submit", async (e) => {
     company: document.getElementById("exp-company").value,
     date_range: document.getElementById("exp-date-range").value,
     desc: document.getElementById("exp-desc").value,
-    tech: document.getElementById("exp-tech").value.split(",").map((t) => t.trim()),
+    tech: document
+      .getElementById("exp-tech")
+      .value.split(",")
+      .map((t) => t.trim()),
     logo: document.getElementById("exp-logo").value || null,
   };
   try {
@@ -727,7 +755,10 @@ expForm.addEventListener("submit", async (e) => {
     const method = id ? "PUT" : "POST";
     const response = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Token": sessionToken,
+      },
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error("Save failed");
@@ -771,7 +802,10 @@ window.deleteExperience = async (id) => {
   }
 };
 
-cancelExpBtn.addEventListener("click", () => { expForm.reset(); resetExpForm(); });
+cancelExpBtn.addEventListener("click", () => {
+  expForm.reset();
+  resetExpForm();
+});
 
 function resetExpForm() {
   document.getElementById("exp-id").value = "";
@@ -804,7 +838,10 @@ async function saveHackOrder() {
   const ids = items.map((el) => parseInt(el.dataset.id));
   await fetch(`${API_URL}/admin/hackathons/reorder`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Session-Token": sessionToken,
+    },
     body: JSON.stringify({ ids }),
   });
 }
@@ -826,19 +863,33 @@ async function renderAdminHackathons() {
         <button class="action-btn delete-btn" onclick="deleteHackathon(${item.id})">Delete</button>
       </div>`;
 
-    el.addEventListener("dragstart", (e) => { dragSrcHack = el; el.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; });
-    el.addEventListener("dragover", (e) => { e.preventDefault(); if (el !== dragSrcHack) el.classList.add("drag-over"); });
+    el.addEventListener("dragstart", (e) => {
+      dragSrcHack = el;
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    el.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      if (el !== dragSrcHack) el.classList.add("drag-over");
+    });
     el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
     el.addEventListener("drop", async (e) => {
-      e.preventDefault(); el.classList.remove("drag-over");
+      e.preventDefault();
+      el.classList.remove("drag-over");
       if (!dragSrcHack || dragSrcHack === el) return;
-      const all = [...hackListContainer.querySelectorAll(".admin-project-item")];
-      all.indexOf(dragSrcHack) < all.indexOf(el) ? el.after(dragSrcHack) : el.before(dragSrcHack);
+      const all = [
+        ...hackListContainer.querySelectorAll(".admin-project-item"),
+      ];
+      all.indexOf(dragSrcHack) < all.indexOf(el)
+        ? el.after(dragSrcHack)
+        : el.before(dragSrcHack);
       await saveHackOrder();
     });
     el.addEventListener("dragend", () => {
       el.classList.remove("dragging");
-      hackListContainer.querySelectorAll(".admin-project-item").forEach((e) => e.classList.remove("drag-over"));
+      hackListContainer
+        .querySelectorAll(".admin-project-item")
+        .forEach((e) => e.classList.remove("drag-over"));
       dragSrcHack = null;
     });
 
@@ -854,7 +905,10 @@ hackForm.addEventListener("submit", async (e) => {
     placement: document.getElementById("hack-placement").value || null,
     date: document.getElementById("hack-date").value,
     desc: null,
-    tech: document.getElementById("hack-tech").value.split(",").map((t) => t.trim()),
+    tech: document
+      .getElementById("hack-tech")
+      .value.split(",")
+      .map((t) => t.trim()),
     project_link: document.getElementById("hack-project-link").value || null,
   };
   try {
@@ -862,7 +916,10 @@ hackForm.addEventListener("submit", async (e) => {
     const method = id ? "PUT" : "POST";
     const response = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json", "X-Session-Token": sessionToken },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Token": sessionToken,
+      },
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error("Save failed");
@@ -904,10 +961,278 @@ window.deleteHackathon = async (id) => {
   }
 };
 
-cancelHackBtn.addEventListener("click", () => { hackForm.reset(); resetHackForm(); });
+cancelHackBtn.addEventListener("click", () => {
+  hackForm.reset();
+  resetHackForm();
+});
 
 function resetHackForm() {
   document.getElementById("hack-id").value = "";
   submitHackBtn.textContent = "Add Hackathon";
   cancelHackBtn.style.display = "none";
+}
+
+// SKILLS CRUD
+// ─────────────────────────────────────────────────────
+const skillForm = document.getElementById("skill-form");
+const skillListContainer = document.getElementById("skill-list-container");
+const submitSkillBtn = document.getElementById("submit-skill");
+const cancelSkillBtn = document.getElementById("cancel-skill");
+const iconClassGroup = document.getElementById("icon-class-group");
+const iconUploadGroup = document.getElementById("icon-upload-group");
+const skillIconUploadZone = document.getElementById("skill-icon-upload-zone");
+const skillIconFile = document.getElementById("skill-icon-file");
+const skillIconPreview = document.getElementById("skill-icon-preview");
+const skillIconPlaceholder = document.getElementById("skill-icon-placeholder");
+const removeSkillIconBtn = document.getElementById("remove-skill-icon-btn");
+
+// Handle icon type radio buttons
+document.querySelectorAll('input[name="icon-type"]').forEach((radio) => {
+  radio.addEventListener("change", (e) => {
+    const iconType = e.target.value;
+    if (iconType === "upload") {
+      iconClassGroup.style.display = "none";
+      iconUploadGroup.style.display = "block";
+      document.getElementById("skill-icon").value = "";
+      document.getElementById("skill-icon").removeAttribute("required");
+    } else {
+      iconClassGroup.style.display = "block";
+      iconUploadGroup.style.display = "none";
+      document.getElementById("skill-image").value = "";
+      skillIconPreview.style.display = "none";
+      skillIconPlaceholder.style.display = "block";
+      removeSkillIconBtn.style.display = "none";
+      if (iconType === "devicon") {
+        document.getElementById("skill-icon").placeholder =
+          "e.g., devicon-python-plain colored";
+      } else if (iconType === "fontawesome") {
+        document.getElementById("skill-icon").placeholder =
+          "e.g., fa-solid fa-code";
+      }
+    }
+  });
+});
+
+// Skill icon upload handling
+skillIconUploadZone.addEventListener("click", () => skillIconFile.click());
+skillIconFile.addEventListener("change", handleSkillIconUpload);
+
+function handleSkillIconUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const base64 = event.target.result;
+    document.getElementById("skill-image").value = base64;
+    skillIconPreview.src = base64;
+    skillIconPreview.style.display = "block";
+    skillIconPlaceholder.style.display = "none";
+    removeSkillIconBtn.style.display = "inline-block";
+  };
+  reader.readAsDataURL(file);
+}
+
+removeSkillIconBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  skillIconFile.value = "";
+  document.getElementById("skill-image").value = "";
+  skillIconPreview.style.display = "none";
+  skillIconPlaceholder.style.display = "block";
+  removeSkillIconBtn.style.display = "none";
+});
+
+async function getAdminSkills() {
+  try {
+    const response = await fetch(`${API_URL}/skills`);
+    const data = await response.json();
+    return data.success ? data.skills : {};
+  } catch (e) {
+    console.error("Error fetching skills:", e);
+    return {};
+  }
+}
+
+async function renderAdminSkills() {
+  const skillsByCategory = await getAdminSkills();
+  skillListContainer.innerHTML = "";
+
+  if (Object.keys(skillsByCategory).length === 0) {
+    skillListContainer.innerHTML =
+      "<p style='color: var(--text-muted); text-align: center; padding: 2rem;'>No skills added yet. Add your first skill above!</p>";
+    return;
+  }
+
+  Object.entries(skillsByCategory).forEach(([category, skills]) => {
+    const categorySection = document.createElement("div");
+    categorySection.className = "skill-category-section";
+    categorySection.style.cssText = "width: 100%; margin-bottom: 2rem;";
+
+    const categoryTitle = document.createElement("h4");
+    categoryTitle.textContent = category;
+    categoryTitle.style.cssText =
+      "margin-bottom: 1rem; color: var(--accent-primary); font-size: 1.1rem;";
+    categorySection.appendChild(categoryTitle);
+
+    const skillsGrid = document.createElement("div");
+    skillsGrid.style.cssText =
+      "display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;";
+
+    skills.forEach((skill) => {
+      const skillCard = document.createElement("div");
+      skillCard.className = "admin-project-item skill-item";
+      skillCard.dataset.id = skill.id;
+      skillCard.style.cssText =
+        "padding: 1rem; display: flex; align-items: center; gap: 0.75rem;";
+
+      let iconHTML = "";
+      if (skill.image) {
+        iconHTML = `<img src="${skill.image}" alt="${skill.name}" style="width: 32px; height: 32px; object-fit: contain;" />`;
+      } else if (skill.icon) {
+        iconHTML = `<i class="${skill.icon}" style="font-size: 32px;"></i>`;
+      } else {
+        iconHTML = `<i class="fa-solid fa-code" style="font-size: 32px; color: var(--text-muted);"></i>`;
+      }
+
+      skillCard.innerHTML = `
+        ${iconHTML}
+        <div style="flex: 1; min-width: 0;">
+          <strong style="display: block; word-break: break-word;">${skill.name}</strong>
+        </div>
+        <div class="admin-actions" style="opacity: 1; position: static; transform: none; display: flex; gap: 0.5rem;">
+          <button class="action-btn edit-btn" onclick="editSkill(${skill.id}, '${category}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Edit</button>
+          <button class="action-btn delete-btn" onclick="deleteSkill(${skill.id})" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">✕</button>
+        </div>
+      `;
+
+      skillsGrid.appendChild(skillCard);
+    });
+
+    categorySection.appendChild(skillsGrid);
+    skillListContainer.appendChild(categorySection);
+  });
+}
+
+skillForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const id = document.getElementById("skill-id").value;
+  const iconType = document.querySelector(
+    'input[name="icon-type"]:checked',
+  ).value;
+
+  const data = {
+    name: document.getElementById("skill-name").value.trim(),
+    category: document.getElementById("skill-category").value,
+    icon:
+      iconType !== "upload"
+        ? document.getElementById("skill-icon").value.trim()
+        : null,
+    image:
+      iconType === "upload"
+        ? document.getElementById("skill-image").value
+        : null,
+  };
+
+  // Validate that either icon or image is provided
+  if (!data.icon && !data.image) {
+    alert("Please provide either an icon class or upload an image.");
+    return;
+  }
+
+  try {
+    const url = id ? `${API_URL}/skills/${id}` : `${API_URL}/skills`;
+    const method = id ? "PUT" : "POST";
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Token": sessionToken,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) throw new Error("Save failed");
+
+    await renderAdminSkills();
+    skillForm.reset();
+    resetSkillForm();
+    alert(id ? "Skill updated successfully!" : "Skill added successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save skill. Please try again.");
+  }
+});
+
+window.editSkill = async (id, category) => {
+  const skillsByCategory = await getAdminSkills();
+  const skills = skillsByCategory[category] || [];
+  const skill = skills.find((s) => s.id === id);
+  if (!skill) return;
+
+  document.getElementById("skill-id").value = skill.id;
+  document.getElementById("skill-name").value = skill.name;
+  document.getElementById("skill-category").value = category;
+
+  if (skill.image) {
+    document.getElementById("icon-type-upload").checked = true;
+    iconClassGroup.style.display = "none";
+    iconUploadGroup.style.display = "block";
+    document.getElementById("skill-image").value = skill.image;
+    skillIconPreview.src = skill.image;
+    skillIconPreview.style.display = "block";
+    skillIconPlaceholder.style.display = "none";
+    removeSkillIconBtn.style.display = "inline-block";
+  } else if (skill.icon) {
+    if (skill.icon.startsWith("devicon-")) {
+      document.getElementById("icon-type-devicon").checked = true;
+    } else {
+      document.getElementById("icon-type-fontawesome").checked = true;
+    }
+    iconClassGroup.style.display = "block";
+    iconUploadGroup.style.display = "none";
+    document.getElementById("skill-icon").value = skill.icon;
+  }
+
+  submitSkillBtn.textContent = "Update Skill";
+  cancelSkillBtn.style.display = "inline-block";
+  skillForm.scrollIntoView({ behavior: "smooth", block: "nearest" });
+};
+
+window.deleteSkill = async (id) => {
+  if (!confirm("Delete this skill?")) return;
+  try {
+    const response = await fetch(`${API_URL}/skills/${id}`, {
+      method: "DELETE",
+      headers: { "X-Session-Token": sessionToken },
+    });
+    if (response.ok) {
+      await renderAdminSkills();
+      alert("Skill deleted successfully!");
+    } else {
+      throw new Error("Delete failed");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete skill.");
+  }
+};
+
+cancelSkillBtn.addEventListener("click", () => {
+  skillForm.reset();
+  resetSkillForm();
+});
+
+function resetSkillForm() {
+  document.getElementById("skill-id").value = "";
+  document.getElementById("icon-type-devicon").checked = true;
+  iconClassGroup.style.display = "block";
+  iconUploadGroup.style.display = "none";
+  skillIconPreview.style.display = "none";
+  skillIconPlaceholder.style.display = "block";
+  removeSkillIconBtn.style.display = "none";
+  skillIconFile.value = "";
+  document.getElementById("skill-image").value = "";
+  document.getElementById("skill-icon").value = "";
+  submitSkillBtn.textContent = "Add Skill";
+  cancelSkillBtn.style.display = "none";
 }
