@@ -101,9 +101,6 @@ class SkillModel(Base):
     image    = Column(Text, nullable=True)     # base64 image data for custom icons
     position = Column(Integer, nullable=True)  # ordering within category
 
-# Initialize Tables
-Base.metadata.create_all(bind=engine)
-
 # Runtime migrations — add new nullable columns to existing tables
 def _run_migrations():
     with engine.connect() as conn:
@@ -118,8 +115,6 @@ def _run_migrations():
             except Exception:
                 pass  # column already exists
 
-_run_migrations()
-
 def migrate_add_image_column():
     """Add image column to projects table if it doesn't exist yet."""
     try:
@@ -132,8 +127,6 @@ def migrate_add_image_column():
         print("Migration: added image column to projects table.")
     except Exception:
         pass  # Column already exists — safe to ignore
-
-migrate_add_image_column()
 
 def migrate_add_position_column():
     """Add position column to projects table and initialize from id order."""
@@ -148,8 +141,6 @@ def migrate_add_position_column():
         print("Migration: added position column to projects table.")
     except Exception:
         pass  # Column already exists — safe to ignore
-
-migrate_add_position_column()
 
 def seed_default_skills():
     """
@@ -238,9 +229,6 @@ def seed_default_skills():
     except Exception as e:
         print(f"Skills migration error: {e}")
 
-# Run skills seed migration
-seed_default_skills()
-
 def attempt_auto_migration():
     """
     Automatically migrate data from SQLite to Postgres on first run in production
@@ -298,8 +286,49 @@ def attempt_auto_migration():
     except Exception as e:
         print(f"Auto-migration error: {e}")
 
-# Run auto-migration check on startup
-attempt_auto_migration()
+# FastAPI Startup Event - Runs all database initialization automatically
+@app.on_event("startup")
+async def startup_event():
+    """
+    Initialize database on startup - works in both local and production environments.
+    This ensures tables are created, migrations run, and default data is seeded.
+    """
+    print("=" * 60)
+    print("Starting application initialization...")
+    print("=" * 60)
+    
+    try:
+        # Step 1: Create all tables if they don't exist
+        print("Step 1: Creating database tables...")
+        Base.metadata.create_all(bind=engine)
+        print("✓ Database tables created/verified")
+        
+        # Step 2: Run column migrations for existing tables
+        print("\nStep 2: Running database migrations...")
+        _run_migrations()
+        migrate_add_image_column()
+        migrate_add_position_column()
+        print("✓ Database migrations completed")
+        
+        # Step 3: Seed default skills if table is empty
+        print("\nStep 3: Seeding default skills...")
+        seed_default_skills()
+        print("✓ Skills seeding completed")
+        
+        # Step 4: Attempt auto-migration from SQLite to PostgreSQL (production only)
+        print("\nStep 4: Checking for auto-migration...")
+        attempt_auto_migration()
+        print("✓ Auto-migration check completed")
+        
+        print("\n" + "=" * 60)
+        print("Application initialization complete!")
+        print("=" * 60)
+        
+    except Exception as e:
+        print(f"\n❌ Startup error: {e}")
+        print("Application may not function correctly.")
+        import traceback
+        traceback.print_exc()
 
 # Admin credentials (should be in .env in production)
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME")
