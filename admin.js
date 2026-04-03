@@ -27,6 +27,13 @@ function safeUrl(url) {
   return "#";
 }
 
+function safeImgSrc(src) {
+  if (!src) return "";
+  const s = String(src).trim();
+  if (s.startsWith("data:image/")) return s;
+  return safeUrl(s);
+}
+
 // Initialize theme before other scripts
 initTheme();
 
