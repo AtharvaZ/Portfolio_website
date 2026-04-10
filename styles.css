@@ -245,6 +245,7 @@ body.dark-mode .tech-tag {
   border-radius: 7px;
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   transition: var(--transition-base);
   opacity: 0;
   transform: translateY(20px);
@@ -257,7 +258,7 @@ body.dark-mode .tech-tag {
   background: var(--accent-primary);
   transform: translateX(-102%);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 0;
+  z-index: -1;
 }
 
 .btn-primary:hover {
@@ -266,6 +267,10 @@ body.dark-mode .tech-tag {
 }
 .btn-primary:hover::before {
   transform: translateX(0);
+}
+.btn-primary > * {
+  position: relative;
+  z-index: 1;
 }
 .btn-primary i {
   position: relative;
@@ -2223,8 +2228,8 @@ footer {
   .hero {
     padding-left: 5%;
     padding-right: 5%;
-    min-height: auto;
-    padding-bottom: 4rem;
+    min-height: 100svh;
+    padding-bottom: 2rem;
   }
 
   .hero-scroll-hint {
@@ -2371,9 +2376,24 @@ footer {
     line-height: 1.68;
   }
 
-  .hero-title {
-    font-size: 2.6rem;
+  .hero-eyebrow {
+    font-size: 0.92rem;
   }
+
+  .hero-title {
+    font-size: clamp(2.9rem, 11vw, 3.35rem);
+  }
+
+  .hero-subtitle-badge {
+    font-size: 0.82rem;
+    padding: 0.34rem 0.82rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.06rem;
+    margin-bottom: 2rem;
+  }
+
   .hero-social-btn span {
     display: none;
   }
@@ -2426,5 +2446,44 @@ footer {
   }
   .hackathon-card {
     padding: 1.25rem;
+  }
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .hero-orb,
+  .hero-neural,
+  .hero-grid-pattern,
+  #site-particles {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .scroll-reveal,
+  .project-card,
+  .timeline-item,
+  .hackathon-card,
+  .hero-social-btn,
+  .social-icon,
+  .btn-primary,
+  .form-btn,
+  .projects-show-more-btn,
+  .theme-toggle,
+  .skill-item {
+    transition-duration: 0.16s !important;
+    transition-timing-function: ease-out !important;
+  }
+
+  .project-card:hover,
+  .project-card.active,
+  .timeline-item:hover,
+  .hackathon-card:hover,
+  .skill-item:hover,
+  .hero-social-btn:hover,
+  .social-icon:hover,
+  .btn-primary:hover,
+  .form-btn:hover,
+  .projects-show-more-btn:hover,
+  .theme-toggle:hover {
+    transform: none !important;
   }
 }

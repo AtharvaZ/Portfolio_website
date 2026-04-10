@@ -110,6 +110,11 @@ if (menuToggle) {
 const canvas = document.getElementById("site-particles");
 if (canvas && !window.location.pathname.includes("admin")) {
   const ctx = canvas.getContext("2d", { alpha: true });
+  const isCoarsePointer =
+    window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+  const prefersReducedMotion =
+    window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Handle high-DPI displays for crisp, round particles
   const dpr = window.devicePixelRatio || 1;
@@ -208,14 +213,22 @@ if (canvas && !window.location.pathname.includes("admin")) {
 
   function initParticles() {
     particlesArray = [];
-    // Increase particle count for full page coverage
-    for (let i = 0; i < 150; i++) {
+    const particleCount = prefersReducedMotion ? 0 : isCoarsePointer ? 42 : 150;
+    // Increase particle count for full page coverage on desktop; keep mobile lighter
+    for (let i = 0; i < particleCount; i++) {
       particlesArray.push(new Particle(true)); // stagger initial lifecycle stage
     }
     globalParticlesArray = particlesArray;
   }
 
   function animateParticles() {
+    if (
+      prefersReducedMotion ||
+      !particlesArray ||
+      particlesArray.length === 0
+    ) {
+      return;
+    }
     ctx.clearRect(
       0,
       0,
