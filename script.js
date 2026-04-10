@@ -700,6 +700,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const items = await getExperience();
     const container = document.getElementById("timeline-container");
     const section = document.getElementById("experience-work-section");
+    const formatExperienceDesc = (desc) => {
+      const lines = String(desc || "")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => line.replace(/^[-*•]\s*/, ""));
+
+      if (lines.length > 1) {
+        return `<ul class="timeline-desc-list">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`;
+      }
+
+      return `<p class="timeline-desc">${escapeHtml(lines[0] || "")}</p>`;
+    };
+
     if (!container) return;
     container.innerHTML = "";
     if (items.length === 0) {
@@ -722,7 +736,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </div>
               <span class="timeline-date">${escapeHtml(item.date_range)}</span>
             </div>
-            <p class="timeline-desc">${escapeHtml(item.desc)}</p>
+            ${formatExperienceDesc(item.desc)}
             <div class="timeline-tags">
               ${item.tech.map((t) => `<span class="tech-tag">${escapeHtml(t)}</span>`).join("")}
             </div>
