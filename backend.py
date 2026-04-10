@@ -26,11 +26,25 @@ app = FastAPI(title="Portfolio API")
 # Get the directory where this script is located
 BASE_DIR = Path(__file__).parent
 
-# CORS middleware to allow frontend to communicate with backend
-# add http://127.0.0.1:8000/ in allow_origins if running locally
+# CORS middleware to allow frontend/admin to communicate with backend
+_default_origins = [
+    "https://www.azaveri.dev",
+    "https://azaveri.dev",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+_extra_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+allowed_origins = sorted(set(_default_origins + _extra_origins))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://www.azaveri.dev"],  # In production, replace with your actual domain
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -467,10 +481,22 @@ if RESEND_API_KEY:
 @app.api_route("/api/health", methods=["GET", "HEAD"])
 async def health_check():
     """Health check endpoint for monitoring services (supports GET and HEAD)"""
+    db_ok = True
+    db_error = None
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        db_ok = False
+        db_error = str(e)
+
     return {
-        "status": "healthy",
+        "status": "healthy" if db_ok else "degraded",
         "service": "Portfolio API",
-        "timestamp": datetime.now().isoformat()
+        "database": "ok" if db_ok else "error",
+        "database_url": str(engine.url).split(":")[0],
+        "timestamp": datetime.now().isoformat(),
+        "error": db_error,
     }
 
 # Admin Authentication

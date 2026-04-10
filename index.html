@@ -6,7 +6,6 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <!-- Prevent aggressive caching in browsers like Brave -->
     <meta
       http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate"
@@ -14,47 +13,67 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Atharva Zaveri</title>
-    
+
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6EXQ543547"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-6EXQ543547"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-6EXQ543547');
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-6EXQ543547");
     </script>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&family=Unbounded:wght@700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css?v=1.0.1" />
+    <!-- Motion.js -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
 
-    <!-- FontAwesome for Icons -->
+    <script>
+      (function () {
+        const hasFine =
+          window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+        const hasCoarse =
+          window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+        if (hasFine && !hasCoarse) {
+          document.documentElement.classList.add("cursor-enhanced");
+        }
+      })();
+    </script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css?v=4.3.2" />
+
+    <!-- FontAwesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
-    <!-- DevIcons for Technology Icons -->
+    <!-- DevIcons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
     />
   </head>
   <body>
-    <!-- Background Particles for entire site -->
+    <!-- Site-wide particle canvas (owned by script.js) -->
     <canvas id="site-particles"></canvas>
 
     <!-- Navigation -->
     <nav class="navbar">
       <div class="logo">
-        <span class="gradient-text">&lt; AZ /&gt;</span>
+        <span class="gradient-text">&lt;AZ/&gt;</span>
       </div>
       <ul class="nav-links">
         <li><a href="#about" class="nav-link" data-link>About</a></li>
@@ -78,65 +97,87 @@
     </nav>
 
     <main>
-      <!-- Hero Section -->
+      <!-- ─── Hero ─────────────────────────────────── -->
       <section id="hero" class="hero">
-        <div class="hero-bg-accent"></div>
-        <div class="hero-bg-accent-2"></div>
+        <div class="hero-ambient" aria-hidden="true">
+          <div class="hero-orb hero-orb--1"></div>
+          <div class="hero-orb hero-orb--2"></div>
+          <div class="hero-orb hero-orb--3"></div>
+          <div class="hero-grid-pattern"></div>
+        </div>
 
-        <div class="hero-content">
-          <p class="hero-eyebrow" data-animate>Hello! I'm-</p>
-          <h1 class="hero-title" data-animate>
-            <span class="gradient-text glitch" data-text="Your Name"
-              >Atharva Zaveri</span
-            >
-          </h1>
-          <p class="hero-subtitle" data-animate>Software Developer</p>
-          <p class="hero-tagline" data-animate>
-            I <span id="typewriter"></span>
-          </p>
-          <a
-            href="#projects"
-            class="btn-primary"
-            data-animate
-            style="opacity: 0; transform: translateY(20px)"
-            >View Work</a
-          >
-          <div
-            class="hero-social"
-            data-animate
-            style="opacity: 0; transform: translateY(20px)"
-          >
+        <div class="hero-inner">
+          <!-- Text content -->
+          <div class="hero-content">
+            <p class="hero-eyebrow" data-animate>Hello, I'm—</p>
+            <h1 class="hero-title" data-animate>
+              <span class="gradient-text glitch" data-text="Atharva Zaveri"
+                >Atharva Zaveri</span
+              >
+            </h1>
+            <p class="hero-subtitle" data-animate>
+              <span class="hero-subtitle-badge">Full-Stack Developer</span>
+            </p>
+            <p class="hero-tagline" data-animate>
+              I <span id="typewriter"></span
+              ><span class="cursor-blink" aria-hidden="true">|</span>
+            </p>
             <a
-              href="https://github.com/AtharvaZ"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hero-social-btn hero-social-btn--github"
-              aria-label="GitHub"
+              href="#projects"
+              class="btn-primary"
+              data-animate
+              style="opacity: 0; transform: translateY(20px)"
             >
-              <i class="fa-brands fa-github"></i><span>GitHub</span>
+              View Work&nbsp;<i class="fa-solid fa-arrow-right"></i>
             </a>
-            <a
-              href="https://www.linkedin.com/in/atharva-zaveri/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hero-social-btn hero-social-btn--linkedin"
-              aria-label="LinkedIn"
+            <div
+              class="hero-social"
+              data-animate
+              style="opacity: 0; transform: translateY(20px)"
             >
-              <i class="fa-brands fa-linkedin"></i><span>LinkedIn</span>
-            </a>
-            <a
-              href="mailto:atharvazaveri4@gmail.com"
-              class="hero-social-btn hero-social-btn--email"
-              aria-label="Email"
-            >
-              <i class="fa-solid fa-envelope"></i><span>Email</span>
-            </a>
+              <a
+                href="https://github.com/AtharvaZ"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hero-social-btn hero-social-btn--github"
+                aria-label="GitHub"
+              >
+                <i class="fa-brands fa-github"></i><span>GitHub</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/atharva-zaveri/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hero-social-btn hero-social-btn--linkedin"
+                aria-label="LinkedIn"
+              >
+                <i class="fa-brands fa-linkedin"></i><span>LinkedIn</span>
+              </a>
+              <a
+                href="mailto:atharvazaveri4@gmail.com"
+                class="hero-social-btn hero-social-btn--email"
+                aria-label="Email"
+              >
+                <i class="fa-solid fa-envelope"></i><span>Email</span>
+              </a>
+            </div>
           </div>
+
+          <!-- AI Neural Network Canvas -->
+          <div class="hero-neural" aria-hidden="true">
+            <canvas id="neural-canvas"></canvas>
+          </div>
+        </div>
+
+        <div class="hero-scroll-hint" aria-hidden="true">
+          <div class="hero-scroll-line"></div>
+          <span>scroll</span>
         </div>
       </section>
 
-      <!-- About Section -->
+      <!-- ─── About ─────────────────────────────────── -->
       <section id="about" class="section-padding">
+        <div class="section-label" aria-hidden="true">01</div>
         <div class="container">
           <div class="about-grid">
             <div class="about-card scroll-reveal">
@@ -166,57 +207,56 @@
                   id="resume-btn"
                   style="
                     margin-top: 1.5rem;
-                    display: inline-block;
+                    display: inline-flex;
                     opacity: 1;
                     transform: translateY(0);
                   "
-                  >Resume</a
                 >
+                  Resume&nbsp;<i
+                    class="fa-solid fa-arrow-up-right-from-square"
+                  ></i>
+                </a>
               </div>
             </div>
-            <!-- Photo is loaded from the API; falls back to ./assets/photo.jpg -->
             <div class="about-photo scroll-reveal">
-              <img
-                id="about-photo-img"
-                src="./assets/photo.jpg"
-                alt="Atharva Zaveri"
-              />
+              <div class="about-photo-wrapper">
+                <img
+                  id="about-photo-img"
+                  src="./assets/photo.jpg"
+                  alt="Atharva Zaveri"
+                />
+                <div class="about-photo-accent" aria-hidden="true"></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Experience Section — populated dynamically by script.js -->
-      <section id="experience" class="section-padding" style="display: none">
+      <!-- ─── Experience ────────────────────────────── -->
+      <section id="experience" class="section-padding">
+        <div class="section-label" aria-hidden="true">02</div>
         <div class="container">
           <div id="experience-work-section">
             <h2 class="section-title">Work Experience</h2>
             <div class="timeline" id="timeline-container"></div>
           </div>
-
-          <div id="experience-hackathon-section" style="margin-top: 5rem">
+          <div id="experience-hackathon-section">
             <h2 class="section-title">Hackathons</h2>
             <div class="hackathon-grid" id="hackathon-container"></div>
           </div>
         </div>
       </section>
 
-      <!-- Projects Section -->
+      <!-- ─── Projects ──────────────────────────────── -->
       <section id="projects" class="section-padding">
+        <div class="section-label" aria-hidden="true">03</div>
         <div class="container">
           <h2 class="section-title scroll-reveal">Featured Projects</h2>
-          <p
-            class="scroll-reveal"
-            style="
-              color: var(--text-muted);
-              max-width: 600px;
-              margin-bottom: 3rem;
-            "
-          >
+          <p class="section-subtitle scroll-reveal">
             A collection of my recent projects.
           </p>
           <div class="projects-grid">
-            <!-- Projects will be injected via JS from script.js -->
+            <!-- Injected by script.js -->
           </div>
           <div class="projects-show-more-wrapper">
             <button
@@ -224,61 +264,58 @@
               class="projects-show-more-btn"
               style="display: none"
             >
-              <span>Show more</span>
-              <i class="fa-solid fa-chevron-down"></i>
+              <span>Show more</span><i class="fa-solid fa-chevron-down"></i>
             </button>
             <button
               id="projects-show-less"
               class="projects-show-more-btn"
               style="display: none"
             >
-              <span>Show less</span>
-              <i class="fa-solid fa-chevron-up"></i>
+              <span>Show less</span><i class="fa-solid fa-chevron-up"></i>
             </button>
           </div>
         </div>
       </section>
 
-      <!-- Skills Section -->
+      <!-- ─── Skills ────────────────────────────────── -->
       <section id="skills" class="section-padding">
+        <div class="section-label" aria-hidden="true">04</div>
         <div class="container">
           <h2 class="section-title scroll-reveal">Tech Stack</h2>
-          <p
-            class="scroll-reveal"
-            style="color: var(--text-muted); max-width: 600px"
-          >
+          <p class="section-subtitle scroll-reveal">
             Technologies and tools I work with to bring ideas to life.
           </p>
-
           <div class="skills-container scroll-reveal" id="skills-wrapper">
-            <!-- Skills will be injected via JS -->
+            <!-- Injected by script.js -->
           </div>
         </div>
       </section>
 
-      <!-- Contact Section -->
+      <!-- ─── Contact ───────────────────────────────── -->
       <section id="contact" class="section-padding">
+        <div class="section-label" aria-hidden="true">05</div>
         <div class="container contact-wrapper">
           <div class="contact-info scroll-reveal">
             <h2 class="section-title">Let's Connect</h2>
             <p
               style="
                 color: var(--text-muted);
-                font-size: 1.1rem;
+                font-size: 1.02rem;
                 margin-bottom: 2rem;
+                line-height: 1.8;
               "
             >
               Interested in working together? Have a question or just want to
               say hi? Drop me a message and I'll get back to you as soon as
               possible.
             </p>
-
             <div class="social-links">
               <a
                 href="https://github.com/AtharvaZ"
                 class="social-icon"
                 aria-label="GitHub"
-                ><i class="fa-brands fa-github"></i
+              >
+                <i class="fa-brands fa-github"></i
               ></a>
               <a
                 href="https://www.linkedin.com/in/atharva-zaveri/"
@@ -290,11 +327,11 @@
                 href="mailto:atharvazaveri4@gmail.com"
                 class="social-icon"
                 aria-label="Email"
-                ><i class="fa-solid fa-envelope"></i
+              >
+                <i class="fa-solid fa-envelope"></i
               ></a>
             </div>
           </div>
-
           <form class="contact-form scroll-reveal">
             <div class="form-group">
               <input
@@ -320,7 +357,9 @@
                 required
               ></textarea>
             </div>
-            <button type="submit" class="form-btn">Send Message</button>
+            <button type="submit" class="form-btn">
+              Send Message&nbsp;<i class="fa-solid fa-paper-plane"></i>
+            </button>
           </form>
         </div>
       </section>
@@ -328,12 +367,336 @@
 
     <footer>
       <div class="container">
-        <p style="color: var(--text-muted)">
-          © 2025 Portfolio. Designed & Built with Creativity.
-        </p>
+        <div class="footer-inner">
+          <span class="gradient-text footer-logo">&lt;AZ/&gt;</span>
+          <p style="color: var(--text-muted)">
+            © 2025 Atharva Zaveri — Designed &amp; Built with Creativity.
+          </p>
+        </div>
       </div>
     </footer>
 
-    <script src="script.js?v=1.0.1"></script>
+    <script src="script.js?v=1.3.2"></script>
+
+    <!-- ─── Neural Network Canvas ────────────────────── -->
+    <script>
+      (function () {
+        const canvas = document.getElementById("neural-canvas");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let W,
+          H,
+          nodes = [],
+          raf;
+        const CONNECT_DIST = 110;
+        const mouse = { x: -9999, y: -9999, active: false };
+
+        function isDark() {
+          return document.body.classList.contains("dark-mode");
+        }
+
+        function palette() {
+          return isDark()
+            ? {
+                n: [
+                  [129, 140, 248],
+                  [167, 139, 250],
+                  [34, 211, 238],
+                ],
+                l: [129, 140, 248],
+              }
+            : {
+                n: [
+                  [79, 70, 229],
+                  [124, 58, 237],
+                  [8, 145, 178],
+                ],
+                l: [79, 70, 229],
+              };
+        }
+
+        function resize() {
+          W = canvas.width = canvas.offsetWidth;
+          H = canvas.height = canvas.offsetHeight;
+        }
+
+        class Node {
+          constructor() {
+            this.x = Math.random() * W;
+            this.y = Math.random() * H;
+            this.vx = (Math.random() - 0.5) * 0.3;
+            this.vy = (Math.random() - 0.5) * 0.3;
+            this.r = Math.random() * 1.6 + 1.2;
+            this.ci = Math.floor(Math.random() * 3);
+            this.pulse = 0;
+            this.pulsing = false;
+            this.pt = 0;
+          }
+
+          update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > W) this.vx *= -1;
+            if (this.y < 0 || this.y > H) this.vy *= -1;
+
+            if (mouse.active) {
+              const dx = mouse.x - this.x;
+              const dy = mouse.y - this.y;
+              const d2 = dx * dx + dy * dy;
+              const pullRadius = 170;
+              if (d2 < pullRadius * pullRadius) {
+                const d = Math.max(10, Math.sqrt(d2));
+                const force = (1 - d / pullRadius) * 0.03;
+                this.vx += (dx / d) * force;
+                this.vy += (dy / d) * force;
+              }
+            }
+
+            this.vx *= 0.985;
+            this.vy *= 0.985;
+
+            if (!this.pulsing && Math.random() < 0.0007) {
+              this.pulsing = true;
+              this.pt = 0;
+            }
+            if (this.pulsing) {
+              this.pt++;
+              this.pulse = Math.sin((this.pt * Math.PI) / 55);
+              if (this.pt >= 55) {
+                this.pulsing = false;
+                this.pulse = 0;
+              }
+            }
+          }
+
+          draw() {
+            const [r, g, b] = palette().n[this.ci];
+            const a = 0.55 + this.pulse * 0.45;
+
+            if (this.pulse > 0.25) {
+              const rr = this.r * 6 * this.pulse;
+              const gr = ctx.createRadialGradient(
+                this.x,
+                this.y,
+                0,
+                this.x,
+                this.y,
+                rr,
+              );
+              gr.addColorStop(0, `rgba(${r},${g},${b},${this.pulse * 0.3})`);
+              gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, rr, 0, Math.PI * 2);
+              ctx.fillStyle = gr;
+              ctx.fill();
+            }
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r + this.pulse * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+            ctx.fill();
+          }
+        }
+
+        function init() {
+          resize();
+          const count = Math.max(30, Math.min(55, Math.floor((W * H) / 6500)));
+          nodes = Array.from({ length: count }, () => new Node());
+        }
+
+        function frame() {
+          ctx.clearRect(0, 0, W, H);
+          const [lr, lg, lb] = palette().l;
+
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const dx = nodes[i].x - nodes[j].x;
+              const dy = nodes[i].y - nodes[j].y;
+              const d2 = dx * dx + dy * dy;
+              if (d2 < CONNECT_DIST * CONNECT_DIST) {
+                const d = Math.sqrt(d2);
+                const boost = (nodes[i].pulse + nodes[j].pulse) * 0.3;
+                const a = (1 - d / CONNECT_DIST) * 0.24 + boost;
+                ctx.strokeStyle = `rgba(${lr},${lg},${lb},${a})`;
+                ctx.lineWidth = 0.62 + boost * 1.35;
+                ctx.beginPath();
+                ctx.moveTo(nodes[i].x, nodes[i].y);
+                ctx.lineTo(nodes[j].x, nodes[j].y);
+                ctx.stroke();
+              }
+            }
+          }
+
+          nodes.forEach((n) => {
+            n.update();
+            n.draw();
+          });
+          raf = requestAnimationFrame(frame);
+        }
+
+        init();
+        frame();
+
+        canvas.addEventListener("mousemove", (e) => {
+          const rect = canvas.getBoundingClientRect();
+          mouse.x = e.clientX - rect.left;
+          mouse.y = e.clientY - rect.top;
+          mouse.active = true;
+        });
+
+        canvas.addEventListener("mouseleave", () => {
+          mouse.active = false;
+          mouse.x = -9999;
+          mouse.y = -9999;
+        });
+
+        let resizeTimer;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            cancelAnimationFrame(raf);
+            init();
+            frame();
+          }, 100);
+        });
+      })();
+    </script>
+
+    <!-- ─── Motion.js Enhancements ───────────────────── -->
+    <script>
+      (function () {
+        const lib = window.Motion || window.motion;
+        if (!lib) return;
+        const { animate, inView } = lib;
+
+        animate(
+          ".navbar",
+          { opacity: [0, 1], y: [-16, 0] },
+          { duration: 0.5, easing: "ease-out" },
+        );
+
+        animate(
+          ".hero-orb--1",
+          { y: [0, -26, 0] },
+          { duration: 7, repeat: Infinity, easing: "ease-in-out" },
+        );
+        animate(
+          ".hero-orb--2",
+          { y: [0, 20, 0], x: [0, 12, 0] },
+          { duration: 9, repeat: Infinity, easing: "ease-in-out", delay: 1.8 },
+        );
+        animate(
+          ".hero-orb--3",
+          { y: [0, -14, 0], x: [0, -8, 0] },
+          { duration: 11, repeat: Infinity, easing: "ease-in-out", delay: 3.2 },
+        );
+
+        animate(
+          ".hero-scroll-hint",
+          { opacity: [0, 1], y: [8, 0] },
+          { duration: 0.7, delay: 3.0 },
+        );
+
+        inView(
+          ".section-label",
+          function (el) {
+            animate(el, { opacity: [0, 0.12] }, { duration: 0.9 });
+          },
+          { amount: 0.2 },
+        );
+
+        // Project row slide on hover
+        document.addEventListener("mouseover", function (e) {
+          const card = e.target.closest(".project-card");
+          if (card)
+            animate(
+              card,
+              { x: 5 },
+              { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
+            );
+        });
+        document.addEventListener("mouseout", function (e) {
+          const card = e.target.closest(".project-card");
+          if (card && !card.contains(e.relatedTarget))
+            animate(card, { x: 0 }, { duration: 0.2 });
+        });
+
+        // Timeline item hover interaction
+        document.addEventListener("mouseover", function (e) {
+          const item = e.target.closest(".timeline-item");
+          if (item)
+            animate(
+              item,
+              { y: -3 },
+              { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
+            );
+        });
+        document.addEventListener("mouseout", function (e) {
+          const item = e.target.closest(".timeline-item");
+          if (item && !item.contains(e.relatedTarget))
+            animate(item, { y: 0 }, { duration: 0.2 });
+        });
+
+        // Hackathon card lift
+        document.addEventListener("mouseover", function (e) {
+          const card = e.target.closest(".hackathon-card");
+          if (card)
+            animate(
+              card,
+              { y: -5 },
+              { duration: 0.22, easing: [0.34, 1.56, 0.64, 1] },
+            );
+        });
+        document.addEventListener("mouseout", function (e) {
+          const card = e.target.closest(".hackathon-card");
+          if (card && !card.contains(e.relatedTarget))
+            animate(card, { y: 0 }, { duration: 0.2 });
+        });
+
+        // Skill pill pop
+        document.addEventListener("mouseover", function (e) {
+          const s = e.target.closest(".skill-item");
+          if (s)
+            animate(
+              s,
+              { scale: 1.05 },
+              { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] },
+            );
+        });
+        document.addEventListener("mouseout", function (e) {
+          const s = e.target.closest(".skill-item");
+          if (s && !s.contains(e.relatedTarget))
+            animate(s, { scale: 1 }, { duration: 0.18 });
+        });
+
+        // Hero social bounce
+        document.querySelectorAll(".hero-social-btn").forEach(function (btn) {
+          btn.addEventListener("mouseenter", function () {
+            animate(
+              btn,
+              { y: -3 },
+              { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] },
+            );
+          });
+          btn.addEventListener("mouseleave", function () {
+            animate(btn, { y: 0 }, { duration: 0.18 });
+          });
+        });
+
+        // Social icon bounce
+        document.querySelectorAll(".social-icon").forEach(function (icon) {
+          icon.addEventListener("mouseenter", function () {
+            animate(
+              icon,
+              { scale: 1.14, y: -3 },
+              { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
+            );
+          });
+          icon.addEventListener("mouseleave", function () {
+            animate(icon, { scale: 1, y: 0 }, { duration: 0.18 });
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
