@@ -28,12 +28,12 @@ function safeUrl(url) {
 }
 
 /** Safe URL for image src — allows data:image URIs for uploaded images. */
-function safeImgSrc(url) {
-  if (!url) return "";
-  const u = String(url).trim();
-  if (/^https?:\/\//i.test(u) || u.startsWith("/") || /^data:image\//i.test(u))
-    return u;
-  return "";
+function safeImgSrc(src) {
+  if (!src) return "";
+  const s = String(src).trim();
+  if (/^data:image\//i.test(s)) return s;
+  const safe = safeUrl(s);
+  return safe === "#" ? "" : safe;
 }
 
 // Initialize theme before other scripts
