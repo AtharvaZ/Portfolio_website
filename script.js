@@ -701,13 +701,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("timeline-container");
     const section = document.getElementById("experience-work-section");
     const formatExperienceDesc = (desc) => {
-      const lines = String(desc || "")
-        .split(/\r?\n/)
+      const rawLines = String(desc || "")
+        .split(/(?:\r?\n|\\n)/)
         .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line) => line.replace(/^[-*•]\s*/, ""));
+        .filter(Boolean);
 
-      if (lines.length > 1) {
+      const renderAsList =
+        rawLines.length > 1 || rawLines.some((line) => /^[-*•]\s+/.test(line));
+
+      const lines = rawLines.map((line) => line.replace(/^[-*•]\s*/, ""));
+
+      if (renderAsList) {
         return `<ul class="timeline-desc-list">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`;
       }
 

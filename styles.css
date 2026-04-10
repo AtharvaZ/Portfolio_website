@@ -1220,6 +1220,8 @@ body.dark-mode .timeline-card:hover {
   line-height: 1.75;
   margin: 0 0 1rem 1.1rem;
   padding: 0;
+  list-style: disc;
+  list-style-position: outside;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
