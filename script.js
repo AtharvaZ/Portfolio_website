@@ -97,150 +97,161 @@ if (menuToggle) {
 const canvas = document.getElementById("site-particles");
 if (canvas && !window.location.pathname.includes("admin")) {
   const ctx = canvas.getContext("2d", { alpha: true });
-
-  // Handle high-DPI displays for crisp, round particles
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = document.documentElement.scrollHeight * dpr;
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = document.documentElement.scrollHeight + "px";
-  ctx.scale(dpr, dpr);
 
-  let particlesArray;
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth  * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width  = window.innerWidth  + "px";
+    canvas.style.height = window.innerHeight + "px";
+    ctx.scale(dpr, dpr);
+  }
+  resizeCanvas();
 
-  class Particle {
-    constructor(startAtRandomStage = false) {
-      this.x = Math.random() * window.innerWidth;
-      this.y = Math.random() * document.documentElement.scrollHeight;
-      this.maxSize = Math.random() * 2.5 + 0.8;
-      this.speedX = Math.random() * 0.2 - 0.1;
-      this.speedY = Math.random() * 0.2 - 0.1;
-      this.updateColor();
+  // 6 distinct hand-drawn cloud silhouettes (drawn at origin, scaled externally)
+  const CLOUD_DESIGNS = [
+    // 1: Classic 3-bump
+    function(c) {
+      c.beginPath();
+      c.moveTo(-65,20); c.quadraticCurveTo(-72,2,-52,-5);
+      c.quadraticCurveTo(-56,-40,-22,-38); c.quadraticCurveTo(-16,-60,12,-48);
+      c.quadraticCurveTo(18,-64,48,-48); c.quadraticCurveTo(74,-42,70,-8);
+      c.quadraticCurveTo(84,4,65,20); c.closePath(); c.fill(); c.stroke();
+    },
+    // 2: Wide flat wispy
+    function(c) {
+      c.beginPath();
+      c.moveTo(-98,14); c.quadraticCurveTo(-104,-4,-80,-8);
+      c.quadraticCurveTo(-74,-26,-46,-18); c.quadraticCurveTo(-26,-34,2,-22);
+      c.quadraticCurveTo(24,-32,54,-18); c.quadraticCurveTo(74,-24,90,-8);
+      c.quadraticCurveTo(100,2,98,14); c.closePath(); c.fill(); c.stroke();
+    },
+    // 3: Small compact puff
+    function(c) {
+      c.beginPath();
+      c.moveTo(-40,18); c.quadraticCurveTo(-54,10,-50,-8);
+      c.quadraticCurveTo(-54,-38,-20,-40); c.quadraticCurveTo(-10,-56,18,-44);
+      c.quadraticCurveTo(38,-46,42,-18); c.quadraticCurveTo(54,-2,44,18);
+      c.closePath(); c.fill(); c.stroke();
+    },
+    // 4: Long streaky cirrus
+    function(c) {
+      c.beginPath();
+      c.moveTo(-108,10); c.quadraticCurveTo(-112,-2,-90,-6);
+      c.quadraticCurveTo(-68,-16,-36,-8); c.quadraticCurveTo(-10,-18,22,-10);
+      c.quadraticCurveTo(54,-16,84,-8); c.quadraticCurveTo(108,-2,108,10);
+      c.closePath(); c.fill(); c.stroke();
+    },
+    // 5: Big dramatic 4-bump
+    function(c) {
+      c.beginPath();
+      c.moveTo(-88,28); c.quadraticCurveTo(-98,6,-74,-6);
+      c.quadraticCurveTo(-80,-46,-46,-46); c.quadraticCurveTo(-44,-70,-10,-62);
+      c.quadraticCurveTo(2,-80,34,-66); c.quadraticCurveTo(52,-74,70,-54);
+      c.quadraticCurveTo(98,-48,94,-14); c.quadraticCurveTo(108,6,86,28);
+      c.closePath(); c.fill(); c.stroke();
+    },
+    // 6: Layered double-deck
+    function(c) {
+      c.beginPath();
+      c.moveTo(-78,28); c.quadraticCurveTo(-88,8,-66,0);
+      c.quadraticCurveTo(-72,-22,-48,-24); c.quadraticCurveTo(-44,-46,-18,-38);
+      c.quadraticCurveTo(-10,-52,14,-42); c.quadraticCurveTo(24,-52,44,-38);
+      c.quadraticCurveTo(60,-42,64,-22); c.quadraticCurveTo(78,-16,74,0);
+      c.quadraticCurveTo(90,8,82,28); c.closePath(); c.fill(); c.stroke();
+    },
+  ];
 
-      if (startAtRandomStage) {
-        this.size = Math.random() * this.maxSize;
-        this.growing = this.size < this.maxSize * 0.5;
-      } else {
-        this.size = 0.1;
-        this.growing = true;
-      }
+  const PALETTE = [[45,90,39],[74,124,64],[106,170,92],[26,61,23]];
+
+  class DoodleBird {
+    constructor(x, y, speed) {
+      this.x = x; this.baseY = y; this.y = y;
+      this.speed = speed;
+      this.wingPhase = Math.random() * Math.PI * 2;
+      this.wingSpeed = Math.random() * 0.07 + 0.04;
+      this.size = Math.random() * 5 + 3;
+      this.bobT = Math.random() * Math.PI * 2;
+      this.bobAmp = Math.random() * 3 + 1;
     }
-    updateColor() {
-      // Cache rgb components to avoid parsing every frame
-      const isDark = document.body.classList.contains("dark-mode");
-      if (isDark) {
-        if (Math.random() > 0.5) {
-          this.r = 16;
-          this.g = 185;
-          this.b = 129;
-          this.a = 0.9;
-        } else {
-          this.r = 52;
-          this.g = 211;
-          this.b = 153;
-          this.a = 0.85;
-        }
-      } else {
-        if (Math.random() > 0.5) {
-          this.r = 6;
-          this.g = 78;
-          this.b = 59;
-          this.a = 0.85;
-        } else {
-          this.r = 5;
-          this.g = 150;
-          this.b = 105;
-          this.a = 0.8;
-        }
+    update() {
+      this.x -= this.speed;
+      this.wingPhase += this.wingSpeed;
+      this.bobT += 0.014;
+      this.y = this.baseY + Math.sin(this.bobT) * this.bobAmp;
+    }
+    draw(opacity) {
+      const s = this.size;
+      const flap = Math.sin(this.wingPhase) * 0.48;
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.strokeStyle = `rgba(45,90,39,${Math.min(0.9, opacity * 2.4)})`;
+      ctx.lineWidth = 1.4; ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-s, s * 0.12);
+      ctx.quadraticCurveTo(-s * 0.45, -s * flap, 0, 0);
+      ctx.quadraticCurveTo(s * 0.45, -s * flap, s, s * 0.12);
+      ctx.stroke();
+      ctx.restore();
+    }
+    isOffscreen() { return this.x < -60; }
+  }
+
+  class DoodleCloud {
+    constructor(scatter = false) {
+      const col = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      this.r = col[0]; this.g = col[1]; this.b = col[2];
+      this.designIndex = Math.floor(Math.random() * 6);
+      this.scale   = Math.random() * 0.8 + 0.55;
+      this.speed   = Math.random() * 0.38 + 0.12;
+      this.opacity = Math.random() * 0.18 + 0.09;
+      this.y = Math.random() * window.innerHeight * 0.65 + 20;
+      this.x = scatter ? Math.random() * window.innerWidth
+                       : window.innerWidth + 160;
+      // Attach 1-4 birds near this cloud
+      const n = Math.floor(Math.random() * 4) + 1;
+      this.birds = [];
+      for (let i = 0; i < n; i++) {
+        const bx = this.x + (Math.random() - 0.5) * 190;
+        const by = this.y - 22 - Math.random() * 60;
+        this.birds.push(new DoodleBird(bx, by,
+          this.speed + (Math.random() - 0.5) * 0.1));
       }
     }
     update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-
-      if (this.growing) {
-        this.size += 0.015;
-        if (this.size >= this.maxSize) this.growing = false;
-      } else {
-        this.size -= 0.005;
-      }
-
-      if (this.size <= 0.1) {
-        this.x = Math.random() * window.innerWidth;
-        this.y = Math.random() * document.documentElement.scrollHeight;
-        this.maxSize = Math.random() * 2.5 + 0.8;
-        this.size = 0.1;
-        this.growing = true;
-        this.updateColor();
-      }
+      this.x -= this.speed;
+      this.birds.forEach(b => b.update());
+    }
+    isOffscreen() {
+      return this.x < -320 && this.birds.every(b => b.isOffscreen());
     }
     draw() {
-      // Simple radial gradient, no shadowBlur (expensive)
-      const gradient = ctx.createRadialGradient(
-        this.x,
-        this.y,
-        0,
-        this.x,
-        this.y,
-        this.size,
-      );
-      gradient.addColorStop(0, `rgba(${this.r},${this.g},${this.b},${this.a})`);
-      gradient.addColorStop(1, `rgba(${this.r},${this.g},${this.b},0)`);
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.scale(this.scale, this.scale);
+      ctx.strokeStyle = `rgba(${this.r},${this.g},${this.b},${this.opacity + 0.09})`;
+      ctx.fillStyle   = `rgba(${this.r},${this.g},${this.b},${this.opacity * 0.2})`;
+      ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+      CLOUD_DESIGNS[this.designIndex](ctx);
+      ctx.restore();
+      this.birds.forEach(b => b.draw(this.opacity));
     }
   }
 
-  function initParticles() {
-    particlesArray = [];
-    // Increase particle count for full page coverage
-    for (let i = 0; i < 150; i++) {
-      particlesArray.push(new Particle(true)); // stagger initial lifecycle stage
-    }
-    globalParticlesArray = particlesArray;
+  const TARGET = 9;
+  let clouds = Array.from({ length: TARGET }, () => new DoodleCloud(true));
+  globalParticlesArray = clouds;
+
+  function animate() {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    clouds = clouds.filter(c => !c.isOffscreen());
+    while (clouds.length < TARGET) clouds.push(new DoodleCloud(false));
+    clouds.forEach(c => { c.update(); c.draw(); });
+    requestAnimationFrame(animate);
   }
+  animate();
 
-  function animateParticles() {
-    ctx.clearRect(
-      0,
-      0,
-      window.innerWidth,
-      document.documentElement.scrollHeight,
-    );
-    for (let i = 0; i < particlesArray.length; i++) {
-      particlesArray[i].update();
-      particlesArray[i].draw();
-    }
-    requestAnimationFrame(animateParticles);
-  }
-
-  initParticles();
-  animateParticles();
-
-  window.addEventListener("resize", () => {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = window.innerWidth * dpr;
-    canvas.height = document.documentElement.scrollHeight * dpr;
-    canvas.style.width = window.innerWidth + "px";
-    canvas.style.height = document.documentElement.scrollHeight + "px";
-    ctx.scale(dpr, dpr);
-    initParticles();
-  });
-
-  // Update canvas height on scroll/content change
-  const resizeObserver = new ResizeObserver(() => {
-    const newHeight = document.documentElement.scrollHeight;
-    const dpr = window.devicePixelRatio || 1;
-    const currentLogicalHeight = canvas.height / dpr;
-    if (currentLogicalHeight !== newHeight) {
-      canvas.height = newHeight * dpr;
-      canvas.style.height = newHeight + "px";
-      ctx.scale(dpr, dpr);
-    }
-  });
-  resizeObserver.observe(document.body);
+  window.addEventListener("resize", resizeCanvas);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
