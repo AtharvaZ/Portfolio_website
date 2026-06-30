@@ -49,8 +49,13 @@
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="7" result="n"/>
           <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
-        <!-- Wire 2: fades from right cloud toward centre -->
+        <!-- Wire 2: fades from right server rack toward centre -->
         <linearGradient id="gW2" gradientUnits="userSpaceOnUse" x1="1252" y1="240" x2="860" y2="240">
+          <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
+          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
+        </linearGradient>
+        <!-- Wire 4: AI bulb bottom-right → up to server rack, fades toward rack -->
+        <linearGradient id="gW4" gradientUnits="userSpaceOnUse" x1="1315" y1="690" x2="1315" y2="310">
           <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
           <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
         </linearGradient>
@@ -59,17 +64,23 @@
       <!-- ══ WIRES ══ -->
       <!-- Wire 1: laptop top-centre → <AZ/> logo in nav -->
       <polyline points="163,280 163,40 72,40" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
-      <!-- Wire 2: right API cloud left edge → fades toward centre (no centre node) -->
+      <!-- Wire 2: right server rack left edge → fades toward centre -->
       <line x1="1252" y1="240" x2="860" y2="240" stroke="url(#gW2)" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <!-- Wire 4: AI bulb top → up to server rack bottom -->
+      <line x1="1315" y1="690" x2="1315" y2="312" stroke="url(#gW4)" stroke-width="1.5" stroke-dasharray="6 4"/>
 
       <!-- Endpoint / junction dots -->
       <circle cx="163"  cy="280" r="3"   fill="#2d5a27" opacity="0.45"/>
       <circle cx="128"  cy="40"  r="3"   fill="#2d5a27" opacity="0.5"/>
       <circle cx="72"   cy="40"  r="4.5" fill="#2d5a27" opacity="0.45"/>
       <circle cx="1252" cy="240" r="3.5" fill="#2d5a27" opacity="0.45"/>
+      <circle cx="1315" cy="690" r="3.5" fill="#2d5a27" opacity="0.45"/>
 
       <!-- ══ ILLUSTRATION 1: Laptop (left side) — doodle style, 3/4 perspective ══ -->
       <image href="./assets/laptop-doodle.png" x="18" y="278" width="220" height="166" opacity="0.85"/>
+
+      <!-- ══ ILLUSTRATION 4: AI Lightbulb (bottom-right) ══ -->
+      <image href="./assets/ai-doodle.png" x="1235" y="690" width="160" height="107" opacity="0.82"/>
 
       <!-- ══ ILLUSTRATION 2: Server Rack (right side) ══ -->
       <g transform="translate(1218, 168)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">

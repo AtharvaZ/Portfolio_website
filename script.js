@@ -145,21 +145,19 @@ if (canvas && !window.location.pathname.includes("admin")) {
   }
 
   class PngCloud {
-    constructor(scatter = false) {
-      this.scale   = Math.random() * 0.52 + 0.22;  // 0.22–0.74 — varied sizes
-      this.speed   = Math.random() * 0.32 + 0.10;
-      this.opacity = Math.random() * 0.30 + 0.45;  // 0.45–0.75
-      this.y = Math.random() * window.innerHeight * 0.72 + 30;
+    constructor(x, y, scale, speed) {
+      this.scale = scale  ?? (Math.random() * 0.48 + 0.28);  // 0.28–0.76
+      this.speed = speed  ?? (Math.random() * 0.28 + 0.12);
+      this.opacity = 0.96; // fully opaque — overlapping clouds should look solid
+      this.y = y ?? (Math.random() * window.innerHeight * 0.78 + 20);
       const hw = (CLOUD_W * this.scale) / 2;
-      this.x = scatter
-        ? Math.random() * (window.innerWidth + hw * 2) - hw
-        : window.innerWidth + hw + 20;
-      const n = Math.floor(Math.random() * 3) + 1;
+      this.x = x ?? (Math.random() * (window.innerWidth + hw * 2) - hw);
+      const n = Math.floor(Math.random() * 2) + 1;
       this.birds = [];
       for (let i = 0; i < n; i++) {
-        const bx = this.x + (Math.random() - 0.5) * CLOUD_W * this.scale * 1.2;
-        const by = this.y - CLOUD_H * this.scale * 0.38 - Math.random() * 45;
-        this.birds.push(new DoodleBird(bx, by, this.speed + (Math.random() - 0.5) * 0.08));
+        const bx = this.x + (Math.random() - 0.5) * CLOUD_W * this.scale * 1.1;
+        const by = this.y - CLOUD_H * this.scale * 0.42 - Math.random() * 38;
+        this.birds.push(new DoodleBird(bx, by, this.speed + (Math.random() - 0.5) * 0.07));
       }
     }
     updateColor() {}
@@ -176,48 +174,62 @@ if (canvas && !window.location.pathname.includes("admin")) {
       const iw = CLOUD_W * this.scale, ih = CLOUD_H * this.scale;
       ctx.save();
       ctx.globalAlpha = this.opacity;
-      ctx.shadowColor    = "rgba(0,0,0,0.22)";
-      ctx.shadowBlur     = 18 * this.scale;
-      ctx.shadowOffsetX  = 2;
-      ctx.shadowOffsetY  = 7 * this.scale;
+      ctx.shadowColor   = "rgba(0,0,0,0.18)";
+      ctx.shadowBlur    = 14 * this.scale;
+      ctx.shadowOffsetX = 1;
+      ctx.shadowOffsetY = 5 * this.scale;
       ctx.drawImage(cloudImg, this.x - iw / 2, this.y - ih / 2, iw, ih);
       ctx.restore();
-      this.birds.forEach(b => b.draw(this.opacity * 0.75));
+      this.birds.forEach(b => b.draw(0.72));
     }
   }
 
-  function spawnCloud(scatter = false) {
-    const c = new PngCloud(scatter);
-    const group = [c];
-    // 35% chance: add 1-2 companion clouds close by for natural layered overlap
-    if (Math.random() < 0.35) {
-      const companion = new PngCloud(scatter);
-      companion.x = c.x + (Math.random() - 0.4) * 130;
-      companion.y = c.y + (Math.random() - 0.5) * 90;
-      companion.scale = c.scale * (Math.random() * 0.35 + 0.55);
-      companion.speed = c.speed + (Math.random() - 0.5) * 0.06;
-      group.push(companion);
-      if (Math.random() < 0.40) {
-        const c2 = new PngCloud(scatter);
-        c2.x = c.x + (Math.random() - 0.5) * 200;
-        c2.y = c.y + (Math.random() - 0.5) * 70;
-        c2.scale = c.scale * (Math.random() * 0.3 + 0.45);
-        c2.speed = c.speed + (Math.random() - 0.5) * 0.05;
-        group.push(c2);
-      }
+  // Build clusters: leader + 1-2 side-overlapping companions
+  // Groups placed at left, mid-left, centre, mid-right, right bands on scatter
+  function spawnCluster(scatter = false) {
+    const vw = window.innerWidth;
+    // For scatter: pick a band (0-4) so clusters spread left/mid/right
+    let baseX;
+    if (scatter) {
+      const band = Math.floor(Math.random() * 5);  // 0..4
+      baseX = (band / 4) * vw;
+    } else {
+      baseX = vw + 260;  // spawn off right edge
     }
+    const baseY   = Math.random() * window.innerHeight * 0.72 + 30;
+    const baseScl = Math.random() * 0.38 + 0.34;  // 0.34–0.72
+    const baseSpd = Math.random() * 0.24 + 0.12;
+
+    const leader = new PngCloud(baseX, baseY, baseScl, baseSpd);
+    const group  = [leader];
+
+    // Always add at least one side companion (left or right overlap)
+    const sideDir   = Math.random() < 0.5 ? 1 : -1;
+    const sideOffX  = sideDir * (CLOUD_W * baseScl * (Math.random() * 0.28 + 0.22));
+    const sideOffY  = (Math.random() - 0.5) * 55;
+    const sideScale = baseScl * (Math.random() * 0.32 + 0.58);
+    group.push(new PngCloud(baseX + sideOffX, baseY + sideOffY, sideScale, baseSpd + (Math.random()-0.5)*0.05));
+
+    // 55% chance: third cloud from opposite side for sandwich overlap
+    if (Math.random() < 0.55) {
+      const offX2  = -sideDir * (CLOUD_W * baseScl * (Math.random() * 0.20 + 0.14));
+      const offY2  = (Math.random() - 0.5) * 45;
+      const scl2   = baseScl * (Math.random() * 0.28 + 0.44);
+      group.push(new PngCloud(baseX + offX2, baseY + offY2, scl2, baseSpd + (Math.random()-0.5)*0.04));
+    }
+
     return group;
   }
 
-  const TARGET = 10;
+  const TARGET = 12;
   let clouds = [];
-  while (clouds.length < TARGET) clouds.push(...spawnCloud(true));
+  while (clouds.length < TARGET) clouds.push(...spawnCluster(true));
   globalParticlesArray = clouds;
 
   function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     clouds = clouds.filter(c => !c.isOffscreen());
-    while (clouds.length < TARGET) clouds.push(...spawnCloud(false));
+    while (clouds.length < TARGET) clouds.push(...spawnCluster(false));
     clouds.forEach(c => { c.update(); c.draw(); });
     requestAnimationFrame(animate);
   }
