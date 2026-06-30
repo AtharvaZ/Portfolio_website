@@ -214,30 +214,42 @@ if (canvas && !window.location.pathname.includes("admin")) {
     return group;
   }
 
-  // Small tight fade around navbar and hero-content — clouds dissolve just at component edges
+  // Tiny feather (7px) around every visible page component so clouds dissolve right at the edge
+  const FADE_SELECTORS = [
+    ".navbar",
+    ".hero-content",
+    ".about-card",
+    ".about-photo",
+    ".project-card",
+    ".timeline-item",
+    ".hackathon-card",
+    ".skills-container",
+    ".contact-wrapper",
+    "footer",
+  ];
+  let _fadeEls = null;
+
   function applyComponentFades() {
-    const FADE = 22;
+    if (!_fadeEls) _fadeEls = document.querySelectorAll(FADE_SELECTORS.join(","));
+    const FADE = 7;
+    const vh = window.innerHeight;
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
 
-    [".navbar", ".hero-content"].forEach(sel => {
-      const el = document.querySelector(sel);
-      if (!el) return;
+    _fadeEls.forEach(el => {
       const { left: x, top: y, width: w, height: h } = el.getBoundingClientRect();
-      if (y > window.innerHeight + FADE || y + h < -FADE) return;
+      if (y > vh + FADE || y + h < -FADE || w < 1 || h < 1) return;
 
-      // Erase directly under the element
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fillRect(x, y, w, h);
 
-      // Thin feather on each outside edge — stays tightly around the component
       [
-        [ctx.createLinearGradient(0, y, 0, y - FADE),          x, y - FADE, w, FADE],
-        [ctx.createLinearGradient(0, y + h, 0, y + h + FADE),  x, y + h,   w, FADE],
-        [ctx.createLinearGradient(x, 0, x - FADE, 0),          x - FADE, y, FADE, h],
-        [ctx.createLinearGradient(x + w, 0, x + w + FADE, 0),  x + w,    y, FADE, h],
+        [ctx.createLinearGradient(0, y, 0, y - FADE),         x, y - FADE, w, FADE],
+        [ctx.createLinearGradient(0, y + h, 0, y + h + FADE), x, y + h,   w, FADE],
+        [ctx.createLinearGradient(x, 0, x - FADE, 0),         x - FADE, y, FADE, h],
+        [ctx.createLinearGradient(x + w, 0, x + w + FADE, 0), x + w,    y, FADE, h],
       ].forEach(([g, rx, ry, rw, rh]) => {
-        g.addColorStop(0, "rgba(0,0,0,0.85)");
+        g.addColorStop(0, "rgba(0,0,0,0.88)");
         g.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = g;
         ctx.fillRect(rx, ry, rw, rh);

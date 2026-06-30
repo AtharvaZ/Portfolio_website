@@ -1,3 +1,4 @@
+
 # Environment variables
 .env
 
@@ -26,3 +27,23 @@ ENV/
 .DS_Store
 Thumbs.db
 
+.playwright-mcp/
+portfolio.db
+
+# Local design/debug captures (root only)
+/about-section.png
+/hero-preview.png
+/hero-top.png
+/hero-v3.png
+/hero-viewport.png
+/projects-section.png
+/projects-v3.png
+/skills-v3.png
+
+# Local image exports from chat/tests
+*.HEIC
+
+# Local prompt tooling data
+/.github/prompts/
+/.github/prompts/**/PROMPT.md
+/PROMPT.md

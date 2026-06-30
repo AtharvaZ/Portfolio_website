@@ -27,6 +27,15 @@ function safeUrl(url) {
   return "#";
 }
 
+/** Safe URL for image src — allows data:image URIs for uploaded images. */
+function safeImgSrc(src) {
+  if (!src) return "";
+  const s = String(src).trim();
+  if (/^data:image\//i.test(s)) return s;
+  const safe = safeUrl(s);
+  return safe === "#" ? "" : safe;
+}
+
 // Initialize theme before other scripts
 initTheme();
 
@@ -40,7 +49,17 @@ if (themeToggle) {
 }
 
 // API Configuration
-const API_URL = window.location.origin + "/api";
+const API_URL = (() => {
+  const host = window.location.hostname;
+  if (
+    window.location.protocol === "file:" ||
+    host === "localhost" ||
+    host === "127.0.0.1"
+  ) {
+    return "http://127.0.0.1:8000/api";
+  }
+  return window.location.origin + "/api";
+})();
 
 // Session Management
 let sessionToken = sessionStorage.getItem("portfolio_admin_token") || null;
@@ -50,6 +69,18 @@ const loginForm = document.getElementById("login-form");
 const loginScreen = document.getElementById("login-screen");
 const dashboard = document.getElementById("admin-dashboard");
 const loginError = document.getElementById("login-error");
+
+async function checkApiConnection() {
+  try {
+    const response = await fetch(`${API_URL}/health`, {
+      method: "GET",
+      cache: "no-store",
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
 
 async function login(username, password) {
   try {
@@ -95,6 +126,14 @@ loginForm.addEventListener("submit", async (e) => {
   // Validate inputs
   if (!user || !pass) {
     loginError.textContent = "Please enter both username and password";
+    loginError.style.display = "block";
+    return;
+  }
+
+  const apiConnected = await checkApiConnection();
+  if (!apiConnected) {
+    loginError.textContent =
+      "Cannot connect to backend API. Ensure backend is running and reachable.";
     loginError.style.display = "block";
     return;
   }
@@ -163,6 +202,16 @@ async function showDashboard() {
 if (sessionToken) {
   showDashboard();
 }
+
+// Early connectivity indicator on login screen
+(async () => {
+  const ok = await checkApiConnection();
+  if (!ok && loginError) {
+    loginError.textContent =
+      "Backend connection unavailable. Start backend server or verify deployment.";
+    loginError.style.display = "block";
+  }
+})();
 
 document.getElementById("logout-btn").addEventListener("click", async () => {
   if (sessionToken) {
