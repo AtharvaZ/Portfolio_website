@@ -184,38 +184,31 @@ if (canvas && !window.location.pathname.includes("admin")) {
     }
   }
 
-  // Build clusters: leader + 1-2 side-overlapping companions
-  // Groups placed at left, mid-left, centre, mid-right, right bands on scatter
+  // Build clusters: clouds overlap purely from the sides (left/right), same row
   function spawnCluster(scatter = false) {
-    const vw = window.innerWidth;
-    // For scatter: pick a band (0-4) so clusters spread left/mid/right
-    let baseX;
-    if (scatter) {
-      const band = Math.floor(Math.random() * 5);  // 0..4
-      baseX = (band / 4) * vw;
-    } else {
-      baseX = vw + 260;  // spawn off right edge
-    }
-    const baseY   = Math.random() * window.innerHeight * 0.72 + 30;
-    const baseScl = Math.random() * 0.38 + 0.34;  // 0.34–0.72
-    const baseSpd = Math.random() * 0.24 + 0.12;
+    const baseX   = scatter
+      ? Math.random() * (window.innerWidth + 400) - 200
+      : window.innerWidth + 320;
+    const baseY   = Math.random() * window.innerHeight * 0.75 + 20;
+    const baseScl = Math.random() * 0.36 + 0.34;  // 0.34–0.70
+    const baseSpd = Math.random() * 0.22 + 0.12;
+    const baseW   = CLOUD_W * baseScl;
 
     const leader = new PngCloud(baseX, baseY, baseScl, baseSpd);
     const group  = [leader];
 
-    // Always add at least one side companion (left or right overlap)
-    const sideDir   = Math.random() < 0.5 ? 1 : -1;
-    const sideOffX  = sideDir * (CLOUD_W * baseScl * (Math.random() * 0.28 + 0.22));
-    const sideOffY  = (Math.random() - 0.5) * 55;
-    const sideScale = baseScl * (Math.random() * 0.32 + 0.58);
-    group.push(new PngCloud(baseX + sideOffX, baseY + sideOffY, sideScale, baseSpd + (Math.random()-0.5)*0.05));
+    // Right-side companion: offset so it overlaps leader by ~35-55% from the right
+    const rOffX  = baseW * (Math.random() * 0.22 + 0.44);   // 44–66% of cloud width apart
+    const rOffY  = (Math.random() - 0.5) * 28;               // tiny vertical nudge only
+    const rScale = baseScl * (Math.random() * 0.30 + 0.60);
+    group.push(new PngCloud(baseX + rOffX, baseY + rOffY, rScale, baseSpd + (Math.random()-0.5)*0.04));
 
-    // 55% chance: third cloud from opposite side for sandwich overlap
-    if (Math.random() < 0.55) {
-      const offX2  = -sideDir * (CLOUD_W * baseScl * (Math.random() * 0.20 + 0.14));
-      const offY2  = (Math.random() - 0.5) * 45;
-      const scl2   = baseScl * (Math.random() * 0.28 + 0.44);
-      group.push(new PngCloud(baseX + offX2, baseY + offY2, scl2, baseSpd + (Math.random()-0.5)*0.04));
+    // 60% chance: left-side companion overlapping the leader from the other side
+    if (Math.random() < 0.60) {
+      const lOffX  = -baseW * (Math.random() * 0.22 + 0.44);
+      const lOffY  = (Math.random() - 0.5) * 24;
+      const lScale = baseScl * (Math.random() * 0.28 + 0.55);
+      group.push(new PngCloud(baseX + lOffX, baseY + lOffY, lScale, baseSpd + (Math.random()-0.5)*0.04));
     }
 
     return group;
