@@ -67,7 +67,7 @@
       <!-- Wire 2: right API cloud left edge → fades toward centre (no centre node) -->
       <line x1="1252" y1="212" x2="860" y2="212" stroke="url(#gW2)" stroke-width="1.5" stroke-dasharray="6 4"/>
       <!-- Wire 3: infra cloud top → up (solid) → right, fading toward centre -->
-      <line x1="109" y1="610" x2="109" y2="450" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
+      <line x1="109" y1="606" x2="109" y2="450" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
       <line x1="109" y1="450" x2="570" y2="450" stroke="url(#gW3H)" stroke-width="1.5" stroke-dasharray="6 4"/>
 
       <!-- Endpoint / junction dots -->
@@ -75,7 +75,7 @@
       <circle cx="128"  cy="40"  r="3"   fill="#2d5a27" opacity="0.5"/>
       <circle cx="72"   cy="40"  r="4.5" fill="#2d5a27" opacity="0.45"/>
       <circle cx="1252" cy="212" r="3.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="109"  cy="610" r="3.5" fill="#2d5a27" opacity="0.45"/>
+      <circle cx="109"  cy="606" r="3.5" fill="#2d5a27" opacity="0.45"/>
       <circle cx="109"  cy="450" r="3"   fill="#2d5a27" opacity="0.5"/>
 
       <!-- ══ ILLUSTRATION 1: Laptop (left side) ══ -->
@@ -136,61 +136,50 @@
 
       <!-- ══ ILLUSTRATION 2: Cloud / API (right side) ══ -->
       <g transform="translate(1218, 168)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
-        <g filter="url(#hd)">
-          <circle cx="56"  cy="44" r="22" stroke-width="2" opacity="0.62"/>
-          <circle cx="90"  cy="34" r="29" stroke-width="2" opacity="0.62"/>
-          <circle cx="126" cy="44" r="20" stroke-width="2" opacity="0.62"/>
-          <line x1="34"  y1="66" x2="146" y2="66" stroke-width="2" opacity="0.55"/>
-          <line x1="34"  y1="44" x2="34"  y2="66" stroke-width="2" opacity="0.55"/>
-          <line x1="146" y1="44" x2="146" y2="66" stroke-width="2" opacity="0.55"/>
-        </g>
-        <text x="90" y="56" text-anchor="middle" font-family="monospace" font-size="16" font-weight="bold" fill="#2d5a27" opacity="0.52">API</text>
+        <!-- Cloud body: single hand-drawn outline (doodle skill: one continuous silhouette, not stacked circles) -->
+        <path d="M 34,44 C 30,34 34,22 46,20 C 44,8 54,2 68,2 C 72,-2 84,0 90,8 C 96,4 110,8 114,20 C 122,20 132,32 130,48 C 128,58 118,66 106,66 L 34,66 Z"
+              fill="rgba(45,90,39,0.04)" stroke-width="2" opacity="0.7" filter="url(#hd)"/>
+        <text x="82" y="44" text-anchor="middle" font-family="monospace" font-size="15" font-weight="bold" fill="#2d5a27" opacity="0.55">API</text>
         <g opacity="0.58">
-          <rect x="28" y="72" width="124" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
+          <rect x="28" y="72" width="110" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
           <circle cx="42" cy="82" r="3.5" fill="#2d5a27" opacity="0.55"/>
-          <line x1="53" y1="77" x2="144" y2="77" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="82" x2="144" y2="82" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="87" x2="144" y2="87" stroke-width="0.9" opacity="0.5"/>
-          <rect x="28" y="97" width="124" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
+          <line x1="53" y1="77" x2="130" y2="77" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="82" x2="130" y2="82" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="87" x2="130" y2="87" stroke-width="0.9" opacity="0.5"/>
+          <rect x="28" y="97" width="110" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
           <circle cx="42" cy="107" r="3.5" fill="#4a7c40" opacity="0.55"/>
-          <line x1="53" y1="102" x2="144" y2="102" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="107" x2="144" y2="107" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="112" x2="144" y2="112" stroke-width="0.9" opacity="0.5"/>
-          <rect x="28" y="122" width="124" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
+          <line x1="53" y1="102" x2="130" y2="102" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="107" x2="130" y2="107" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="112" x2="130" y2="112" stroke-width="0.9" opacity="0.5"/>
+          <rect x="28" y="122" width="110" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
           <circle cx="42" cy="132" r="3.5" fill="#6aaa5c" opacity="0.55"/>
-          <line x1="53" y1="127" x2="144" y2="127" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="132" x2="144" y2="132" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="137" x2="144" y2="137" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="127" x2="130" y2="127" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="132" x2="130" y2="132" stroke-width="0.9" opacity="0.5"/>
+          <line x1="53" y1="137" x2="130" y2="137" stroke-width="0.9" opacity="0.5"/>
         </g>
       </g>
 
       <!-- ══ ILLUSTRATION 3: Infra Cloud (bottom-left, replaces git branch) ══ -->
       <g transform="translate(44, 608)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Cloud body (3 overlapping circles + flat base) -->
-        <g filter="url(#hd)">
-          <circle cx="38"  cy="36" r="18" stroke-width="2" opacity="0.62"/>
-          <circle cx="65"  cy="28" r="26" stroke-width="2" opacity="0.62"/>
-          <circle cx="96"  cy="36" r="20" stroke-width="2" opacity="0.62"/>
-          <line x1="20"  y1="54" x2="116" y2="54" stroke-width="2" opacity="0.55"/>
-          <line x1="20"  y1="36" x2="20"  y2="54" stroke-width="2" opacity="0.55"/>
-          <line x1="116" y1="36" x2="116" y2="54" stroke-width="2" opacity="0.55"/>
-        </g>
+        <!-- Cloud body: single hand-drawn outline (doodle skill: one continuous silhouette, not stacked circles) -->
+        <path d="M 10,68 C 2,66 -2,56 0,46 C -2,34 8,22 22,20 C 20,8 30,0 46,0 C 50,-4 62,-4 68,2 C 74,-2 86,2 92,10 C 98,6 112,16 114,30 C 120,32 126,44 122,56 C 118,64 108,70 96,70 L 10,68 Z"
+              fill="rgba(45,90,39,0.04)" stroke-width="2" opacity="0.7" filter="url(#hd)"/>
         <!-- Upload arrow (up) inside cloud body -->
-        <line x1="55" y1="46" x2="55" y2="32" stroke-width="1.5" opacity="0.5"/>
-        <polyline points="50,38 55,32 60,38" stroke-width="1.5" opacity="0.5" fill="none"/>
+        <line x1="50" y1="50" x2="50" y2="34" stroke-width="1.5" opacity="0.5"/>
+        <polyline points="44,40 50,34 56,40" stroke-width="1.5" opacity="0.5" fill="none"/>
         <!-- Download arrow (down) inside cloud body -->
-        <line x1="75" y1="32" x2="75" y2="46" stroke-width="1.5" opacity="0.4"/>
-        <polyline points="70,40 75,46 80,40" stroke-width="1.5" opacity="0.4" fill="none"/>
+        <line x1="72" y1="34" x2="72" y2="50" stroke-width="1.5" opacity="0.4"/>
+        <polyline points="66,44 72,50 78,44" stroke-width="1.5" opacity="0.4" fill="none"/>
         <!-- Radiating dashed connections to infra nodes -->
-        <line x1="20"  y1="54" x2="0"   y2="84" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
-        <rect x="-14" y="82" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
-        <text x="-2"  y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">DB</text>
-        <line x1="65"  y1="54" x2="65"  y2="84" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
-        <rect x="47"  y="82" width="36" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
-        <text x="65"  y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">STORE</text>
-        <line x1="110" y1="54" x2="136" y2="78" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
-        <rect x="128" y="76" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
-        <text x="140" y="86" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">CDN</text>
+        <line x1="16"  y1="68" x2="-4"  y2="96" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
+        <rect x="-18" y="94" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
+        <text x="-6"  y="104" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">DB</text>
+        <line x1="58"  y1="70" x2="58"  y2="98" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
+        <rect x="40"  y="96" width="36" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
+        <text x="58"  y="106" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">STORE</text>
+        <line x1="100" y1="68" x2="128" y2="92" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
+        <rect x="120" y="90" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
+        <text x="132" y="100" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">CDN</text>
       </g>
 
     </svg>
