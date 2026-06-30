@@ -1118,11 +1118,9 @@ footer {
   .project-info { order: 2; }
 }
 
-/* Section backgrounds — alternating for rhythm, blocking doodle bleed */
-#about    { background: var(--bg-dark); }
-#projects { background: var(--bg-card); }
-#skills   { background: var(--bg-dark); }
-#contact  { background: var(--bg-card); }
+/* Only contact section gets a solid background; rest is transparent so bg-scene/clouds show through */
+#about, #projects, #skills, #experience { background: transparent; }
+#contact { background: var(--bg-card); }
 
 /* Stronger, more expressive card shadows site-wide */
 .project-card,
