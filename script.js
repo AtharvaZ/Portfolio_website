@@ -214,37 +214,23 @@ if (canvas && !window.location.pathname.includes("admin")) {
     return group;
   }
 
-  // Soft erase around DOM components so clouds fade at component edges
+  // Thin soft feather around navbar only — clouds fade just at the nav bottom edge
   function applyComponentFades() {
-    const FADE = 48;
+    const nav = document.querySelector(".navbar");
+    if (!nav) return;
+    const { left: x, top: y, width: w, height: h } = nav.getBoundingClientRect();
+    const FADE = 20;
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
-
-    [".navbar", ".hero-content"].forEach(sel => {
-      const el = document.querySelector(sel);
-      if (!el) return;
-      const { left: x, top: y, width: w, height: h } = el.getBoundingClientRect();
-      if (y > window.innerHeight + FADE || y + h < -FADE) return;
-
-      // Fully erase under the element itself
-      ctx.fillStyle = "rgba(0,0,0,1)";
-      ctx.fillRect(x, y, w, h);
-
-      // Gradient fade on each outside edge
-      const edges = [
-        [ctx.createLinearGradient(0, y, 0, y - FADE),           x - FADE, y - FADE, w + FADE * 2, FADE],
-        [ctx.createLinearGradient(0, y + h, 0, y + h + FADE),   x - FADE, y + h,    w + FADE * 2, FADE],
-        [ctx.createLinearGradient(x, 0, x - FADE, 0),           x - FADE, y,        FADE,         h   ],
-        [ctx.createLinearGradient(x + w, 0, x + w + FADE, 0),  x + w,    y,        FADE,         h   ],
-      ];
-      edges.forEach(([g, rx, ry, rw, rh]) => {
-        g.addColorStop(0, "rgba(0,0,0,0.92)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(rx, ry, rw, rh);
-      });
-    });
-
+    // Erase under navbar
+    ctx.fillStyle = "rgba(0,0,0,1)";
+    ctx.fillRect(x, y, w, h);
+    // Feather only the bottom edge
+    const g = ctx.createLinearGradient(0, y + h, 0, y + h + FADE);
+    g.addColorStop(0, "rgba(0,0,0,0.80)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y + h, w, FADE);
     ctx.restore();
   }
 
