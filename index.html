@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
 
@@ -42,52 +42,63 @@
     <!-- Background Particles for entire site -->
     <canvas id="site-particles"></canvas>
 
-    <!-- Fixed background scene: laptop · cloud/API · git branch with connecting wires -->
+    <!-- Fixed background scene: laptop · API cloud (right) · infra cloud (bottom-left) with fading wires -->
     <svg id="bg-scene" aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="xMinYMid slice" xmlns="http://www.w3.org/2000/svg" fill="none">
       <defs>
         <filter id="hd" x="-6%" y="-6%" width="112%" height="112%">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="7" result="n"/>
           <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
+        <!-- Wire 2: fades from right cloud toward centre -->
+        <linearGradient id="gW2" gradientUnits="userSpaceOnUse" x1="1252" y1="212" x2="860" y2="212">
+          <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
+          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
+        </linearGradient>
+        <!-- Wire 3 horizontal: fades from bottom-left cloud toward centre -->
+        <linearGradient id="gW3H" gradientUnits="userSpaceOnUse" x1="109" y1="450" x2="570" y2="450">
+          <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
+          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
+        </linearGradient>
       </defs>
 
       <!-- ══ WIRES ══ -->
-      <!-- Wire 1: laptop top-centre → <AZ/> logo in nav (≈ 5% left, 40px top) -->
-      <polyline points="128,278 128,40 72,40" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
-      <!-- Wire 2: cloud left edge → centre node -->
-      <polyline points="1252,212 720,212 720,450" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
-      <!-- Wire 3: git branch top → centre node -->
-      <polyline points="66,608 66,450 720,450" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
+      <!-- Wire 1: laptop top-centre → <AZ/> logo in nav -->
+      <polyline points="128,282 128,40 72,40" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
+      <!-- Wire 2: right API cloud left edge → fades toward centre (no centre node) -->
+      <line x1="1252" y1="212" x2="860" y2="212" stroke="url(#gW2)" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <!-- Wire 3: infra cloud top → up (solid) → right, fading toward centre -->
+      <line x1="109" y1="610" x2="109" y2="450" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
+      <line x1="109" y1="450" x2="570" y2="450" stroke="url(#gW3H)" stroke-width="1.5" stroke-dasharray="6 4"/>
 
-      <!-- Junction / endpoint dots -->
-      <circle cx="128" cy="40"  r="3"   fill="#2d5a27" opacity="0.5"/>
-      <circle cx="72"  cy="40"  r="4.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="720" cy="212" r="3"   fill="#2d5a27" opacity="0.5"/>
+      <!-- Endpoint / junction dots -->
+      <circle cx="128"  cy="282" r="3"   fill="#2d5a27" opacity="0.45"/>
+      <circle cx="128"  cy="40"  r="3"   fill="#2d5a27" opacity="0.5"/>
+      <circle cx="72"   cy="40"  r="4.5" fill="#2d5a27" opacity="0.45"/>
       <circle cx="1252" cy="212" r="3.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="66"  cy="450" r="3"   fill="#2d5a27" opacity="0.5"/>
-      <circle cx="66"  cy="608" r="3.5" fill="#2d5a27" opacity="0.45"/>
-      <!-- Centre node where wires 2 & 3 converge -->
-      <circle cx="720" cy="450" r="9"   fill="#2d5a27" opacity="0.12"/>
-      <circle cx="720" cy="450" r="4.5" fill="#2d5a27" opacity="0.48"/>
+      <circle cx="109"  cy="610" r="3.5" fill="#2d5a27" opacity="0.45"/>
+      <circle cx="109"  cy="450" r="3"   fill="#2d5a27" opacity="0.5"/>
 
       <!-- ══ ILLUSTRATION 1: Laptop (left side) ══ -->
       <g transform="translate(18, 278)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Chassis & screen body -->
         <g filter="url(#hd)">
-          <path d="M 8 4 L 212 4 L 214 162 L 6 164 Z" stroke-width="2.5"/>
-          <path d="M 0 166 L 220 164 L 216 192 L 4 194 Z" stroke-width="2"/>
+          <!-- Screen chassis -->
+          <rect x="5" y="4" width="210" height="140" rx="6" stroke-width="2.5"/>
+          <!-- Hinge bar -->
+          <line x1="5" y1="144" x2="215" y2="144" stroke-width="3.5"/>
+          <!-- Keyboard base -->
+          <rect x="0" y="148" width="220" height="46" rx="4" stroke-width="2"/>
         </g>
-        <!-- Screen interior -->
-        <path d="M 13 11 L 209 11 L 211 155 L 11 157 Z" fill="rgba(45,90,39,0.05)"/>
+        <!-- Screen content area -->
+        <rect x="12" y="11" width="196" height="120" fill="rgba(45,90,39,0.05)" stroke="none"/>
         <!-- Terminal header bar -->
-        <rect x="13" y="11" width="198" height="22" fill="rgba(45,90,39,0.09)"/>
+        <rect x="12" y="11" width="196" height="22" fill="rgba(45,90,39,0.09)" stroke="none"/>
         <!-- Traffic-light dots -->
         <circle cx="25" cy="22" r="4.5" fill="#2d5a27" opacity="0.5"/>
         <circle cx="37" cy="22" r="4.5" fill="#4a7c40" opacity="0.5"/>
         <circle cx="49" cy="22" r="4.5" fill="#6aaa5c" opacity="0.5"/>
-        <text x="112" y="27" text-anchor="middle" font-family="monospace" font-size="9" fill="#2d5a27" opacity="0.45">train.py</text>
+        <text x="110" y="27" text-anchor="middle" font-family="monospace" font-size="9" fill="#2d5a27" opacity="0.45">train.py</text>
         <!-- Camera dot -->
-        <circle cx="112" cy="7" r="2.5" fill="#2d5a27" opacity="0.35"/>
+        <circle cx="110" cy="7" r="2.5" fill="#2d5a27" opacity="0.35"/>
         <!-- Code lines -->
         <text x="18" y="52"  font-family="monospace" font-size="10.5" fill="#4a7c40" opacity="0.75">import torch, numpy as np</text>
         <text x="18" y="68"  font-family="monospace" font-size="10.5" fill="#5a6b58" opacity="0.6"># build transformer</text>
@@ -95,42 +106,56 @@
         <text x="18" y="100" font-family="monospace" font-size="10.5" fill="#4a7c40" opacity="0.7">optimizer = AdamW(lr=3e-4)</text>
         <text x="18" y="116" font-family="monospace" font-size="10.5" fill="#5a6b58" opacity="0.6">for epoch in range(100):</text>
         <text x="18" y="132" font-family="monospace" font-size="10.5" fill="#4a7c40" opacity="0.72">  loss = train(model, data)</text>
-        <text x="18" y="148" font-family="monospace" font-size="10.5" fill="#2d5a27" opacity="0.75">Epoch 4: loss=1.21<tspan class="doodle-cursor">_</tspan></text>
-        <!-- Keyboard decoration -->
-        <line x1="4" y1="176" x2="216" y2="174" stroke-width="0.8" opacity="0.28"/>
-        <line x1="4" y1="184" x2="216" y2="182" stroke-width="0.8" opacity="0.28"/>
-        <path d="M 68 185 L 152 184 L 152 189 L 68 190 Z" stroke-width="1" fill="none" opacity="0.27"/>
-        <path d="M 86 193 L 134 192 L 134 208 L 86 209 Z" stroke-width="0.8" fill="none" opacity="0.22"/>
+        <!-- Keyboard row guides -->
+        <g opacity="0.2">
+          <line x1="8" y1="157" x2="212" y2="157" stroke-width="0.8"/>
+          <line x1="8" y1="165" x2="212" y2="165" stroke-width="0.8"/>
+          <line x1="8" y1="173" x2="212" y2="173" stroke-width="0.8"/>
+          <line x1="8" y1="181" x2="212" y2="181" stroke-width="0.8"/>
+        </g>
+        <!-- Keyboard key column separators -->
+        <g opacity="0.16" stroke-width="0.7">
+          <line x1="21"  y1="149" x2="21"  y2="183"/>
+          <line x1="35"  y1="149" x2="35"  y2="183"/>
+          <line x1="49"  y1="149" x2="49"  y2="183"/>
+          <line x1="63"  y1="149" x2="63"  y2="183"/>
+          <line x1="77"  y1="149" x2="77"  y2="183"/>
+          <line x1="91"  y1="149" x2="91"  y2="183"/>
+          <line x1="105" y1="149" x2="105" y2="183"/>
+          <line x1="119" y1="149" x2="119" y2="183"/>
+          <line x1="133" y1="149" x2="133" y2="183"/>
+          <line x1="147" y1="149" x2="147" y2="183"/>
+          <line x1="161" y1="149" x2="161" y2="183"/>
+          <line x1="175" y1="149" x2="175" y2="183"/>
+          <line x1="189" y1="149" x2="189" y2="183"/>
+          <line x1="203" y1="149" x2="203" y2="183"/>
+        </g>
+        <!-- Trackpad -->
+        <rect x="70" y="160" width="80" height="26" rx="4" stroke-width="1" opacity="0.25"/>
       </g>
 
       <!-- ══ ILLUSTRATION 2: Cloud / API (right side) ══ -->
       <g transform="translate(1218, 168)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Cloud silhouette (3 overlapping circles + base) -->
         <g filter="url(#hd)">
           <circle cx="56"  cy="44" r="22" stroke-width="2" opacity="0.62"/>
           <circle cx="90"  cy="34" r="29" stroke-width="2" opacity="0.62"/>
           <circle cx="126" cy="44" r="20" stroke-width="2" opacity="0.62"/>
-          <!-- Flat base of cloud -->
           <line x1="34"  y1="66" x2="146" y2="66" stroke-width="2" opacity="0.55"/>
           <line x1="34"  y1="44" x2="34"  y2="66" stroke-width="2" opacity="0.55"/>
           <line x1="146" y1="44" x2="146" y2="66" stroke-width="2" opacity="0.55"/>
         </g>
-        <!-- API label -->
         <text x="90" y="56" text-anchor="middle" font-family="monospace" font-size="16" font-weight="bold" fill="#2d5a27" opacity="0.52">API</text>
-        <!-- Server racks -->
         <g opacity="0.58">
           <rect x="28" y="72" width="124" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
           <circle cx="42" cy="82" r="3.5" fill="#2d5a27" opacity="0.55"/>
           <line x1="53" y1="77" x2="144" y2="77" stroke-width="0.9" opacity="0.5"/>
           <line x1="53" y1="82" x2="144" y2="82" stroke-width="0.9" opacity="0.5"/>
           <line x1="53" y1="87" x2="144" y2="87" stroke-width="0.9" opacity="0.5"/>
-
           <rect x="28" y="97" width="124" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
           <circle cx="42" cy="107" r="3.5" fill="#4a7c40" opacity="0.55"/>
           <line x1="53" y1="102" x2="144" y2="102" stroke-width="0.9" opacity="0.5"/>
           <line x1="53" y1="107" x2="144" y2="107" stroke-width="0.9" opacity="0.5"/>
           <line x1="53" y1="112" x2="144" y2="112" stroke-width="0.9" opacity="0.5"/>
-
           <rect x="28" y="122" width="124" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
           <circle cx="42" cy="132" r="3.5" fill="#6aaa5c" opacity="0.55"/>
           <line x1="53" y1="127" x2="144" y2="127" stroke-width="0.9" opacity="0.5"/>
@@ -139,28 +164,33 @@
         </g>
       </g>
 
-      <!-- ══ ILLUSTRATION 3: Git Branch (bottom-left) ══ -->
+      <!-- ══ ILLUSTRATION 3: Infra Cloud (bottom-left, replaces git branch) ══ -->
       <g transform="translate(44, 608)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Main branch vertical spine -->
-        <line x1="22" y1="0" x2="22" y2="152" stroke-width="2.5" opacity="0.62"/>
-        <!-- Feature branch: curved fork at y=38, curved rejoin at y=118 -->
-        <path d="M 22 38 C 22 54 80 48 80 62" stroke-width="1.8" opacity="0.55" fill="none"/>
-        <line x1="80" y1="62" x2="80" y2="110" stroke-width="1.8" opacity="0.55"/>
-        <path d="M 80 110 C 80 126 22 120 22 130" stroke-width="1.8" opacity="0.55" fill="none"/>
-        <!-- Main branch commits -->
-        <circle cx="22" cy="16"  r="5.5" stroke-width="2"   fill="white" opacity="0.72"/>
-        <circle cx="22" cy="64"  r="5.5" stroke-width="2"   fill="white" opacity="0.72"/>
-        <circle cx="22" cy="130" r="5.5" stroke-width="2"   fill="white" opacity="0.72"/>
-        <circle cx="22" cy="152" r="6"   stroke-width="2"   fill="#2d5a27" opacity="0.42"/>
-        <!-- Feature branch commits -->
-        <circle cx="80" cy="72"  r="4.5" stroke-width="1.8" fill="white" opacity="0.62"/>
-        <circle cx="80" cy="88"  r="4.5" stroke-width="1.8" fill="white" opacity="0.62"/>
-        <circle cx="80" cy="104" r="4.5" stroke-width="1.8" fill="white" opacity="0.62"/>
-        <!-- Labels -->
-        <text x="33"  y="20"  font-family="monospace" font-size="9"   fill="#2d5a27" opacity="0.65">main</text>
-        <text x="91"  y="76"  font-family="monospace" font-size="8.5" fill="#4a7c40" opacity="0.62">feat/ai</text>
-        <text x="30"  y="148" font-family="monospace" font-size="8"   fill="#2d5a27" opacity="0.52">merge ✓</text>
-        <text x="33"  y="170" font-family="monospace" font-size="8.5" fill="#2d5a27" opacity="0.58">HEAD</text>
+        <!-- Cloud body (3 overlapping circles + flat base) -->
+        <g filter="url(#hd)">
+          <circle cx="38"  cy="36" r="18" stroke-width="2" opacity="0.62"/>
+          <circle cx="65"  cy="28" r="26" stroke-width="2" opacity="0.62"/>
+          <circle cx="96"  cy="36" r="20" stroke-width="2" opacity="0.62"/>
+          <line x1="20"  y1="54" x2="116" y2="54" stroke-width="2" opacity="0.55"/>
+          <line x1="20"  y1="36" x2="20"  y2="54" stroke-width="2" opacity="0.55"/>
+          <line x1="116" y1="36" x2="116" y2="54" stroke-width="2" opacity="0.55"/>
+        </g>
+        <!-- Upload arrow (up) inside cloud body -->
+        <line x1="55" y1="46" x2="55" y2="32" stroke-width="1.5" opacity="0.5"/>
+        <polyline points="50,38 55,32 60,38" stroke-width="1.5" opacity="0.5" fill="none"/>
+        <!-- Download arrow (down) inside cloud body -->
+        <line x1="75" y1="32" x2="75" y2="46" stroke-width="1.5" opacity="0.4"/>
+        <polyline points="70,40 75,46 80,40" stroke-width="1.5" opacity="0.4" fill="none"/>
+        <!-- Radiating dashed connections to infra nodes -->
+        <line x1="20"  y1="54" x2="0"   y2="84" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
+        <rect x="-14" y="82" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
+        <text x="-2"  y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">DB</text>
+        <line x1="65"  y1="54" x2="65"  y2="84" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
+        <rect x="47"  y="82" width="36" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
+        <text x="65"  y="92" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">STORE</text>
+        <line x1="110" y1="54" x2="136" y2="78" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
+        <rect x="128" y="76" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
+        <text x="140" y="86" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">CDN</text>
       </g>
 
     </svg>

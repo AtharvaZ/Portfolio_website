@@ -17,7 +17,7 @@
   --text-main: #1a1a1a;
   --text-muted: #5a6b58;
 
-  --font-heading: 'Space Grotesk', sans-serif;
+  --font-heading: 'Caveat', 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
 
   --container-width: 1200px;
@@ -436,6 +436,8 @@ img { max-width: 100%; display: block; }
   align-items: center;
   justify-content: center;
   position: relative;
+  z-index: 2;
+  isolation: isolate;
 }
 
 .about-photo::before {
@@ -1082,4 +1084,13 @@ footer {
   .project-card { flex-direction: column; height: auto; }
   .project-img-placeholder { width: 100%; min-width: unset; height: 180px; order: 1; }
   .project-info { order: 2; }
+}
+
+/* Section backgrounds — blocks doodle from showing through */
+#about {
+  background: var(--bg-dark);
+}
+
+#contact {
+  background: var(--bg-dark);
 }
