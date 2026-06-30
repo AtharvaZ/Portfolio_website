@@ -81,33 +81,25 @@
       <!-- ══ ILLUSTRATION 1: Laptop (left side) — doodle style, 3/4 perspective ══ -->
       <g transform="translate(18, 278)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round" fill="none">
         <g filter="url(#hd)">
-          <!-- Screen outer border -->
-          <path d="M 40,8 C 30,8 26,13 25,23 L 19,146 C 18,156 24,162 35,161 L 192,146 C 203,145 207,138 206,128 L 199,26 C 198,16 190,11 178,11 Z" stroke-width="2.5"/>
-          <!-- Screen inner border (sketchy double line) -->
-          <path d="M 46,16 C 39,16 36,20 35,28 L 30,140 C 29,148 34,153 43,152 L 184,139 C 193,138 196,133 195,125 L 189,32 C 188,24 182,19 172,19 Z" stroke-width="1.5" opacity="0.8"/>
+          <!-- Screen: single clean outline, no double border -->
+          <path d="M 40,12 C 30,12 25,17 24,26 L 19,138 C 18,148 24,153 34,152 L 182,140 C 192,139 197,132 196,122 L 190,24 C 189,15 181,10 170,10 Z" stroke-width="2.2"/>
           <!-- Keyboard base -->
-          <path d="M 18,160 L 207,144 L 232,170 L 48,190 Z" stroke-width="2.5"/>
+          <path d="M 18,150 L 186,138 L 212,166 L 44,186 Z" stroke-width="2.2"/>
         </g>
-        <!-- Overlapping card shapes inside screen -->
-        <rect x="70" y="45" width="70" height="55" rx="8" transform="rotate(-6 105 72)" stroke-width="1.8" opacity="0.7"/>
-        <rect x="85" y="58" width="70" height="55" rx="8" transform="rotate(4 120 85)" stroke-width="1.8" opacity="0.8"/>
-        <rect x="58" y="68" width="64" height="50" rx="8" transform="rotate(-3 90 93)" stroke-width="2" opacity="0.9"/>
-        <!-- Keyboard hatch lines -->
-        <g opacity="0.55" stroke-width="1.2">
-          <line x1="100" y1="168" x2="115" y2="175"/>
-          <line x1="115" y1="165" x2="130" y2="172"/>
-          <line x1="128" y1="162" x2="143" y2="169"/>
-          <line x1="141" y1="159" x2="156" y2="166"/>
-          <line x1="154" y1="157" x2="169" y2="164"/>
-          <line x1="167" y1="154" x2="182" y2="161"/>
-          <line x1="180" y1="151" x2="195" y2="158"/>
-          <line x1="193" y1="148" x2="208" y2="155"/>
-          <line x1="206" y1="146" x2="221" y2="153"/>
+        <!-- Two overlapping card shapes inside screen -->
+        <rect x="72" y="48" width="78" height="58" rx="10" transform="rotate(-7 111 77)" stroke-width="1.6" opacity="0.85"/>
+        <rect x="88" y="62" width="78" height="58" rx="10" transform="rotate(3 127 91)" stroke-width="1.6" opacity="0.9"/>
+        <!-- Keyboard hatch lines (upper-right of keyboard, like the reference) -->
+        <g opacity="0.7" stroke-width="1.3">
+          <line x1="110" y1="150" x2="130" y2="158"/>
+          <line x1="122" y1="147" x2="142" y2="155"/>
+          <line x1="134" y1="144" x2="154" y2="152"/>
+          <line x1="146" y1="141" x2="166" y2="149"/>
+          <line x1="158" y1="140" x2="178" y2="147"/>
+          <line x1="170" y1="137" x2="190" y2="144"/>
         </g>
         <!-- Trackpad -->
-        <rect x="68" y="176" width="55" height="14" rx="5" transform="rotate(-7 95 183)" stroke-width="1.5" opacity="0.6"/>
-        <!-- Status dot -->
-        <circle cx="26" cy="185" r="3" fill="#2d5a27" opacity="0.5" stroke="none"/>
+        <rect x="100" y="168" width="56" height="16" rx="7" transform="rotate(-7 128 176)" stroke-width="1.6" opacity="0.8"/>
       </g>
 
       <!-- ══ ILLUSTRATION 2: Cloud / API (right side) ══ -->
