@@ -104,65 +104,13 @@ if (canvas && !window.location.pathname.includes("admin")) {
     canvas.height = window.innerHeight * dpr;
     canvas.style.width  = window.innerWidth  + "px";
     canvas.style.height = window.innerHeight + "px";
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
   resizeCanvas();
 
-  // 6 distinct hand-drawn cloud silhouettes (drawn at origin, scaled externally)
-  const CLOUD_DESIGNS = [
-    // 1: Classic 3-bump
-    function(c) {
-      c.beginPath();
-      c.moveTo(-65,20); c.quadraticCurveTo(-72,2,-52,-5);
-      c.quadraticCurveTo(-56,-40,-22,-38); c.quadraticCurveTo(-16,-60,12,-48);
-      c.quadraticCurveTo(18,-64,48,-48); c.quadraticCurveTo(74,-42,70,-8);
-      c.quadraticCurveTo(84,4,65,20); c.closePath(); c.fill(); c.stroke();
-    },
-    // 2: Wide flat wispy
-    function(c) {
-      c.beginPath();
-      c.moveTo(-98,14); c.quadraticCurveTo(-104,-4,-80,-8);
-      c.quadraticCurveTo(-74,-26,-46,-18); c.quadraticCurveTo(-26,-34,2,-22);
-      c.quadraticCurveTo(24,-32,54,-18); c.quadraticCurveTo(74,-24,90,-8);
-      c.quadraticCurveTo(100,2,98,14); c.closePath(); c.fill(); c.stroke();
-    },
-    // 3: Small compact puff
-    function(c) {
-      c.beginPath();
-      c.moveTo(-40,18); c.quadraticCurveTo(-54,10,-50,-8);
-      c.quadraticCurveTo(-54,-38,-20,-40); c.quadraticCurveTo(-10,-56,18,-44);
-      c.quadraticCurveTo(38,-46,42,-18); c.quadraticCurveTo(54,-2,44,18);
-      c.closePath(); c.fill(); c.stroke();
-    },
-    // 4: Long streaky cirrus
-    function(c) {
-      c.beginPath();
-      c.moveTo(-108,10); c.quadraticCurveTo(-112,-2,-90,-6);
-      c.quadraticCurveTo(-68,-16,-36,-8); c.quadraticCurveTo(-10,-18,22,-10);
-      c.quadraticCurveTo(54,-16,84,-8); c.quadraticCurveTo(108,-2,108,10);
-      c.closePath(); c.fill(); c.stroke();
-    },
-    // 5: Big dramatic 4-bump
-    function(c) {
-      c.beginPath();
-      c.moveTo(-88,28); c.quadraticCurveTo(-98,6,-74,-6);
-      c.quadraticCurveTo(-80,-46,-46,-46); c.quadraticCurveTo(-44,-70,-10,-62);
-      c.quadraticCurveTo(2,-80,34,-66); c.quadraticCurveTo(52,-74,70,-54);
-      c.quadraticCurveTo(98,-48,94,-14); c.quadraticCurveTo(108,6,86,28);
-      c.closePath(); c.fill(); c.stroke();
-    },
-    // 6: Layered double-deck
-    function(c) {
-      c.beginPath();
-      c.moveTo(-78,28); c.quadraticCurveTo(-88,8,-66,0);
-      c.quadraticCurveTo(-72,-22,-48,-24); c.quadraticCurveTo(-44,-46,-18,-38);
-      c.quadraticCurveTo(-10,-52,14,-42); c.quadraticCurveTo(24,-52,44,-38);
-      c.quadraticCurveTo(60,-42,64,-22); c.quadraticCurveTo(78,-16,74,0);
-      c.quadraticCurveTo(90,8,82,28); c.closePath(); c.fill(); c.stroke();
-    },
-  ];
-
-  const PALETTE = [[45,90,39],[74,124,64],[106,170,92],[26,61,23]];
+  const cloudImg = new Image();
+  cloudImg.src = "./assets/cloud-doodle.png";
+  const CLOUD_W = 800, CLOUD_H = 533;
 
   class DoodleBird {
     constructor(x, y, speed) {
@@ -181,11 +129,10 @@ if (canvas && !window.location.pathname.includes("admin")) {
       this.y = this.baseY + Math.sin(this.bobT) * this.bobAmp;
     }
     draw(opacity) {
-      const s = this.size;
-      const flap = Math.sin(this.wingPhase) * 0.48;
+      const s = this.size, flap = Math.sin(this.wingPhase) * 0.48;
       ctx.save();
       ctx.translate(this.x, this.y);
-      ctx.strokeStyle = `rgba(45,90,39,${Math.min(0.9, opacity * 2.4)})`;
+      ctx.strokeStyle = `rgba(45,90,39,${Math.min(0.85, opacity)})`;
       ctx.lineWidth = 1.4; ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(-s, s * 0.12);
@@ -197,55 +144,80 @@ if (canvas && !window.location.pathname.includes("admin")) {
     isOffscreen() { return this.x < -60; }
   }
 
-  class DoodleCloud {
+  class PngCloud {
     constructor(scatter = false) {
-      const col = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-      this.r = col[0]; this.g = col[1]; this.b = col[2];
-      this.designIndex = Math.floor(Math.random() * 6);
-      this.scale   = Math.random() * 0.8 + 0.55;
-      this.speed   = Math.random() * 0.38 + 0.12;
-      this.opacity = Math.random() * 0.18 + 0.09;
-      this.y = Math.random() * window.innerHeight * 0.65 + 20;
-      this.x = scatter ? Math.random() * window.innerWidth
-                       : window.innerWidth + 160;
-      // Attach 1-4 birds near this cloud
-      const n = Math.floor(Math.random() * 4) + 1;
+      this.scale   = Math.random() * 0.52 + 0.22;  // 0.22–0.74 — varied sizes
+      this.speed   = Math.random() * 0.32 + 0.10;
+      this.opacity = Math.random() * 0.30 + 0.45;  // 0.45–0.75
+      this.y = Math.random() * window.innerHeight * 0.72 + 30;
+      const hw = (CLOUD_W * this.scale) / 2;
+      this.x = scatter
+        ? Math.random() * (window.innerWidth + hw * 2) - hw
+        : window.innerWidth + hw + 20;
+      const n = Math.floor(Math.random() * 3) + 1;
       this.birds = [];
       for (let i = 0; i < n; i++) {
-        const bx = this.x + (Math.random() - 0.5) * 190;
-        const by = this.y - 22 - Math.random() * 60;
-        this.birds.push(new DoodleBird(bx, by,
-          this.speed + (Math.random() - 0.5) * 0.1));
+        const bx = this.x + (Math.random() - 0.5) * CLOUD_W * this.scale * 1.2;
+        const by = this.y - CLOUD_H * this.scale * 0.38 - Math.random() * 45;
+        this.birds.push(new DoodleBird(bx, by, this.speed + (Math.random() - 0.5) * 0.08));
       }
     }
+    updateColor() {}
     update() {
       this.x -= this.speed;
       this.birds.forEach(b => b.update());
     }
     isOffscreen() {
-      return this.x < -320 && this.birds.every(b => b.isOffscreen());
+      const hw = (CLOUD_W * this.scale) / 2;
+      return this.x < -(hw + 60) && this.birds.every(b => b.isOffscreen());
     }
     draw() {
+      if (!cloudImg.complete || !cloudImg.naturalWidth) return;
+      const iw = CLOUD_W * this.scale, ih = CLOUD_H * this.scale;
       ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.scale(this.scale, this.scale);
-      ctx.strokeStyle = `rgba(${this.r},${this.g},${this.b},${this.opacity + 0.09})`;
-      ctx.fillStyle   = `rgba(${this.r},${this.g},${this.b},${this.opacity * 0.2})`;
-      ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
-      CLOUD_DESIGNS[this.designIndex](ctx);
+      ctx.globalAlpha = this.opacity;
+      ctx.shadowColor    = "rgba(0,0,0,0.22)";
+      ctx.shadowBlur     = 18 * this.scale;
+      ctx.shadowOffsetX  = 2;
+      ctx.shadowOffsetY  = 7 * this.scale;
+      ctx.drawImage(cloudImg, this.x - iw / 2, this.y - ih / 2, iw, ih);
       ctx.restore();
-      this.birds.forEach(b => b.draw(this.opacity));
+      this.birds.forEach(b => b.draw(this.opacity * 0.75));
     }
   }
 
-  const TARGET = 9;
-  let clouds = Array.from({ length: TARGET }, () => new DoodleCloud(true));
+  function spawnCloud(scatter = false) {
+    const c = new PngCloud(scatter);
+    const group = [c];
+    // 35% chance: add 1-2 companion clouds close by for natural layered overlap
+    if (Math.random() < 0.35) {
+      const companion = new PngCloud(scatter);
+      companion.x = c.x + (Math.random() - 0.4) * 130;
+      companion.y = c.y + (Math.random() - 0.5) * 90;
+      companion.scale = c.scale * (Math.random() * 0.35 + 0.55);
+      companion.speed = c.speed + (Math.random() - 0.5) * 0.06;
+      group.push(companion);
+      if (Math.random() < 0.40) {
+        const c2 = new PngCloud(scatter);
+        c2.x = c.x + (Math.random() - 0.5) * 200;
+        c2.y = c.y + (Math.random() - 0.5) * 70;
+        c2.scale = c.scale * (Math.random() * 0.3 + 0.45);
+        c2.speed = c.speed + (Math.random() - 0.5) * 0.05;
+        group.push(c2);
+      }
+    }
+    return group;
+  }
+
+  const TARGET = 10;
+  let clouds = [];
+  while (clouds.length < TARGET) clouds.push(...spawnCloud(true));
   globalParticlesArray = clouds;
 
   function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     clouds = clouds.filter(c => !c.isOffscreen());
-    while (clouds.length < TARGET) clouds.push(new DoodleCloud(false));
+    while (clouds.length < TARGET) clouds.push(...spawnCloud(false));
     clouds.forEach(c => { c.update(); c.draw(); });
     requestAnimationFrame(animate);
   }

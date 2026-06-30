@@ -42,7 +42,7 @@
     <!-- Background Particles for entire site -->
     <canvas id="site-particles"></canvas>
 
-    <!-- Fixed background scene: laptop · API cloud (right) · infra cloud (bottom-left) with fading wires -->
+    <!-- Fixed background scene: laptop (left) · server rack (right) with fading wires -->
     <svg id="bg-scene" aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="xMinYMid slice" xmlns="http://www.w3.org/2000/svg" fill="none">
       <defs>
         <filter id="hd" x="-6%" y="-6%" width="112%" height="112%">
@@ -54,11 +54,6 @@
           <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
           <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
         </linearGradient>
-        <!-- Wire 3 horizontal: fades from bottom-left cloud toward centre -->
-        <linearGradient id="gW3H" gradientUnits="userSpaceOnUse" x1="109" y1="450" x2="570" y2="450">
-          <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
-          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
-        </linearGradient>
       </defs>
 
       <!-- ══ WIRES ══ -->
@@ -66,17 +61,12 @@
       <polyline points="163,280 163,40 72,40" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
       <!-- Wire 2: right API cloud left edge → fades toward centre (no centre node) -->
       <line x1="1252" y1="240" x2="860" y2="240" stroke="url(#gW2)" stroke-width="1.5" stroke-dasharray="6 4"/>
-      <!-- Wire 3: infra cloud top → up (solid) → right, fading toward centre -->
-      <line x1="109" y1="606" x2="109" y2="450" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
-      <line x1="109" y1="450" x2="570" y2="450" stroke="url(#gW3H)" stroke-width="1.5" stroke-dasharray="6 4"/>
 
       <!-- Endpoint / junction dots -->
       <circle cx="163"  cy="280" r="3"   fill="#2d5a27" opacity="0.45"/>
       <circle cx="128"  cy="40"  r="3"   fill="#2d5a27" opacity="0.5"/>
       <circle cx="72"   cy="40"  r="4.5" fill="#2d5a27" opacity="0.45"/>
       <circle cx="1252" cy="240" r="3.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="109"  cy="606" r="3.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="109"  cy="450" r="3"   fill="#2d5a27" opacity="0.5"/>
 
       <!-- ══ ILLUSTRATION 1: Laptop (left side) — doodle style, 3/4 perspective ══ -->
       <image href="./assets/laptop-doodle.png" x="18" y="278" width="220" height="166" opacity="0.85"/>
@@ -100,29 +90,6 @@
           <line x1="53" y1="132" x2="130" y2="132" stroke-width="0.9" opacity="0.5"/>
           <line x1="53" y1="137" x2="130" y2="137" stroke-width="0.9" opacity="0.5"/>
         </g>
-      </g>
-
-      <!-- ══ ILLUSTRATION 3: Infra Cloud (bottom-left, replaces git branch) ══ -->
-      <g transform="translate(44, 608)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Cloud body: single hand-drawn outline (doodle skill: one continuous silhouette, not stacked circles) -->
-        <path d="M 10,68 C 2,66 -2,56 0,46 C -2,34 8,22 22,20 C 20,8 30,0 46,0 C 50,-4 62,-4 68,2 C 74,-2 86,2 92,10 C 98,6 112,16 114,30 C 120,32 126,44 122,56 C 118,64 108,70 96,70 L 10,68 Z"
-              fill="rgba(45,90,39,0.04)" stroke-width="2" opacity="0.7" filter="url(#hd)"/>
-        <!-- Upload arrow (up) inside cloud body -->
-        <line x1="50" y1="50" x2="50" y2="34" stroke-width="1.5" opacity="0.5"/>
-        <polyline points="44,40 50,34 56,40" stroke-width="1.5" opacity="0.5" fill="none"/>
-        <!-- Download arrow (down) inside cloud body -->
-        <line x1="72" y1="34" x2="72" y2="50" stroke-width="1.5" opacity="0.4"/>
-        <polyline points="66,44 72,50 78,44" stroke-width="1.5" opacity="0.4" fill="none"/>
-        <!-- Radiating dashed connections to infra nodes -->
-        <line x1="16"  y1="68" x2="-4"  y2="96" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
-        <rect x="-18" y="94" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
-        <text x="-6"  y="104" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">DB</text>
-        <line x1="58"  y1="70" x2="58"  y2="98" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
-        <rect x="40"  y="96" width="36" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
-        <text x="58"  y="106" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">STORE</text>
-        <line x1="100" y1="68" x2="128" y2="92" stroke-width="1" stroke-dasharray="5 4" opacity="0.5"/>
-        <rect x="120" y="90" width="24" height="13" rx="2" stroke-width="1.2" opacity="0.5"/>
-        <text x="132" y="100" text-anchor="middle" font-family="monospace" font-size="8" fill="#2d5a27" opacity="0.65">CDN</text>
       </g>
 
     </svg>
