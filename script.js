@@ -214,23 +214,36 @@ if (canvas && !window.location.pathname.includes("admin")) {
     return group;
   }
 
-  // Thin soft feather around navbar only — clouds fade just at the nav bottom edge
+  // Small tight fade around navbar and hero-content — clouds dissolve just at component edges
   function applyComponentFades() {
-    const nav = document.querySelector(".navbar");
-    if (!nav) return;
-    const { left: x, top: y, width: w, height: h } = nav.getBoundingClientRect();
-    const FADE = 20;
+    const FADE = 22;
     ctx.save();
     ctx.globalCompositeOperation = "destination-out";
-    // Erase under navbar
-    ctx.fillStyle = "rgba(0,0,0,1)";
-    ctx.fillRect(x, y, w, h);
-    // Feather only the bottom edge
-    const g = ctx.createLinearGradient(0, y + h, 0, y + h + FADE);
-    g.addColorStop(0, "rgba(0,0,0,0.80)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(x, y + h, w, FADE);
+
+    [".navbar", ".hero-content"].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      const { left: x, top: y, width: w, height: h } = el.getBoundingClientRect();
+      if (y > window.innerHeight + FADE || y + h < -FADE) return;
+
+      // Erase directly under the element
+      ctx.fillStyle = "rgba(0,0,0,1)";
+      ctx.fillRect(x, y, w, h);
+
+      // Thin feather on each outside edge — stays tightly around the component
+      [
+        [ctx.createLinearGradient(0, y, 0, y - FADE),          x, y - FADE, w, FADE],
+        [ctx.createLinearGradient(0, y + h, 0, y + h + FADE),  x, y + h,   w, FADE],
+        [ctx.createLinearGradient(x, 0, x - FADE, 0),          x - FADE, y, FADE, h],
+        [ctx.createLinearGradient(x + w, 0, x + w + FADE, 0),  x + w,    y, FADE, h],
+      ].forEach(([g, rx, ry, rw, rh]) => {
+        g.addColorStop(0, "rgba(0,0,0,0.85)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(rx, ry, rw, rh);
+      });
+    });
+
     ctx.restore();
   }
 
