@@ -17,7 +17,7 @@
   --text-main: #1a1a1a;
   --text-muted: #5a6b58;
 
-  --font-heading: "Caveat", "Space Grotesk", sans-serif;
+  --font-heading: "Space Grotesk", sans-serif;
   --font-body: "Inter", sans-serif;
 
   --container-width: 1200px;
@@ -852,7 +852,7 @@ body.dark-mode .section-label {
 
 .project-info h3 {
   font-family: var(--font-heading);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--text-main);
   margin-bottom: 0;
@@ -1187,9 +1187,9 @@ body.dark-mode .section-label {
   flex-wrap: wrap;
 }
 
-.timeline-role { font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; }
-.timeline-company { color: var(--accent-primary); font-family: var(--font-heading); font-size: 1rem; font-weight: 600; margin-top: 0.25rem; }
-.timeline-date   { font-family: var(--font-heading); font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; padding-top: 0.15rem; }
+.timeline-role { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; }
+.timeline-company { color: var(--accent-primary); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; margin-top: 0.25rem; }
+.timeline-date   { font-family: var(--font-heading); font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; padding-top: 0.15rem; }
 .timeline-desc {
   color: var(--text-muted);
   font-size: 1rem;
@@ -1237,16 +1237,16 @@ body.dark-mode .section-label {
 }
 .hackathon-placement {
   font-family: var(--font-heading);
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--accent-primary);
 }
 .hackathon-date {
   font-family: var(--font-heading);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
 }
-.hackathon-name { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+.hackathon-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
 .hackathon-desc {
   color: var(--text-muted);
   font-size: 0.95rem;
