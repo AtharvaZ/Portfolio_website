@@ -325,6 +325,131 @@ if (canvas && !window.location.pathname.includes("admin")) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // Custom cursor for desktop pointers only
+  const finePointerQuery =
+    window.matchMedia && window.matchMedia("(pointer: fine)");
+  const coarsePointerQuery =
+    window.matchMedia && window.matchMedia("(pointer: coarse)");
+  const supportsFinePointer = finePointerQuery && finePointerQuery.matches;
+  let cursorDot = null;
+  let cursorRing = null;
+  const root = document.documentElement;
+
+  const setEnhancedCursorMode = (enabled) => {
+    root.classList.toggle("cursor-enhanced", enabled);
+    document.body.classList.toggle("cursor-enhanced", enabled);
+  };
+
+  if (supportsFinePointer) {
+    setEnhancedCursorMode(true);
+    cursorDot = document.createElement("div");
+    cursorRing = document.createElement("div");
+    cursorDot.className = "cursor-dot";
+    cursorRing.className = "cursor-ring";
+    document.body.appendChild(cursorDot);
+    document.body.appendChild(cursorRing);
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX = mouseX;
+    let ringY = mouseY;
+
+    document.addEventListener("mousemove", (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorDot.style.left = `${mouseX}px`;
+      cursorDot.style.top = `${mouseY}px`;
+      cursorDot.style.opacity = "1";
+      cursorRing.style.opacity = "1";
+    });
+
+    document.addEventListener("mouseleave", () => {
+      cursorDot.style.opacity = "0";
+      cursorRing.style.opacity = "0";
+    });
+
+    document.addEventListener("mouseenter", () => {
+      cursorDot.style.opacity = "1";
+      cursorRing.style.opacity = "1";
+    });
+
+    const interactiveSelector =
+      "a, button, .btn-primary, .project-card, .skill-item, .hero-social-btn, input, textarea, .nav-link";
+    document.addEventListener("mouseover", (e) => {
+      if (e.target.closest(interactiveSelector)) {
+        document.body.classList.add("cursor-hover");
+      }
+    });
+    document.addEventListener("mouseout", (e) => {
+      if (e.target.closest(interactiveSelector)) {
+        document.body.classList.remove("cursor-hover");
+      }
+    });
+
+    const animateCursor = () => {
+      ringX = mouseX;
+      ringY = mouseY;
+      cursorRing.style.left = `${ringX}px`;
+      cursorRing.style.top = `${ringY}px`;
+      requestAnimationFrame(animateCursor);
+    };
+    animateCursor();
+
+    const syncPointerMode = () => {
+      const hasFine = finePointerQuery && finePointerQuery.matches;
+      const hasCoarse = coarsePointerQuery && coarsePointerQuery.matches;
+      const enableCustom = hasFine && !hasCoarse;
+      setEnhancedCursorMode(enableCustom);
+      if (cursorDot && cursorRing) {
+        cursorDot.style.display = enableCustom ? "block" : "none";
+        cursorRing.style.display = enableCustom ? "block" : "none";
+      }
+    };
+
+    if (finePointerQuery && finePointerQuery.addEventListener) {
+      finePointerQuery.addEventListener("change", syncPointerMode);
+    }
+    if (coarsePointerQuery && coarsePointerQuery.addEventListener) {
+      coarsePointerQuery.addEventListener("change", syncPointerMode);
+    }
+    syncPointerMode();
+  }
+
+  // Hero mouse interactivity (spotlight + parallax)
+  const hero = document.getElementById("hero");
+  const heroOrbs = document.querySelectorAll(".hero-orb");
+  const heroNeural = document.querySelector(".hero-neural");
+  if (hero && supportsFinePointer) {
+    hero.addEventListener("mousemove", (e) => {
+      const rect = hero.getBoundingClientRect();
+      const relX = e.clientX - rect.left;
+      const relY = e.clientY - rect.top;
+      const nx = relX / rect.width - 0.5;
+      const ny = relY / rect.height - 0.5;
+
+      hero.style.setProperty("--mouse-x", `${relX}px`);
+      hero.style.setProperty("--mouse-y", `${relY}px`);
+
+      heroOrbs.forEach((orb, i) => {
+        const strength = (i + 1) * 12;
+        orb.style.transform = `translate(${nx * strength}px, ${ny * strength}px)`;
+      });
+
+      if (heroNeural) {
+        heroNeural.style.transform = `translate(${nx * -8}px, ${ny * -8}px)`;
+      }
+    });
+
+    hero.addEventListener("mouseleave", () => {
+      hero.style.setProperty("--mouse-x", "50%");
+      hero.style.setProperty("--mouse-y", "45%");
+      heroOrbs.forEach((orb) => {
+        orb.style.transform = "translate(0, 0)";
+      });
+      if (heroNeural) heroNeural.style.transform = "translate(0, 0)";
+    });
+  }
+
   // Restore scroll position
   const savedScrollPosition = sessionStorage.getItem("scrollPosition");
   if (savedScrollPosition) {
@@ -402,25 +527,85 @@ document.addEventListener("DOMContentLoaded", async () => {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.style.opacity = "1";
-          entry.target.style.transform = "translateY(0)";
-          entry.target.style.transition =
-            "opacity 0.8s ease-out, transform 0.8s ease-out";
-          revealObserver.unobserve(entry.target);
+          entry.target.style.animationDelay =
+            entry.target.style.getPropertyValue("--reveal-delay") || "0ms";
+          entry.target.classList.add("in-view", "reveal");
+        } else {
+          entry.target.classList.remove("in-view", "reveal");
         }
       });
     },
-    { threshold: 0.1 },
+    { threshold: 0.15 },
   );
 
   // Observe all existing scroll-reveal elements
-  document.querySelectorAll(".scroll-reveal").forEach((el) => {
-    if (el.style.opacity === "") {
-      el.style.opacity = "0";
-      el.style.transform = "translateY(50px)";
-    }
+  document.querySelectorAll(".scroll-reveal").forEach((el, index) => {
+    el.style.setProperty("--reveal-delay", `${(index % 6) * 70}ms`);
     revealObserver.observe(el);
   });
+
+  // Continuous scroll FX observer for fade/zoom in/out states
+  const scrollFxObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("scroll-active");
+          entry.target.classList.remove("scroll-passive");
+        } else {
+          entry.target.classList.remove("scroll-active");
+          entry.target.classList.add("scroll-passive");
+        }
+      });
+    },
+    { threshold: [0.1, 0.25, 0.5] },
+  );
+
+  document
+    .querySelectorAll(
+      ".section-padding, .project-card, .timeline-item, .hackathon-card",
+    )
+    .forEach((el) => scrollFxObserver.observe(el));
+
+  // Section visibility + subtle label parallax while scrolling
+  const sectionVisibilityObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("section-visible");
+        } else {
+          entry.target.classList.remove("section-visible");
+        }
+      });
+    },
+    { threshold: 0.2 },
+  );
+
+  document
+    .querySelectorAll(".section-padding")
+    .forEach((section) => sectionVisibilityObserver.observe(section));
+
+  const labelParallax = () => {
+    document.querySelectorAll(".section-label").forEach((label) => {
+      const rect = label.getBoundingClientRect();
+      const progress = Math.max(
+        -1,
+        Math.min(1, (window.innerHeight * 0.5 - rect.top) / window.innerHeight),
+      );
+      label.style.setProperty("--label-shift", `${progress * -12}px`);
+    });
+  };
+
+  let parallaxRaf = null;
+  const onScrollParallax = () => {
+    if (parallaxRaf) return;
+    parallaxRaf = requestAnimationFrame(() => {
+      labelParallax();
+      parallaxRaf = null;
+    });
+  };
+
+  window.addEventListener("scroll", onScrollParallax, { passive: true });
+  labelParallax();
 
   // API Configuration
   const API_URL =
@@ -518,10 +703,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 </div>
             `;
-    card.style.opacity = "0";
-    card.style.transform = "translateY(50px)";
+    card.style.setProperty(
+      "--reveal-delay",
+      `${(visibleProjectCount % 6) * 80}ms`,
+    );
     container.appendChild(card);
     revealObserver.observe(card);
+    scrollFxObserver.observe(card);
   };
 
   const renderProjects = async () => {
@@ -552,13 +740,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderProjects();
 
   // ── Work Experience ───────────────────────────────
+  const getFallbackExperience = () => [
+    {
+      role: "Software Developer",
+      company: "Personal Projects",
+      date_range: "2024 - Present",
+      desc: "Building full-stack AI-powered products with strong focus on UX and performance.",
+      tech: ["Python", "FastAPI", "JavaScript"],
+      logo: "",
+    },
+  ];
+
   const getExperience = async () => {
     try {
       const response = await fetch(`${API_URL}/experience`);
       const data = await response.json();
-      return data.success ? data.items : [];
+      if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+        return data.items;
+      }
+      return getFallbackExperience();
     } catch (e) {
-      return [];
+      return getFallbackExperience();
     }
   };
 
@@ -566,6 +768,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const items = await getExperience();
     const container = document.getElementById("timeline-container");
     const section = document.getElementById("experience-work-section");
+    const formatExperienceDesc = (desc) => {
+      const rawLines = String(desc || "")
+        .split(/(?:\r?\n|\\n)/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      const renderAsList =
+        rawLines.length > 1 || rawLines.some((line) => /^[-*•]\s+/.test(line));
+
+      const lines = rawLines.map((line) => line.replace(/^[-*•]\s*/, ""));
+
+      if (renderAsList) {
+        return `<ul class="timeline-desc-list">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`;
+      }
+
+      return `<p class="timeline-desc">${escapeHtml(lines[0] || "")}</p>`;
+    };
+
     if (!container) return;
     container.innerHTML = "";
     if (items.length === 0) {
@@ -576,8 +796,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     items.forEach((item) => {
       const el = document.createElement("div");
       el.className = "timeline-item scroll-reveal";
-      el.style.opacity = "0";
-      el.style.transform = "translateY(50px)";
       el.innerHTML = `
         <div class="timeline-dot"></div>
         <div class="timeline-card${item.logo ? " timeline-card--has-logo" : ""}">
@@ -590,7 +808,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               </div>
               <span class="timeline-date">${escapeHtml(item.date_range)}</span>
             </div>
-            <p class="timeline-desc">${escapeHtml(item.desc)}</p>
+            ${formatExperienceDesc(item.desc)}
             <div class="timeline-tags">
               ${item.tech.map((t) => `<span class="tech-tag">${escapeHtml(t)}</span>`).join("")}
             </div>
@@ -598,17 +816,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>`;
       container.appendChild(el);
       revealObserver.observe(el);
+      scrollFxObserver.observe(el);
     });
   };
 
   // ── Hackathons ────────────────────────────────────
+  const getFallbackHackathons = () => [
+    {
+      name: "Hackathon Project",
+      placement: "Finalist",
+      date: "2024",
+      desc: "Built and shipped an AI-assisted productivity tool under time constraints.",
+      tech: ["React", "Node.js", "OpenAI"],
+      project_link: "#",
+    },
+  ];
+
   const getHackathons = async () => {
     try {
       const response = await fetch(`${API_URL}/hackathons`);
       const data = await response.json();
-      return data.success ? data.items : [];
+      if (data.success && Array.isArray(data.items) && data.items.length > 0) {
+        return data.items;
+      }
+      return getFallbackHackathons();
     } catch (e) {
-      return [];
+      return getFallbackHackathons();
     }
   };
 
@@ -626,8 +859,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     items.forEach((item) => {
       const el = document.createElement("div");
       el.className = "hackathon-card scroll-reveal";
-      el.style.opacity = "0";
-      el.style.transform = "translateY(50px)";
       el.innerHTML = `
         <div class="hackathon-header">
           ${item.placement ? `<span class="hackathon-placement">${escapeHtml(item.placement)}</span>` : ""}
@@ -640,21 +871,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         ${item.project_link ? `<a href="${safeUrl(item.project_link)}" target="_blank" rel="noopener" class="hack-project-link">View Project ↗</a>` : ""}`;
       container.appendChild(el);
       revealObserver.observe(el);
+      scrollFxObserver.observe(el);
     });
   };
 
   // ── Show/hide entire section + nav link ───────────
   const renderExperienceSection = async () => {
     await Promise.all([renderExperience(), renderHackathons()]);
-    const workEmpty =
-      document.getElementById("timeline-container").children.length === 0;
-    const hackEmpty =
-      document.getElementById("hackathon-container").children.length === 0;
     const section = document.getElementById("experience");
     const navLink = document.querySelector('a[href="#experience"]');
-    const hide = workEmpty && hackEmpty;
-    if (section) section.style.display = hide ? "none" : "";
-    if (navLink) navLink.parentElement.style.display = hide ? "none" : "";
+    if (section) section.style.display = "";
+    if (navLink) navLink.parentElement.style.display = "";
   };
 
   await renderExperienceSection();
