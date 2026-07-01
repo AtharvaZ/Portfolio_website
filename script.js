@@ -181,49 +181,80 @@ if (canvas && !window.location.pathname.includes("admin")) {
     }
   }
 
-  // Cluster: leader + right companion always; left companion 55% of the time.
-  // All share identical speed so they stay locked together as they drift.
+  // Randomly spawn 1-3 clouds with varied sizes and overlap styles
   function spawnCluster(scatter = false) {
-    const baseX   = scatter
+    const baseX = scatter
       ? Math.random() * (window.innerWidth + 300) - 150
       : window.innerWidth + 340;
-    const baseY   = Math.random() * window.innerHeight * 0.74 + 22;
-    const baseScl = Math.random() * 0.32 + 0.36;   // 0.36–0.68
-    const spd     = Math.random() * 0.20 + 0.12;   // all members same speed
-    const baseW   = CLOUD_W * baseScl;
+    const baseY = Math.random() * window.innerHeight * 0.74 + 22;
+    const spd   = Math.random() * 0.20 + 0.12;
 
-    const group = [new PngCloud(baseX, baseY, baseScl, spd)];
+    const roll = Math.random();
 
-    // Right companion overlaps leader from the right side
-    const rScl = baseScl * (Math.random() * 0.28 + 0.58);
-    group.push(new PngCloud(
-      baseX + baseW * (Math.random() * 0.20 + 0.42),
-      baseY + (Math.random() - 0.5) * 22,
-      rScl, spd
-    ));
-
-    // Left companion overlaps leader from the left side (55% chance)
-    if (Math.random() < 0.55) {
-      const lScl = baseScl * (Math.random() * 0.24 + 0.52);
-      group.push(new PngCloud(
-        baseX - baseW * (Math.random() * 0.20 + 0.42),
-        baseY + (Math.random() - 0.5) * 18,
-        lScl, spd
-      ));
+    if (roll < 0.30) {
+      // Single cloud — small or large
+      const scl = Math.random() < 0.5
+        ? Math.random() * 0.14 + 0.16   // small  0.16–0.30
+        : Math.random() * 0.30 + 0.38;  // large  0.38–0.68
+      return [new PngCloud(baseX, baseY, scl, spd)];
     }
+
+    if (roll < 0.60) {
+      // Two-cloud pair: big + small side-overlap
+      const bigScl  = Math.random() * 0.26 + 0.42;   // 0.42–0.68
+      const smScl   = bigScl * (Math.random() * 0.30 + 0.38); // 38–68% of big
+      const bigW    = CLOUD_W * bigScl;
+      const side    = Math.random() < 0.5 ? 1 : -1;
+      return [
+        new PngCloud(baseX, baseY, bigScl, spd),
+        new PngCloud(
+          baseX + side * bigW * (Math.random() * 0.22 + 0.38),
+          baseY + (Math.random() - 0.5) * 24,
+          smScl, spd
+        ),
+      ];
+    }
+
+    if (roll < 0.80) {
+      // Two-cloud pair: small + small side-overlap
+      const scl1 = Math.random() * 0.14 + 0.18;   // 0.18–0.32
+      const scl2 = Math.random() * 0.12 + 0.16;   // 0.16–0.28
+      const w1   = CLOUD_W * scl1;
+      const side = Math.random() < 0.5 ? 1 : -1;
+      return [
+        new PngCloud(baseX, baseY, scl1, spd),
+        new PngCloud(
+          baseX + side * w1 * (Math.random() * 0.24 + 0.36),
+          baseY + (Math.random() - 0.5) * 16,
+          scl2, spd
+        ),
+      ];
+    }
+
+    // Three-cloud cluster: one large leader + two companions
+    const baseScl = Math.random() * 0.26 + 0.40;
+    const baseW   = CLOUD_W * baseScl;
+    const group   = [new PngCloud(baseX, baseY, baseScl, spd)];
+    group.push(new PngCloud(
+      baseX + baseW * (Math.random() * 0.20 + 0.38),
+      baseY + (Math.random() - 0.5) * 22,
+      baseScl * (Math.random() * 0.28 + 0.42), spd
+    ));
+    group.push(new PngCloud(
+      baseX - baseW * (Math.random() * 0.20 + 0.36),
+      baseY + (Math.random() - 0.5) * 18,
+      baseScl * (Math.random() * 0.24 + 0.38), spd
+    ));
     return group;
   }
 
-  // Tiny feather (7px) around every visible page component so clouds dissolve right at the edge
+  // Tiny feather (7px) only around opaque-background components so no halo appears on transparent areas
   const FADE_SELECTORS = [
     ".navbar",
-    ".hero-content",
     ".about-card",
-    ".about-photo",
     ".project-card",
     ".timeline-item",
     ".hackathon-card",
-    ".skills-container",
     ".contact-wrapper",
     "footer",
   ];
@@ -257,7 +288,7 @@ if (canvas && !window.location.pathname.includes("admin")) {
     ctx.restore();
   }
 
-  const CLUSTER_TARGET = 2;   // 2 clusters × 2-3 clouds = 4-6 clouds on screen
+  const CLUSTER_TARGET = 3;   // 3 groups × 1-3 clouds = 3-6 clouds on screen
   let clusters = [];
   while (clusters.length < CLUSTER_TARGET) clusters.push(spawnCluster(true));
   globalParticlesArray = clusters.flat();
