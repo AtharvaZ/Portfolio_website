@@ -17,8 +17,8 @@
   --text-main: #1a1a1a;
   --text-muted: #5a6b58;
 
-  --font-heading: "Space Grotesk", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-heading: "Comfortaa", sans-serif;
+  --font-body: "Comfortaa", sans-serif;
 
   --container-width: 1200px;
   --header-height: 80px;
@@ -179,7 +179,7 @@ body.dark-mode .section-label {
 
 .logo {
   font-family: var(--font-heading);
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--accent-primary);
 }
@@ -287,7 +287,7 @@ body.dark-mode .section-label {
 .hero-subtitle-badge {
   display: inline-block;
   font-family: var(--font-heading);
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: 600;
   padding: 0.2rem 1rem;
   border: 2px solid var(--accent-primary);
@@ -452,7 +452,7 @@ body.dark-mode .section-label {
   font-family: var(--font-heading);
   color: var(--accent-secondary);
   margin-bottom: 0.5rem;
-  font-size: 1.8rem;
+  font-size: 1.3rem;
   letter-spacing: 0.02em;
   opacity: 0;
   transform: translateY(20px);
@@ -460,7 +460,7 @@ body.dark-mode .section-label {
 
 .hero-title {
   font-family: var(--font-heading);
-  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-size: clamp(2.2rem, 5.5vw, 4.5rem);
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: var(--accent-deep);
@@ -485,7 +485,7 @@ body.dark-mode .section-label {
 
 .hero-subtitle {
   font-family: var(--font-heading);
-  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
   color: var(--accent-primary);
   font-weight: 600;
   margin-bottom: 1rem;
@@ -495,7 +495,7 @@ body.dark-mode .section-label {
 
 .hero-tagline {
   font-family: var(--font-heading);
-  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
   color: var(--text-muted);
   margin-bottom: 3rem;
   max-width: 560px;
@@ -626,7 +626,7 @@ body.dark-mode .section-label {
 
 .section-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
   margin-bottom: 3.5rem;
   position: relative;
   display: inline-block;
@@ -671,7 +671,7 @@ body.dark-mode .section-label {
 .about-text p {
   margin-bottom: 1.5rem;
   color: var(--text-muted);
-  font-size: 1.05rem;
+  font-size: 18px;
   font-family: var(--font-body);
 }
 
@@ -1438,7 +1438,7 @@ body.dark-mode .section-label {
 
 .contact-info h3 {
   font-family: var(--font-heading);
-  font-size: 2rem;
+  font-size: 1.4rem;
   margin-bottom: 1rem;
 }
 
