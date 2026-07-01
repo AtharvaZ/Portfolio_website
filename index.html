@@ -97,12 +97,23 @@
           />
         </filter>
         <linearGradient
+          id="gW1"
+          gradientUnits="userSpaceOnUse"
+          x1="238"
+          y1="361"
+          x2="720"
+          y2="361"
+        >
+          <stop offset="0%" stop-color="#2d5a27" stop-opacity="0.42" />
+          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
           id="gW2"
           gradientUnits="userSpaceOnUse"
-          x1="1252"
-          y1="240"
-          x2="860"
-          y2="240"
+          x1="1175"
+          y1="291"
+          x2="720"
+          y2="291"
         >
           <stop offset="0%" stop-color="#2d5a27" stop-opacity="0.42" />
           <stop offset="100%" stop-color="#2d5a27" stop-opacity="0" />
@@ -121,18 +132,20 @@
       </defs>
 
       <!-- Wires -->
-      <polyline
-        points="163,280 163,40 72,40"
-        stroke="#2d5a27"
+      <line
+        x1="238"
+        y1="361"
+        x2="720"
+        y2="361"
+        stroke="url(#gW1)"
         stroke-width="1.5"
         stroke-dasharray="6 4"
-        opacity="0.42"
       />
       <line
-        x1="1252"
-        y1="240"
-        x2="860"
-        y2="240"
+        x1="1175"
+        y1="291"
+        x2="720"
+        y2="291"
         stroke="url(#gW2)"
         stroke-width="1.5"
         stroke-dasharray="6 4"
@@ -148,10 +161,8 @@
       />
 
       <!-- Junction dots -->
-      <circle cx="163" cy="280" r="3" fill="#2d5a27" opacity="0.45" />
-      <circle cx="128" cy="40" r="3" fill="#2d5a27" opacity="0.5" />
-      <circle cx="72" cy="40" r="4.5" fill="#2d5a27" opacity="0.45" />
-      <circle cx="1252" cy="240" r="3.5" fill="#2d5a27" opacity="0.45" />
+      <circle cx="238" cy="361" r="3.5" fill="#2d5a27" opacity="0.45" />
+      <circle cx="1175" cy="291" r="3.5" fill="#2d5a27" opacity="0.45" />
       <circle cx="1315" cy="672" r="3.5" fill="#2d5a27" opacity="0.45" />
 
       <!-- Laptop doodle (left) -->
@@ -176,7 +187,7 @@
 
       <!-- Server rack (right) -->
       <g
-        transform="translate(1218, 168)"
+        transform="translate(1130, 120) scale(1.6)"
         stroke="#2d5a27"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -382,7 +393,6 @@
 
       <!-- ─── About ─────────────────────────────────── -->
       <section id="about" class="section-padding">
-        <div class="section-label" aria-hidden="true">01</div>
         <div class="container">
           <div class="about-grid">
             <div class="about-card scroll-reveal">
@@ -439,7 +449,6 @@
 
       <!-- ─── Experience ────────────────────────────── -->
       <section id="experience" class="section-padding">
-        <div class="section-label" aria-hidden="true">02</div>
         <div class="container">
           <div id="experience-work-section">
             <h2 class="section-title">Work Experience</h2>
@@ -454,7 +463,6 @@
 
       <!-- ─── Projects ──────────────────────────────── -->
       <section id="projects" class="section-padding">
-        <div class="section-label" aria-hidden="true">03</div>
         <div class="container">
           <h2 class="section-title scroll-reveal">Featured Projects</h2>
           <p class="section-subtitle scroll-reveal">
@@ -484,7 +492,6 @@
 
       <!-- ─── Skills ────────────────────────────────── -->
       <section id="skills" class="section-padding">
-        <div class="section-label" aria-hidden="true">04</div>
         <div class="container">
           <h2 class="section-title scroll-reveal">Tech Stack</h2>
           <p class="section-subtitle scroll-reveal">
@@ -498,7 +505,6 @@
 
       <!-- ─── Contact ───────────────────────────────── -->
       <section id="contact" class="section-padding">
-        <div class="section-label" aria-hidden="true">05</div>
         <div class="container contact-wrapper">
           <div class="contact-info scroll-reveal">
             <h2 class="section-title">Let's Connect</h2>

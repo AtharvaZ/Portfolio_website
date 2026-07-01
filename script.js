@@ -108,6 +108,16 @@ if (canvas && !window.location.pathname.includes("admin")) {
   }
   resizeCanvas();
 
+  // Offscreen canvas so clouds are opaque to each other
+  const offscreen = document.createElement("canvas");
+  const octx = offscreen.getContext("2d");
+  function resizeOffscreen() {
+    offscreen.width  = canvas.width;
+    offscreen.height = canvas.height;
+    octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resizeOffscreen();
+
   const cloudImg = new Image();
   cloudImg.src = "./assets/cloud-doodle.png";
   const CLOUD_W = 800, CLOUD_H = 533;
@@ -166,11 +176,13 @@ if (canvas && !window.location.pathname.includes("admin")) {
     isOffscreen() {
       return this.x < -(CLOUD_W * this.scale / 2 + 80);
     }
-    draw() {
+    drawCloud() {
       if (!cloudImg.complete || !cloudImg.naturalWidth) return;
       const iw = CLOUD_W * this.scale, ih = CLOUD_H * this.scale;
-      ctx.drawImage(cloudImg, this.x - iw / 2, this.y - ih / 2, iw, ih);
-      this.birds.forEach(b => b.draw(0.68));
+      octx.drawImage(cloudImg, this.x - iw / 2, this.y - ih / 2, iw, ih);
+    }
+    drawBirds() {
+      this.birds.forEach(b => b.draw(0.85));
     }
   }
 
@@ -298,6 +310,7 @@ if (canvas && !window.location.pathname.includes("admin")) {
 
   function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    octx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     // Remove clusters fully off the left edge
     clusters = clusters.filter(cl => cl.some(c => !c.isOffscreen()));
@@ -310,13 +323,27 @@ if (canvas && !window.location.pathname.includes("admin")) {
     }
 
     globalParticlesArray = clusters.flat();
-    globalParticlesArray.forEach(c => { c.update(); c.draw(); });
+    globalParticlesArray.forEach(c => c.update());
+
+    // Draw all clouds to offscreen canvas (opaque to each other)
+    globalParticlesArray.forEach(c => c.drawCloud());
+
+    // Composite offscreen onto main canvas at reduced opacity for light blue
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.drawImage(offscreen, 0, 0, window.innerWidth, window.innerHeight);
+    ctx.restore();
+
     applyComponentFades();
+
+    // Birds drawn last — on top of everything including page content
+    globalParticlesArray.forEach(c => c.drawBirds());
+
     requestAnimationFrame(animate);
   }
   animate();
 
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", () => { resizeCanvas(); resizeOffscreen(); });
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
