@@ -288,15 +288,32 @@ if (canvas && !window.location.pathname.includes("admin")) {
     ctx.restore();
   }
 
-  const CLUSTER_TARGET = 3;   // 3 groups × 1-3 clouds = 3-6 clouds on screen
+  const CLOUD_MIN = 5, CLOUD_MAX = 6;
+
+  function totalClouds() {
+    return clusters.reduce((s, cl) => s + cl.length, 0);
+  }
+
   let clusters = [];
-  while (clusters.length < CLUSTER_TARGET) clusters.push(spawnCluster(true));
+  // Scatter initial clouds across the screen
+  while (totalClouds() < CLOUD_MIN) {
+    const cl = spawnCluster(true);
+    const room = CLOUD_MAX - totalClouds();
+    clusters.push(cl.length <= room ? cl : cl.slice(0, Math.max(1, room)));
+  }
   globalParticlesArray = clusters.flat();
 
   function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     clusters = clusters.filter(cl => cl.some(c => !c.isOffscreen()));
-    while (clusters.length < CLUSTER_TARGET) clusters.push(spawnCluster(false));
+
+    // Spawn new groups until at least CLOUD_MIN visible
+    while (totalClouds() < CLOUD_MIN) {
+      const cl = spawnCluster(false);
+      const room = CLOUD_MAX - totalClouds();
+      clusters.push(cl.length <= room ? cl : cl.slice(0, Math.max(1, room)));
+    }
+
     globalParticlesArray = clusters.flat();
     globalParticlesArray.forEach(c => { c.update(); c.draw(); });
     applyComponentFades();
