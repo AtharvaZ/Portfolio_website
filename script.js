@@ -240,16 +240,14 @@ if (canvas && !window.location.pathname.includes("admin")) {
       const { left: x, top: y, width: w, height: h } = el.getBoundingClientRect();
       if (y > vh + FADE || y + h < -FADE || w < 1 || h < 1) return;
 
-      ctx.fillStyle = "rgba(0,0,0,1)";
-      ctx.fillRect(x, y, w, h);
-
+      // Only draw tiny gradient strips right at each border — no center erase
       [
-        [ctx.createLinearGradient(0, y, 0, y - FADE),         x, y - FADE, w, FADE],
-        [ctx.createLinearGradient(0, y + h, 0, y + h + FADE), x, y + h,   w, FADE],
-        [ctx.createLinearGradient(x, 0, x - FADE, 0),         x - FADE, y, FADE, h],
-        [ctx.createLinearGradient(x + w, 0, x + w + FADE, 0), x + w,    y, FADE, h],
+        [ctx.createLinearGradient(0, y,     0, y - FADE),         x,      y - FADE, w,    FADE],
+        [ctx.createLinearGradient(0, y + h, 0, y + h + FADE),     x,      y + h,    w,    FADE],
+        [ctx.createLinearGradient(x,     0, x - FADE,     0),     x - FADE, y,      FADE, h   ],
+        [ctx.createLinearGradient(x + w, 0, x + w + FADE, 0),     x + w,    y,      FADE, h   ],
       ].forEach(([g, rx, ry, rw, rh]) => {
-        g.addColorStop(0, "rgba(0,0,0,0.88)");
+        g.addColorStop(0, "rgba(0,0,0,0.92)");
         g.addColorStop(1, "rgba(0,0,0,0)");
         ctx.fillStyle = g;
         ctx.fillRect(rx, ry, rw, rh);
