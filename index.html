@@ -21,7 +21,9 @@
     ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
+      function gtag() {
+        dataLayer.push(arguments);
+      }
       gtag("js", new Date());
       gtag("config", "G-6EXQ543547");
     </script>
@@ -69,58 +71,219 @@
     <canvas id="site-particles"></canvas>
 
     <!-- Fixed background scene: laptop (left) · server rack (right) · AI bulb with wires -->
-    <svg id="bg-scene" aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="xMinYMid slice" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <svg
+      id="bg-scene"
+      aria-hidden="true"
+      viewBox="0 0 1440 900"
+      preserveAspectRatio="xMinYMid slice"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+    >
       <defs>
         <filter id="hd" x="-6%" y="-6%" width="112%" height="112%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="7" result="n"/>
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.04"
+            numOctaves="3"
+            seed="7"
+            result="n"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="n"
+            scale="2.5"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
         </filter>
-        <linearGradient id="gW2" gradientUnits="userSpaceOnUse" x1="1252" y1="240" x2="860" y2="240">
-          <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
-          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
+        <linearGradient
+          id="gW2"
+          gradientUnits="userSpaceOnUse"
+          x1="1252"
+          y1="240"
+          x2="860"
+          y2="240"
+        >
+          <stop offset="0%" stop-color="#2d5a27" stop-opacity="0.42" />
+          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0" />
         </linearGradient>
-        <linearGradient id="gW4" gradientUnits="userSpaceOnUse" x1="1315" y1="672" x2="1315" y2="310">
-          <stop offset="0%"   stop-color="#2d5a27" stop-opacity="0.42"/>
-          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0"/>
+        <linearGradient
+          id="gW4"
+          gradientUnits="userSpaceOnUse"
+          x1="1315"
+          y1="672"
+          x2="1315"
+          y2="310"
+        >
+          <stop offset="0%" stop-color="#2d5a27" stop-opacity="0.42" />
+          <stop offset="100%" stop-color="#2d5a27" stop-opacity="0" />
         </linearGradient>
       </defs>
 
       <!-- Wires -->
-      <polyline points="163,280 163,40 72,40" stroke="#2d5a27" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.42"/>
-      <line x1="1252" y1="240" x2="860" y2="240" stroke="url(#gW2)" stroke-width="1.5" stroke-dasharray="6 4"/>
-      <line x1="1315" y1="672" x2="1315" y2="312" stroke="url(#gW4)" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <polyline
+        points="163,280 163,40 72,40"
+        stroke="#2d5a27"
+        stroke-width="1.5"
+        stroke-dasharray="6 4"
+        opacity="0.42"
+      />
+      <line
+        x1="1252"
+        y1="240"
+        x2="860"
+        y2="240"
+        stroke="url(#gW2)"
+        stroke-width="1.5"
+        stroke-dasharray="6 4"
+      />
+      <line
+        x1="1315"
+        y1="672"
+        x2="1315"
+        y2="312"
+        stroke="url(#gW4)"
+        stroke-width="1.5"
+        stroke-dasharray="6 4"
+      />
 
       <!-- Junction dots -->
-      <circle cx="163"  cy="280" r="3"   fill="#2d5a27" opacity="0.45"/>
-      <circle cx="128"  cy="40"  r="3"   fill="#2d5a27" opacity="0.5"/>
-      <circle cx="72"   cy="40"  r="4.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="1252" cy="240" r="3.5" fill="#2d5a27" opacity="0.45"/>
-      <circle cx="1315" cy="672" r="3.5" fill="#2d5a27" opacity="0.45"/>
+      <circle cx="163" cy="280" r="3" fill="#2d5a27" opacity="0.45" />
+      <circle cx="128" cy="40" r="3" fill="#2d5a27" opacity="0.5" />
+      <circle cx="72" cy="40" r="4.5" fill="#2d5a27" opacity="0.45" />
+      <circle cx="1252" cy="240" r="3.5" fill="#2d5a27" opacity="0.45" />
+      <circle cx="1315" cy="672" r="3.5" fill="#2d5a27" opacity="0.45" />
 
       <!-- Laptop doodle (left) -->
-      <image href="./assets/laptop-doodle.png" x="18" y="278" width="220" height="166" opacity="0.85"/>
+      <image
+        href="./assets/laptop-doodle.png"
+        x="18"
+        y="278"
+        width="220"
+        height="166"
+        opacity="0.85"
+      />
 
       <!-- AI Lightbulb (bottom-right) -->
-      <image href="./assets/ai-doodle.png" x="1210" y="650" width="190" height="190" opacity="0.85"/>
+      <image
+        href="./assets/ai-doodle.png"
+        x="1210"
+        y="650"
+        width="190"
+        height="190"
+        opacity="0.85"
+      />
 
       <!-- Server rack (right) -->
-      <g transform="translate(1218, 168)" stroke="#2d5a27" stroke-linecap="round" stroke-linejoin="round">
+      <g
+        transform="translate(1218, 168)"
+        stroke="#2d5a27"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <g opacity="0.58">
-          <rect x="28" y="72" width="110" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
-          <circle cx="42" cy="82" r="3.5" fill="#2d5a27" opacity="0.55"/>
-          <line x1="53" y1="77" x2="130" y2="77" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="82" x2="130" y2="82" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="87" x2="130" y2="87" stroke-width="0.9" opacity="0.5"/>
-          <rect x="28" y="97" width="110" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
-          <circle cx="42" cy="107" r="3.5" fill="#4a7c40" opacity="0.55"/>
-          <line x1="53" y1="102" x2="130" y2="102" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="107" x2="130" y2="107" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="112" x2="130" y2="112" stroke-width="0.9" opacity="0.5"/>
-          <rect x="28" y="122" width="110" height="20" rx="2" stroke-width="1.5" filter="url(#hd)"/>
-          <circle cx="42" cy="132" r="3.5" fill="#6aaa5c" opacity="0.55"/>
-          <line x1="53" y1="127" x2="130" y2="127" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="132" x2="130" y2="132" stroke-width="0.9" opacity="0.5"/>
-          <line x1="53" y1="137" x2="130" y2="137" stroke-width="0.9" opacity="0.5"/>
+          <rect
+            x="28"
+            y="72"
+            width="110"
+            height="20"
+            rx="2"
+            stroke-width="1.5"
+            filter="url(#hd)"
+          />
+          <circle cx="42" cy="82" r="3.5" fill="#2d5a27" opacity="0.55" />
+          <line
+            x1="53"
+            y1="77"
+            x2="130"
+            y2="77"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <line
+            x1="53"
+            y1="82"
+            x2="130"
+            y2="82"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <line
+            x1="53"
+            y1="87"
+            x2="130"
+            y2="87"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <rect
+            x="28"
+            y="97"
+            width="110"
+            height="20"
+            rx="2"
+            stroke-width="1.5"
+            filter="url(#hd)"
+          />
+          <circle cx="42" cy="107" r="3.5" fill="#4a7c40" opacity="0.55" />
+          <line
+            x1="53"
+            y1="102"
+            x2="130"
+            y2="102"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <line
+            x1="53"
+            y1="107"
+            x2="130"
+            y2="107"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <line
+            x1="53"
+            y1="112"
+            x2="130"
+            y2="112"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <rect
+            x="28"
+            y="122"
+            width="110"
+            height="20"
+            rx="2"
+            stroke-width="1.5"
+            filter="url(#hd)"
+          />
+          <circle cx="42" cy="132" r="3.5" fill="#6aaa5c" opacity="0.55" />
+          <line
+            x1="53"
+            y1="127"
+            x2="130"
+            y2="127"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <line
+            x1="53"
+            y1="132"
+            x2="130"
+            y2="132"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
+          <line
+            x1="53"
+            y1="137"
+            x2="130"
+            y2="137"
+            stroke-width="0.9"
+            opacity="0.5"
+          />
         </g>
       </g>
     </svg>
@@ -163,7 +326,7 @@
               >
             </h1>
             <p class="hero-subtitle" data-animate>
-              <span class="hero-subtitle-badge">Software Developer</span>
+              <span class="hero-subtitle-badge">Full-Stack Developer</span>
             </p>
             <p class="hero-tagline" data-animate>
               I <span id="typewriter"></span
@@ -201,7 +364,7 @@
                 <i class="fa-brands fa-linkedin"></i><span>LinkedIn</span>
               </a>
               <a
-                href="mailto:atharvazaveri4@gmail.com"
+                href="mailto:atharva.zaveri1@gmail.com"
                 class="hero-social-btn hero-social-btn--email"
                 aria-label="Email"
               >
@@ -226,11 +389,11 @@
               <h2 class="section-title">About Me</h2>
               <div class="about-text">
                 <p>
-                  I'm a Computer Science student at ASU who gets unreasonably
-                  excited about making AI do useful things. I've built tools
-                  that help students tackle impossible assignments, keep kids
-                  safe online, and search through files like you're having a
-                  conversation with your computer.
+                  I'm a Computer Science student at ASU who gets excited about
+                  making AI do useful things. I've built tools that help
+                  students tackle impossible assignments, keep kids safe online,
+                  and search through files like you're having a conversation
+                  with your computer.
                 </p>
                 <p>
                   When I'm not optimizing code or experimenting with LLMs, I'm
@@ -254,7 +417,9 @@
                     transform: translateY(0);
                   "
                 >
-                  Resume&nbsp;<i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  Resume&nbsp;<i
+                    class="fa-solid fa-arrow-up-right-from-square"
+                  ></i>
                 </a>
               </div>
             </div>
@@ -273,14 +438,14 @@
       </section>
 
       <!-- ─── Experience ────────────────────────────── -->
-      <section id="experience" class="section-padding" style="display: none">
+      <section id="experience" class="section-padding">
         <div class="section-label" aria-hidden="true">02</div>
         <div class="container">
           <div id="experience-work-section">
             <h2 class="section-title">Work Experience</h2>
             <div class="timeline" id="timeline-container"></div>
           </div>
-          <div id="experience-hackathon-section" style="margin-top: 5rem">
+          <div id="experience-hackathon-section">
             <h2 class="section-title">Hackathons</h2>
             <div class="hackathon-grid" id="hackathon-container"></div>
           </div>
@@ -290,7 +455,7 @@
       <!-- ─── Projects ──────────────────────────────── -->
       <section id="projects" class="section-padding">
         <div class="section-label" aria-hidden="true">03</div>
-        <div class="container" style="text-align: center">
+        <div class="container">
           <h2 class="section-title scroll-reveal">Featured Projects</h2>
           <p class="section-subtitle scroll-reveal">
             A collection of my recent projects.
@@ -320,7 +485,7 @@
       <!-- ─── Skills ────────────────────────────────── -->
       <section id="skills" class="section-padding">
         <div class="section-label" aria-hidden="true">04</div>
-        <div class="container" style="text-align: center">
+        <div class="container">
           <h2 class="section-title scroll-reveal">Tech Stack</h2>
           <p class="section-subtitle scroll-reveal">
             Technologies and tools I work with to bring ideas to life.
@@ -354,28 +519,46 @@
                 href="https://github.com/AtharvaZ"
                 class="social-icon"
                 aria-label="GitHub"
-              ><i class="fa-brands fa-github"></i></a>
+                ><i class="fa-brands fa-github"></i
+              ></a>
               <a
                 href="https://www.linkedin.com/in/atharva-zaveri/"
                 class="social-icon"
                 aria-label="LinkedIn"
-              ><i class="fa-brands fa-linkedin"></i></a>
+                ><i class="fa-brands fa-linkedin"></i
+              ></a>
               <a
                 href="mailto:atharvazaveri4@gmail.com"
                 class="social-icon"
                 aria-label="Email"
-              ><i class="fa-solid fa-envelope"></i></a>
+                ><i class="fa-solid fa-envelope"></i
+              ></a>
             </div>
           </div>
           <form class="contact-form scroll-reveal">
             <div class="form-group">
-              <input type="text" class="form-input" placeholder="Name" required />
+              <input
+                type="text"
+                class="form-input"
+                placeholder="Name"
+                required
+              />
             </div>
             <div class="form-group">
-              <input type="email" class="form-input" placeholder="Email" required />
+              <input
+                type="email"
+                class="form-input"
+                placeholder="Email"
+                required
+              />
             </div>
             <div class="form-group">
-              <textarea class="form-input" rows="4" placeholder="Message" required></textarea>
+              <textarea
+                class="form-input"
+                rows="4"
+                placeholder="Message"
+                required
+              ></textarea>
             </div>
             <button type="submit" class="form-btn">
               Send Message&nbsp;<i class="fa-solid fa-paper-plane"></i>
@@ -431,7 +614,11 @@
           document.addEventListener("mouseover", function (e) {
             const card = e.target.closest(".project-card");
             if (card)
-              animate(card, { x: 5 }, { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] });
+              animate(
+                card,
+                { x: 5 },
+                { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
+              );
           });
           document.addEventListener("mouseout", function (e) {
             const card = e.target.closest(".project-card");
@@ -442,7 +629,11 @@
           document.addEventListener("mouseover", function (e) {
             const item = e.target.closest(".timeline-item");
             if (item)
-              animate(item, { y: -3 }, { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] });
+              animate(
+                item,
+                { y: -3 },
+                { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
+              );
           });
           document.addEventListener("mouseout", function (e) {
             const item = e.target.closest(".timeline-item");
@@ -453,7 +644,11 @@
           document.addEventListener("mouseover", function (e) {
             const card = e.target.closest(".hackathon-card");
             if (card)
-              animate(card, { y: -5 }, { duration: 0.22, easing: [0.34, 1.56, 0.64, 1] });
+              animate(
+                card,
+                { y: -5 },
+                { duration: 0.22, easing: [0.34, 1.56, 0.64, 1] },
+              );
           });
           document.addEventListener("mouseout", function (e) {
             const card = e.target.closest(".hackathon-card");
@@ -464,7 +659,11 @@
           document.addEventListener("mouseover", function (e) {
             const s = e.target.closest(".skill-item");
             if (s)
-              animate(s, { scale: 1.05 }, { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] });
+              animate(
+                s,
+                { scale: 1.05 },
+                { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] },
+              );
           });
           document.addEventListener("mouseout", function (e) {
             const s = e.target.closest(".skill-item");
@@ -474,7 +673,11 @@
 
           document.querySelectorAll(".hero-social-btn").forEach(function (btn) {
             btn.addEventListener("mouseenter", function () {
-              animate(btn, { y: -3 }, { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] });
+              animate(
+                btn,
+                { y: -3 },
+                { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] },
+              );
             });
             btn.addEventListener("mouseleave", function () {
               animate(btn, { y: 0 }, { duration: 0.18 });
@@ -483,7 +686,11 @@
 
           document.querySelectorAll(".social-icon").forEach(function (icon) {
             icon.addEventListener("mouseenter", function () {
-              animate(icon, { scale: 1.14, y: -3 }, { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] });
+              animate(
+                icon,
+                { scale: 1.14, y: -3 },
+                { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
+              );
             });
             icon.addEventListener("mouseleave", function () {
               animate(icon, { scale: 1, y: 0 }, { duration: 0.18 });

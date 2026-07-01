@@ -169,14 +169,7 @@ if (canvas && !window.location.pathname.includes("admin")) {
     draw() {
       if (!cloudImg.complete || !cloudImg.naturalWidth) return;
       const iw = CLOUD_W * this.scale, ih = CLOUD_H * this.scale;
-      ctx.save();
-      ctx.globalAlpha = 0.97;
-      ctx.shadowColor   = "rgba(0,0,0,0.16)";
-      ctx.shadowBlur    = 12 * this.scale;
-      ctx.shadowOffsetX = 1;
-      ctx.shadowOffsetY = 5 * this.scale;
       ctx.drawImage(cloudImg, this.x - iw / 2, this.y - ih / 2, iw, ih);
-      ctx.restore();
       this.birds.forEach(b => b.draw(0.68));
     }
   }
@@ -288,30 +281,32 @@ if (canvas && !window.location.pathname.includes("admin")) {
     ctx.restore();
   }
 
-  const CLOUD_MIN = 5, CLOUD_MAX = 6;
+  const CLOUD_MAX = 10;
+  // Spawn a new cluster every ~90–140 frames regardless of count (carousel rhythm)
+  let spawnCountdown = 60;
 
-  function totalClouds() {
-    return clusters.reduce((s, cl) => s + cl.length, 0);
+  function nextSpawnInterval() {
+    return Math.floor(Math.random() * 50 + 90);
   }
 
   let clusters = [];
-  // Scatter initial clouds across the screen
-  while (totalClouds() < CLOUD_MIN) {
-    const cl = spawnCluster(true);
-    const room = CLOUD_MAX - totalClouds();
-    clusters.push(cl.length <= room ? cl : cl.slice(0, Math.max(1, room)));
+  // Scatter initial clouds across the full screen width
+  for (let i = 0; i < 5; i++) {
+    clusters.push(spawnCluster(true));
   }
   globalParticlesArray = clusters.flat();
 
   function animate() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    // Remove clusters fully off the left edge
     clusters = clusters.filter(cl => cl.some(c => !c.isOffscreen()));
 
-    // Spawn new groups until at least CLOUD_MIN visible
-    while (totalClouds() < CLOUD_MIN) {
-      const cl = spawnCluster(false);
-      const room = CLOUD_MAX - totalClouds();
-      clusters.push(cl.length <= room ? cl : cl.slice(0, Math.max(1, room)));
+    // Carousel: spawn a new cluster from the right on a fixed rhythm
+    spawnCountdown--;
+    if (spawnCountdown <= 0 && clusters.flat().length < CLOUD_MAX) {
+      clusters.push(spawnCluster(false));
+      spawnCountdown = nextSpawnInterval();
     }
 
     globalParticlesArray = clusters.flat();
