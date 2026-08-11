@@ -82,6 +82,25 @@ ol {
   --dur: 0.36s;
 }
 
+/* Tokens consumed by admin.css, which also loads this file.
+   Mapped onto the print palette so the admin panel matches the site.
+   Shapes matter here: --border-light is a full border shorthand and
+   --transition-base a full transition value. */
+:root {
+  --bg-dark: var(--paper);
+  --bg-card: var(--paper-2);
+  --border-light: 1px solid var(--rule-strong);
+  --text-muted: var(--ink-mute);
+  --accent-primary: var(--red);
+  --accent-glass: color-mix(in srgb, var(--red) 10%, transparent);
+  --font-heading: var(--font-display);
+  --sketch-radius: 0px;
+  --sketch-shadow: 4px 4px 0 var(--rule-strong);
+  --shadow-sm: 2px 2px 0 var(--rule-strong);
+  --shadow-lg: 6px 6px 0 var(--rule-strong);
+  --transition-base: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
 body.dark-mode {
   --paper: #131317;
   --paper-2: #1a1a20;
