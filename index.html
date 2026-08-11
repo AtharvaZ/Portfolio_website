@@ -38,7 +38,7 @@
     />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css?v=6.0.0" />
+    <link rel="stylesheet" href="styles.css?v=6.1.0" />
 
     <!-- FontAwesome -->
     <link
@@ -97,6 +97,15 @@
         <span class="masthead__initials">AZ</span>
       </a>
 
+      <!-- Running head: role over the cover, section folio once inside -->
+      <div class="runhead" aria-hidden="true">
+        <span class="runhead__folio">
+          <span class="runhead__num" id="folio-num">01</span>
+          <span class="runhead__line"></span>
+          <span class="runhead__name" id="folio-name">About</span>
+        </span>
+      </div>
+
       <nav class="masthead__nav" aria-label="Sections">
         <ul class="nav-links">
           <li>
@@ -146,13 +155,6 @@
         <span class="bar"></span>
       </button>
     </header>
-
-    <!-- Running head — shows where you are in the document -->
-    <div class="folio-rail" aria-hidden="true">
-      <span class="folio-rail__num" id="folio-num">00</span>
-      <span class="folio-rail__line"></span>
-      <span class="folio-rail__name" id="folio-name">Cover</span>
-    </div>
 
     <main id="top">
       <!-- ─── Hero — type specimen ─────────────────── -->
@@ -496,6 +498,6 @@
       </button>
     </aside>
 
-    <script src="script.js?v=6.0.0"></script>
+    <script src="script.js?v=6.1.0"></script>
   </body>
 </html>

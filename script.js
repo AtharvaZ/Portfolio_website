@@ -916,27 +916,62 @@ document.addEventListener("DOMContentLoaded", async () => {
   const folioName = document.getElementById("folio-name");
   const navItems = document.querySelectorAll(".nav-link");
 
-  const sectionSpy = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
+  // The active section is simply whichever one covers the middle of the
+  // viewport. An IntersectionObserver rootMargin can only approximate
+  // that, and gets it wrong for sections shorter or taller than the
+  // screen — this is exact at every height.
+  const sections = [...document.querySelectorAll("main section")];
+  let activeId = null;
 
-        const id = entry.target.getAttribute("id");
-        navItems.forEach((link) =>
-          link.classList.toggle(
-            "active",
-            link.getAttribute("href") === `#${id}`,
-          ),
-        );
+  const syncActiveSection = () => {
+    const mid = window.innerHeight / 2;
+    let current = null;
 
-        if (folioNum && folioName) {
-          folioNum.textContent = entry.target.dataset.folio || "00";
-          folioName.textContent = entry.target.dataset.name || "Cover";
-        }
-      });
-    },
-    { rootMargin: "-25% 0px -70% 0px", threshold: 0 },
-  );
+    for (const section of sections) {
+      const { top, bottom } = section.getBoundingClientRect();
+      if (top <= mid && bottom > mid) {
+        current = section;
+        break;
+      }
+    }
 
-  document.querySelectorAll("main section").forEach((s) => sectionSpy.observe(s));
+    // Past the last section (e.g. over the footer), hold the final one
+    if (!current) {
+      const passed = sections.filter(
+        (s) => s.getBoundingClientRect().top <= mid,
+      );
+      current = passed.length ? passed[passed.length - 1] : sections[0];
+    }
+    if (!current || current.id === activeId) return;
+    activeId = current.id;
+
+    navItems.forEach((link) =>
+      link.classList.toggle(
+        "active",
+        link.getAttribute("href") === `#${activeId}`,
+      ),
+    );
+
+    // The cover carries no folio, so the masthead shows the role there
+    const folio = current.dataset.folio;
+    document.body.classList.toggle("past-cover", Boolean(folio));
+
+    if (folio && folioNum && folioName) {
+      folioNum.textContent = folio;
+      folioName.textContent = current.dataset.name || "";
+    }
+  };
+
+  let spyFrame = null;
+  const onScrollSpy = () => {
+    if (spyFrame) return;
+    spyFrame = requestAnimationFrame(() => {
+      syncActiveSection();
+      spyFrame = null;
+    });
+  };
+
+  window.addEventListener("scroll", onScrollSpy, { passive: true });
+  window.addEventListener("resize", onScrollSpy);
+  syncActiveSection();
 });

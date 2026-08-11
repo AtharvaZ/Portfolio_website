@@ -57,6 +57,10 @@ ol {
   --red: #d8341c;
   --blue: #1f3fbf;
 
+  /* Status only — not a design accent. Green reads as "live" in a way
+     no amount of vermilion will. */
+  --green: #1c7a45;
+
   --rule: rgba(20, 20, 25, 0.18);
   --rule-strong: rgba(20, 20, 25, 0.42);
 
@@ -111,6 +115,7 @@ body.dark-mode {
 
   --red: #ff5a3c;
   --blue: #8098ff;
+  --green: #4ec97e;
 
   --rule: rgba(232, 230, 222, 0.2);
   --rule-strong: rgba(232, 230, 222, 0.45);
@@ -212,7 +217,7 @@ main,
 .hackathon-card__meta,
 .project-card__index,
 .skills-category-title,
-.folio-rail__num,
+.runhead__num,
 .tech-tag {
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
@@ -437,13 +442,14 @@ main,
   border-bottom: 1px solid var(--rule-strong);
 }
 
+/* The runhead carries margin-right:auto, so the logo sits beside it
+   rather than being pushed to the far left */
 .masthead__logo {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   text-decoration: none;
   color: inherit;
-  margin-right: auto;
 }
 
 .masthead__initials {
@@ -454,20 +460,6 @@ main,
   font-size: 1.5rem;
   letter-spacing: -0.03em;
   line-height: 1;
-}
-
-.masthead__rule {
-  width: 1px;
-  height: 1.5rem;
-  background: var(--rule-strong);
-}
-
-.masthead__role {
-  font-family: var(--font-mono);
-  font-size: var(--fs-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--ink-mute);
 }
 
 .nav-links {
@@ -578,37 +570,67 @@ main,
   transition: transform 0.25s var(--ease);
 }
 
-/* ---------- 7. Folio rail (running head) ---------- */
-.folio-rail {
-  position: fixed;
-  left: calc(var(--gutter) / 2);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 80;
-  display: flex;
-  flex-direction: column;
+/* ---------- 7. Running head ----------
+   Lives inside the masthead, so it occupies its own row and can never
+   overlap the text column the way a fixed rail did. Shows the role over
+   the cover, then the section folio once you're into the document.
+   Both states share one grid cell, so the swap causes no reflow. */
+.runhead {
+  display: grid;
+  margin-right: auto;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--rule-strong);
+  min-height: 1.5rem;
   align-items: center;
-  gap: 0.85rem;
-  pointer-events: none;
 }
 
-.folio-rail__num {
-  color: var(--red);
-}
-
-.folio-rail__line {
-  width: 1px;
-  height: 4.5rem;
-  background: var(--rule-strong);
-}
-
-.folio-rail__name {
-  writing-mode: vertical-rl;
+.runhead__role,
+.runhead__folio {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  transition:
+    opacity 0.32s var(--ease),
+    transform 0.32s var(--ease);
+}
+
+.runhead__role {
   color: var(--ink-mute);
+}
+
+.runhead__folio {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+body.past-cover .runhead__role {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+body.past-cover .runhead__folio {
+  opacity: 1;
+  transform: none;
+}
+
+.runhead__num {
+  color: var(--red);
+}
+
+.runhead__line {
+  width: 1.1rem;
+  height: 1px;
+  background: var(--rule-strong);
+}
+
+.runhead__name {
+  color: var(--ink-soft);
 }
 
 /* ---------- 8. Hero — type specimen ---------- */
@@ -657,8 +679,8 @@ main,
 
 .specimen__body {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 5rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
   padding-top: 2rem;
   border-top: 2px solid var(--ink);
 }
@@ -729,23 +751,31 @@ main,
 
 .colophon__row {
   display: grid;
-  grid-template-columns: 5.5rem 1fr;
-  gap: 1rem;
-  padding: 0.6rem 0;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1.25rem;
+  padding: 1rem 0;
   border-bottom: 1px solid var(--rule);
 }
 
+.colophon__row:first-child {
+  padding-top: 0.35rem;
+}
+
+/* Larger than the shared mono utility — this block is a headline
+   element in the hero, not a caption */
 .colophon dt {
+  font-size: 0.8rem;
   color: var(--ink-mute);
-  padding-top: 0.18rem;
+  padding-top: 0.34rem;
 }
 
 .colophon dd {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.22rem;
+  line-height: 1.35;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .colophon dd em {
@@ -754,10 +784,10 @@ main,
 }
 
 .tick {
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--red);
+  background: var(--green);
   flex: none;
   animation: pulse 2.4s var(--ease) infinite;
 }
@@ -1206,36 +1236,49 @@ kbd {
 }
 
 /* ---------- 13. Hackathons ---------- */
+/* Discrete bordered plates — the only boxed component on the page, so
+   this section stays distinct from the ruled ledger, project rows and
+   skills list. Each card carries its own border, so a short last row
+   leaves plain paper rather than an empty grid track. */
 .hackathon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
-  gap: 1px;
-  background: var(--rule-strong);
-  border: 1px solid var(--rule-strong);
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: clamp(1rem, 2vw, 1.6rem);
 }
 
 .hackathon-card {
+  position: relative;
   background: var(--paper);
-  padding: 1.6rem;
+  border: 1px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--rule);
+  padding: 1.5rem 1.4rem 1.4rem;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.3s var(--ease);
+  transition:
+    transform 0.28s var(--ease),
+    box-shadow 0.28s var(--ease);
 }
 
 .hackathon-card:hover {
-  background: var(--paper-2);
+  transform: translate(-3px, -3px);
+  box-shadow: 8px 8px 0 var(--red);
 }
 
+/* Rule across the head of the plate, like an award citation */
 .hackathon-card__meta {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   gap: 1rem;
   color: var(--ink-mute);
+  padding-bottom: 0.7rem;
   margin-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
 }
 
 .hackathon-placement {
   color: var(--red);
+  font-weight: 700;
 }
 
 .hackathon-name {
@@ -1243,12 +1286,15 @@ kbd {
   font-variation-settings:
     "wght" 700,
     "wdth" 96;
-  font-size: 1.22rem;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.7rem;
+  text-wrap: balance;
 }
 
+/* margin-top:auto pins this to the foot, so plates in a row line their
+   links up even when names wrap to different heights */
 .hack-project-link {
   margin-top: auto;
   padding-top: 1.2rem;
@@ -1263,6 +1309,13 @@ kbd {
 .hack-project-link:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* The whole plate is the hit target, not just the link text */
+.hack-project-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
 /* ---------- 14. Projects ---------- */
@@ -1646,11 +1699,6 @@ textarea.form-input {
 }
 
 /* ---------- 20. Responsive ---------- */
-@media (max-width: 1180px) {
-  .folio-rail {
-    display: none;
-  }
-}
 
 @media (max-width: 960px) {
   .specimen__body,
@@ -1690,10 +1738,6 @@ textarea.form-input {
 
   .menu-toggle {
     display: flex;
-  }
-
-  .masthead__role {
-    display: none;
   }
 
   .masthead__nav {
@@ -1789,7 +1833,6 @@ textarea.form-input {
 
 @media print {
   .masthead,
-  .folio-rail,
   .sheet-marks,
   .palette,
   .keys-hint,
