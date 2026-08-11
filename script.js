@@ -55,16 +55,27 @@ const initTheme = () => {
   syncThemeToggle();
 };
 
+/** What the theme control will do next, not what the page is now. */
+function themeActionLabel() {
+  return document.body.classList.contains("dark-mode")
+    ? "light paper"
+    : "ink paper";
+}
+
 function syncThemeToggle() {
+  const next = themeActionLabel();
+
   const toggle = document.querySelector("#theme-toggle");
-  if (!toggle) return;
-  const isDark = document.body.classList.contains("dark-mode");
-  const label = toggle.querySelector(".ink-toggle__label");
-  if (label) label.textContent = isDark ? "Ink" : "Paper";
-  toggle.setAttribute(
-    "aria-label",
-    isDark ? "Switch to light paper" : "Switch to dark paper",
-  );
+  if (toggle) {
+    const label = toggle.querySelector(".ink-toggle__label");
+    // "Ink" / "Light" — the noun of whatever it switches to
+    if (label) label.textContent = next === "ink paper" ? "Ink" : "Light";
+    toggle.setAttribute("aria-label", `Switch to ${next}`);
+  }
+
+  // Keyboard hint reads the same way: D gets you the paper it names
+  const hintLabel = document.getElementById("theme-hint-label");
+  if (hintLabel) hintLabel.textContent = next;
 }
 
 function toggleTheme() {
@@ -192,7 +203,8 @@ const PALETTE_ACTIONS = [
     copy: EMAIL,
   },
   {
-    label: "Toggle dark paper",
+    // Label is rewritten on every open — see renderPalette
+    label: "Switch to ink paper",
     kind: "View",
     icon: "fa-solid fa-circle-half-stroke",
     theme: true,
@@ -203,6 +215,10 @@ let paletteMatches = [];
 let paletteCursor = 0;
 
 function renderPalette(query = "") {
+  // Keep the theme row honest about which way it will flip
+  const themeAction = PALETTE_ACTIONS.find((a) => a.theme);
+  if (themeAction) themeAction.label = `Switch to ${themeActionLabel()}`;
+
   const q = query.trim().toLowerCase();
   paletteMatches = PALETTE_ACTIONS.filter(
     (a) =>
