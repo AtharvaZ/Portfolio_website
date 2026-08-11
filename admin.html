@@ -18,8 +18,8 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=1.0.1" />
-    <link rel="stylesheet" href="admin.css?v=1.0.1" />
+    <link rel="stylesheet" href="styles.css?v=5.9.0" />
+    <link rel="stylesheet" href="admin.css?v=1.2.0" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -101,7 +101,7 @@
           <div id="photo-drop-zone" class="drop-zone">
             <i class="fa-solid fa-user-circle"></i>
             <p>Drag & Drop Photo or click to browse</p>
-            <small>JPG, PNG, WebP — portrait (3:4) works best</small>
+            <small>JPG, PNG or WebP — you'll position the crop next</small>
             <input
               type="file"
               id="photo-upload"
@@ -569,6 +569,51 @@
       </section>
     </div>
 
-    <script src="admin.js?v=1.1.0"></script>
+    <!-- Photo crop dialog — opens after a file is chosen -->
+    <div class="cropper" id="cropper" hidden>
+      <div class="cropper__scrim" data-cropper-cancel></div>
+      <div
+        class="cropper__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cropper-title"
+      >
+        <h3 id="cropper-title">Position your photo</h3>
+        <p class="cropper__hint">
+          Drag the photo to move it. Scroll or use the slider to zoom. Whatever
+          fills this frame is exactly what appears on your site.
+        </p>
+
+        <div class="cropper__frame" id="cropper-frame">
+          <img id="cropper-image" alt="" draggable="false" />
+        </div>
+
+        <label class="cropper__zoom">
+          <span>Zoom</span>
+          <input
+            type="range"
+            id="cropper-zoom"
+            min="1"
+            max="4"
+            step="0.01"
+            value="1"
+          />
+          <button type="button" class="cropper__reset" id="cropper-reset">
+            Reset
+          </button>
+        </label>
+
+        <div class="cropper__actions">
+          <button type="button" class="btn-secondary" id="cropper-cancel">
+            Cancel
+          </button>
+          <button type="button" class="form-btn" id="cropper-save">
+            Use this photo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="admin.js?v=1.2.0"></script>
   </body>
 </html>

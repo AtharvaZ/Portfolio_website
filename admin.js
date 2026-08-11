@@ -672,42 +672,236 @@ photoInput.addEventListener("change", (e) => {
   handlePhotoUpload(e.target.files[0]);
 });
 
-async function handlePhotoUpload(file) {
+// ─── Photo cropper ───────────────────────────────────
+// The site renders the about photo at 4:5 with object-fit: cover, which
+// crops from the centre. Rather than guess, we bake the crop here so what
+// you position is exactly what ships — and the export is downscaled, so a
+// 6 MB phone photo doesn't become a 6 MB base64 row.
+const CROP_ASPECT = 4 / 5;
+const CROP_OUT_W = 900;
+const CROP_OUT_H = Math.round(CROP_OUT_W / CROP_ASPECT); // 1125
+const CROP_MAX_ZOOM = 4;
+
+const cropperEl = document.getElementById("cropper");
+const cropperFrame = document.getElementById("cropper-frame");
+const cropperImage = document.getElementById("cropper-image");
+const cropperZoom = document.getElementById("cropper-zoom");
+const cropperSave = document.getElementById("cropper-save");
+const cropperCancel = document.getElementById("cropper-cancel");
+const cropperReset = document.getElementById("cropper-reset");
+
+let crop = null;
+
+function setPhotoStatus(message, kind) {
+  photoStatus.textContent = message;
+  photoStatus.className =
+    kind === "error" ? "status-text error-text" : "status-text status-success";
+}
+
+function handlePhotoUpload(file) {
   if (!file || !file.type.startsWith("image/")) {
-    photoStatus.textContent = "Please upload a valid image file.";
-    photoStatus.className = "status-text error-text";
+    setPhotoStatus("Please upload a valid image file.", "error");
     return;
   }
 
   const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64Photo = e.target.result;
-    try {
-      const response = await fetch(`${API_URL}/photo`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Session-Token": sessionToken,
-        },
-        body: JSON.stringify({ data: base64Photo }),
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        photoStatus.textContent = `Photo uploaded: ${file.name}`;
-        photoStatus.className = "status-text status-success";
-        photoPreviewAdmin.src = base64Photo;
-        photoPreviewAdmin.style.display = "block";
-      } else {
-        throw new Error("Upload failed");
-      }
-    } catch (error) {
-      console.error("Error uploading photo:", error);
-      photoStatus.textContent = "Failed to upload photo. Please try again.";
-      photoStatus.className = "status-text error-text";
-    }
+  reader.onerror = () => setPhotoStatus("That file could not be read.", "error");
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onerror = () =>
+      setPhotoStatus("That file could not be read as an image.", "error");
+    img.onload = () => {
+      cropperImage.src = e.target.result;
+      cropperEl.hidden = false;
+      // Measure the frame only after it is visible, or clientWidth is 0
+      requestAnimationFrame(() => initCrop(img, file.name));
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
+
+function initCrop(img, fileName) {
+  const frameW = cropperFrame.clientWidth;
+  const frameH = cropperFrame.clientHeight;
+  crop = {
+    img,
+    fileName,
+    natW: img.naturalWidth,
+    natH: img.naturalHeight,
+    frameW,
+    frameH,
+    // "cover" baseline: the smallest scale that still fills the frame,
+    // so there is never a gap to clamp against
+    baseScale: Math.max(frameW / img.naturalWidth, frameH / img.naturalHeight),
+    zoom: 1,
+    tx: 0,
+    ty: 0,
+  };
+  cropperZoom.value = "1";
+  centreCrop();
+  renderCrop();
+}
+
+function centreCrop() {
+  const s = crop.baseScale * crop.zoom;
+  crop.tx = (crop.frameW - crop.natW * s) / 2;
+  crop.ty = (crop.frameH - crop.natH * s) / 2;
+}
+
+function renderCrop() {
+  if (!crop) return;
+  const s = crop.baseScale * crop.zoom;
+  const dw = crop.natW * s;
+  const dh = crop.natH * s;
+  // Clamp so an edge can never be dragged inside the frame
+  crop.tx = Math.min(0, Math.max(crop.frameW - dw, crop.tx));
+  crop.ty = Math.min(0, Math.max(crop.frameH - dh, crop.ty));
+
+  cropperImage.style.width = `${dw}px`;
+  cropperImage.style.height = `${dh}px`;
+  cropperImage.style.transform = `translate(${crop.tx}px, ${crop.ty}px)`;
+}
+
+function setCropZoom(next) {
+  if (!crop) return;
+  const z = Math.min(CROP_MAX_ZOOM, Math.max(1, next));
+  // Zoom about the frame centre so the subject doesn't drift off
+  const cx = crop.frameW / 2;
+  const cy = crop.frameH / 2;
+  const ratio = z / crop.zoom;
+  crop.tx = cx - (cx - crop.tx) * ratio;
+  crop.ty = cy - (cy - crop.ty) * ratio;
+  crop.zoom = z;
+  cropperZoom.value = String(z);
+  renderCrop();
+}
+
+// Drag to reposition — pointer events cover mouse, touch and pen
+let cropDrag = null;
+
+cropperFrame.addEventListener("pointerdown", (e) => {
+  if (!crop) return;
+  cropDrag = { x: e.clientX, y: e.clientY, tx: crop.tx, ty: crop.ty };
+  cropperFrame.setPointerCapture(e.pointerId);
+});
+
+cropperFrame.addEventListener("pointermove", (e) => {
+  if (!cropDrag || !crop) return;
+  crop.tx = cropDrag.tx + (e.clientX - cropDrag.x);
+  crop.ty = cropDrag.ty + (e.clientY - cropDrag.y);
+  renderCrop();
+});
+
+const endCropDrag = (e) => {
+  if (!cropDrag) return;
+  cropDrag = null;
+  if (cropperFrame.hasPointerCapture(e.pointerId))
+    cropperFrame.releasePointerCapture(e.pointerId);
+};
+cropperFrame.addEventListener("pointerup", endCropDrag);
+cropperFrame.addEventListener("pointercancel", endCropDrag);
+
+cropperFrame.addEventListener(
+  "wheel",
+  (e) => {
+    if (!crop) return;
+    e.preventDefault();
+    setCropZoom(crop.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08));
+  },
+  { passive: false },
+);
+
+cropperZoom.addEventListener("input", () =>
+  setCropZoom(parseFloat(cropperZoom.value)),
+);
+
+cropperReset.addEventListener("click", () => {
+  if (!crop) return;
+  crop.zoom = 1;
+  cropperZoom.value = "1";
+  centreCrop();
+  renderCrop();
+});
+
+function closeCropper() {
+  cropperEl.hidden = true;
+  cropperEl.classList.remove("cropper__busy");
+  crop = null;
+  cropDrag = null;
+  // Let the same file be picked again
+  photoInput.value = "";
+}
+
+cropperCancel.addEventListener("click", closeCropper);
+
+cropperEl.addEventListener("click", (e) => {
+  if (e.target.hasAttribute("data-cropper-cancel")) closeCropper();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !cropperEl.hidden) closeCropper();
+});
+
+/** Map the visible frame back to source pixels and redraw at output size. */
+function exportCrop() {
+  const s = crop.baseScale * crop.zoom;
+  const canvas = document.createElement("canvas");
+  canvas.width = CROP_OUT_W;
+  canvas.height = CROP_OUT_H;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  // White base, so a transparent PNG doesn't export with black corners
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, CROP_OUT_W, CROP_OUT_H);
+  ctx.drawImage(
+    crop.img,
+    -crop.tx / s,
+    -crop.ty / s,
+    crop.frameW / s,
+    crop.frameH / s,
+    0,
+    0,
+    CROP_OUT_W,
+    CROP_OUT_H,
+  );
+  return canvas.toDataURL("image/jpeg", 0.88);
+}
+
+cropperSave.addEventListener("click", async () => {
+  if (!crop) return;
+  const base64Photo = exportCrop();
+  const name = crop.fileName;
+
+  cropperEl.classList.add("cropper__busy");
+  cropperSave.textContent = "Saving…";
+
+  try {
+    const response = await fetch(`${API_URL}/photo`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Token": sessionToken,
+      },
+      body: JSON.stringify({ data: base64Photo }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.detail || "Upload failed");
+    }
+    photoPreviewAdmin.src = base64Photo;
+    photoPreviewAdmin.style.display = "block";
+    closeCropper();
+    setPhotoStatus(`Photo updated from ${name}.`, "success");
+  } catch (error) {
+    console.error("Error uploading photo:", error);
+    cropperEl.classList.remove("cropper__busy");
+    setPhotoStatus("Couldn't save the photo. Try again.", "error");
+  } finally {
+    cropperSave.textContent = "Use this photo";
+  }
+});
 
 async function loadPhotoStatus() {
   try {

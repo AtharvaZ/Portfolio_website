@@ -318,3 +318,113 @@
   margin-top: 2.5rem;
   margin-bottom: 0.5rem;
 }
+
+/* ─── Photo crop dialog ───────────────────────────── */
+.cropper {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.cropper[hidden] {
+  display: none;
+}
+
+.cropper__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 20, 25, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.cropper__panel {
+  position: relative;
+  width: min(420px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--bg-card);
+  border: var(--border-light);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--sketch-radius);
+  padding: 1.6rem;
+}
+
+.cropper__panel h3 {
+  font-family: var(--font-heading);
+  margin-bottom: 0.4rem;
+}
+
+.cropper__hint {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 1.1rem;
+}
+
+/* 4:5 — matches .about__frame img on the site exactly */
+.cropper__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: var(--border-light);
+  background: rgba(20, 20, 25, 0.12);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.cropper__frame:active {
+  cursor: grabbing;
+}
+
+.cropper__frame img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  transform-origin: 0 0;
+  will-change: transform;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.cropper__zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.1rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.cropper__zoom input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent-primary);
+}
+
+.cropper__reset {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--accent-primary);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cropper__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.cropper__busy {
+  pointer-events: none;
+  opacity: 0.6;
+}
