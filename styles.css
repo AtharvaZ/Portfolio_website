@@ -1105,7 +1105,6 @@ kbd {
   max-width: 60ch;
   padding-bottom: 1.35rem;
   margin-bottom: 1.35rem;
-  border-bottom: 1px solid var(--rule);
 }
 
 .about__text > p:last-of-type {
