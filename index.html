@@ -2,17 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate"
     />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Atharva Zaveri</title>
+    <title>Atharva Zaveri — Full-Stack Developer</title>
+    <meta
+      name="description"
+      content="Atharva Zaveri, full-stack developer. I build AI tools that quietly make things work."
+    />
 
     <!-- Google tag (gtag.js) -->
     <script
@@ -28,31 +29,16 @@
       gtag("config", "G-6EXQ543547");
     </script>
 
-    <!-- Fonts -->
+    <!-- Fonts: Archivo (display grotesk) · Newsreader (body serif) · Space Mono (utility) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Motion.js -->
-    <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
-
-    <script>
-      (function () {
-        const hasFine =
-          window.matchMedia && window.matchMedia("(pointer: fine)").matches;
-        const hasCoarse =
-          window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-        if (hasFine && !hasCoarse) {
-          document.documentElement.classList.add("cursor-enhanced");
-        }
-      })();
-    </script>
-
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css?v=4.3.5" />
+    <link rel="stylesheet" href="styles.css?v=5.8.0" />
 
     <!-- FontAwesome -->
     <link
@@ -67,640 +53,448 @@
     />
   </head>
   <body>
-    <!-- Site-wide particle canvas (owned by script.js) -->
-    <canvas id="site-particles"></canvas>
+    <a class="skip-link" href="#about">Skip to content</a>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-      <div class="logo">
-        <span class="gradient-text">&lt;AZ/&gt;</span>
+    <!-- ─── Press-sheet furniture ─────────────────────
+         Crop marks + registration target, as on a printed
+         signature before it's trimmed. Purely decorative. -->
+    <div class="sheet-marks" aria-hidden="true">
+      <span class="crop crop--tl"></span>
+      <span class="crop crop--tr"></span>
+      <span class="crop crop--bl"></span>
+      <span class="crop crop--br"></span>
+    </div>
+
+    <!-- Quick actions — opened with K, / or the footer control -->
+    <div class="palette" id="palette" hidden>
+      <div class="palette__scrim" data-palette-close></div>
+      <div
+        class="palette__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Quick actions"
+      >
+        <div class="palette__field">
+          <span class="palette__prompt" aria-hidden="true">→</span>
+          <input
+            id="palette-input"
+            type="text"
+            placeholder="Jump to a section, or open a link…"
+            autocomplete="off"
+            spellcheck="false"
+            aria-controls="palette-list"
+          />
+          <kbd>Esc</kbd>
+        </div>
+        <ul class="palette__list" id="palette-list" role="listbox"></ul>
+        <p class="palette__empty" id="palette-empty" hidden>Nothing matches.</p>
       </div>
-      <ul class="nav-links">
-        <li><a href="#about" class="nav-link" data-link>About</a></li>
-        <li><a href="#experience" class="nav-link" data-link>Experience</a></li>
-        <li><a href="#projects" class="nav-link" data-link>Projects</a></li>
-        <li><a href="#skills" class="nav-link" data-link>Skills</a></li>
-        <li><a href="#contact" class="nav-link" data-link>Contact</a></li>
-      </ul>
+    </div>
+
+    <!-- ─── Masthead ──────────────────────────────── -->
+    <header class="masthead">
+      <a href="#top" class="masthead__logo">
+        <span class="masthead__initials">AZ</span>
+        <span class="masthead__rule" aria-hidden="true"></span>
+        <span class="masthead__role">Full-Stack Developer</span>
+      </a>
+
+      <nav class="masthead__nav" aria-label="Sections">
+        <ul class="nav-links">
+          <li>
+            <a href="#about" class="nav-link" data-link
+              ><span class="nav-link__folio">01</span>About</a
+            >
+          </li>
+          <li>
+            <a href="#experience" class="nav-link" data-link
+              ><span class="nav-link__folio">02</span>Experience</a
+            >
+          </li>
+          <li>
+            <a href="#projects" class="nav-link" data-link
+              ><span class="nav-link__folio">03</span>Projects</a
+            >
+          </li>
+          <li>
+            <a href="#skills" class="nav-link" data-link
+              ><span class="nav-link__folio">04</span>Skills</a
+            >
+          </li>
+          <li>
+            <a href="#contact" class="nav-link" data-link
+              ><span class="nav-link__folio">05</span>Contact</a
+            >
+          </li>
+        </ul>
+      </nav>
+
       <button
         id="theme-toggle"
-        class="theme-toggle"
-        aria-label="Toggle dark mode"
+        class="ink-toggle"
+        aria-label="Switch to dark paper"
       >
-        <i class="fas fa-moon"></i>
+        <span class="ink-toggle__swatch" aria-hidden="true"></span>
+        <span class="ink-toggle__label">Paper</span>
       </button>
-      <div class="menu-toggle">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </div>
-    </nav>
 
-    <main>
-      <!-- ─── Hero ─────────────────────────────────── -->
-      <section id="hero" class="hero">
-        <div class="hero-ambient" aria-hidden="true">
-          <div class="hero-orb hero-orb--1"></div>
-          <div class="hero-orb hero-orb--2"></div>
-          <div class="hero-orb hero-orb--3"></div>
-          <div class="hero-grid-pattern"></div>
+      <button
+        class="menu-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="primary-nav"
+      >
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </header>
+
+    <!-- Running head — shows where you are in the document -->
+    <div class="folio-rail" aria-hidden="true">
+      <span class="folio-rail__num" id="folio-num">00</span>
+      <span class="folio-rail__line"></span>
+      <span class="folio-rail__name" id="folio-name">Cover</span>
+    </div>
+
+    <main id="top">
+      <!-- ─── Hero — type specimen ─────────────────── -->
+      <section class="specimen" id="hero">
+        <p class="specimen__eyebrow">Hello, I'm—</p>
+
+        <h1 class="specimen__name">
+          <span class="specimen__word" data-word="Atharva">Atharva</span>
+          <span class="specimen__word" data-word="Zaveri">Zaveri</span>
+        </h1>
+
+        <div class="specimen__body">
+          <div class="specimen__statements">
+            <span
+              class="statements__marker"
+              id="statements-marker"
+              aria-hidden="true"
+              ><span class="statements__i">I</span></span
+            >
+            <ul class="statements" id="statements">
+              <li class="statement is-active">
+                <span class="sr-only">I </span>Build Meaningful Programs.
+              </li>
+              <li class="statement">
+                <span class="sr-only">I </span>am a Problem Solver.
+              </li>
+              <li class="statement">
+                <span class="sr-only">I </span>Build Creative Solutions.
+              </li>
+            </ul>
+          </div>
+
+          <dl class="colophon">
+            <div class="colophon__row">
+              <dt>Role</dt>
+              <dd>Full-Stack Developer</dd>
+            </div>
+            <div class="colophon__row">
+              <dt>Stack</dt>
+              <dd>Python · AWS · AI / LLMs</dd>
+            </div>
+            <div class="colophon__row">
+              <dt>Branch</dt>
+              <dd><span class="tick"></span>main</dd>
+            </div>
+            <div class="colophon__row">
+              <dt>Status</dt>
+              <dd><em>currently building</em></dd>
+            </div>
+          </dl>
         </div>
 
-        <div class="hero-inner">
-          <!-- Text content -->
-          <div class="hero-content">
-            <p class="hero-eyebrow" data-animate>Hello, I'm—</p>
-            <h1 class="hero-title" data-animate>
-              <span class="gradient-text glitch" data-text="Atharva Zaveri"
-                >Atharva Zaveri</span
-              >
-            </h1>
-            <p class="hero-subtitle" data-animate>
-              <span class="hero-subtitle-badge">Full-Stack Developer</span>
-            </p>
-            <p class="hero-tagline" data-animate>
-              I <span id="typewriter"></span
-              ><span class="cursor-blink" aria-hidden="true">|</span>
-            </p>
-            <a
-              href="#projects"
-              class="btn-primary"
-              data-animate
-              style="opacity: 0; transform: translateY(20px)"
-            >
-              View Work&nbsp;<i class="fa-solid fa-arrow-right"></i>
-            </a>
-            <div
-              class="hero-social"
-              data-animate
-              style="opacity: 0; transform: translateY(20px)"
-            >
+        <div class="specimen__actions">
+          <a href="#projects" class="btn btn--ink">
+            View Work <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </a>
+          <ul class="imprint">
+            <li>
               <a
                 href="https://github.com/AtharvaZ"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="hero-social-btn hero-social-btn--github"
-                aria-label="GitHub"
+                >GitHub</a
               >
-                <i class="fa-brands fa-github"></i><span>GitHub</span>
-              </a>
+            </li>
+            <li>
               <a
                 href="https://www.linkedin.com/in/atharva-zaveri/"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="hero-social-btn hero-social-btn--linkedin"
-                aria-label="LinkedIn"
+                >LinkedIn</a
               >
-                <i class="fa-brands fa-linkedin"></i><span>LinkedIn</span>
-              </a>
-              <a
-                href="mailto:atharvazaveri4@gmail.com"
-                class="hero-social-btn hero-social-btn--email"
-                aria-label="Email"
-              >
-                <i class="fa-solid fa-envelope"></i><span>Email</span>
-              </a>
+            </li>
+            <li><a href="mailto:atharvazaveri4@gmail.com">Email</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ─── 01 About ─────────────────────────────── -->
+      <section id="about" class="plate" data-folio="01" data-name="About">
+        <div class="plate__head">
+          <span class="plate__folio">01</span>
+          <h2 class="plate__title">About Me</h2>
+        </div>
+
+        <div class="plate__body about">
+          <figure class="about__plate">
+            <div class="about__frame">
+              <img
+                id="about-photo-img"
+                src="./assets/photo.jpg"
+                alt="Atharva Zaveri"
+              />
             </div>
-          </div>
+            <figcaption>Fig. 1 — Atharva Zaveri</figcaption>
+          </figure>
 
-          <!-- AI Neural Network Canvas -->
-          <div class="hero-neural" aria-hidden="true">
-            <canvas id="neural-canvas"></canvas>
-          </div>
-        </div>
-
-        <div class="hero-scroll-hint" aria-hidden="true">
-          <div class="hero-scroll-line"></div>
-          <span>scroll</span>
-        </div>
-      </section>
-
-      <!-- ─── About ─────────────────────────────────── -->
-      <section id="about" class="section-padding">
-        <div class="section-label" aria-hidden="true">01</div>
-        <div class="container">
-          <div class="about-grid">
-            <div class="about-card scroll-reveal">
-              <h2 class="section-title">About Me</h2>
-              <div class="about-text">
-                <p>
-                  I'm a Computer Science student at ASU who gets unreasonably
-                  excited about making AI do useful things. I've built tools
-                  that help students tackle impossible assignments, keep kids
-                  safe online, and search through files like you're having a
-                  conversation with your computer.
-                </p>
-                <p>
-                  When I'm not optimizing code or experimenting with LLMs, I'm
-                  probably exploring how design and AI can work together to
-                  build things people actually want to use. Currently trying to
-                  dive into iOS development and figuring out how to make apps
-                  that don't feel like homework.
-                </p>
-                <p>
-                  I believe the best tech is the kind that quietly makes life
-                  better without making you read a manual. Contact me to build
-                  something great together!!
-                </p>
-                <a
-                  class="btn-primary"
-                  id="resume-btn"
-                  style="
-                    margin-top: 1.5rem;
-                    display: inline-flex;
-                    opacity: 1;
-                    transform: translateY(0);
-                  "
-                >
-                  Resume&nbsp;<i
-                    class="fa-solid fa-arrow-up-right-from-square"
-                  ></i>
-                </a>
-              </div>
-            </div>
-            <div class="about-photo scroll-reveal">
-              <div class="about-photo-wrapper">
-                <img
-                  id="about-photo-img"
-                  src="./assets/photo.jpg"
-                  alt="Atharva Zaveri"
-                />
-                <div class="about-photo-accent" aria-hidden="true"></div>
-              </div>
-            </div>
+          <div class="about__text">
+            <p>
+              I'm a Computer Science student at ASU who gets excited about
+              making AI do useful things. I've built tools that help students
+              tackle impossible assignments, keep kids safe online, and search
+              through files like you're having a conversation with your
+              computer.
+            </p>
+            <p>
+              When I'm not optimizing code or experimenting with LLMs, I'm
+              probably gaming or out chilling with friends. Currently trying to
+              be fully imersed in AWS.
+            </p>
+            <p>
+              I believe the best tech is the kind that quietly makes life better
+              without making you read a manual. Contact me to build something
+              great together!!
+            </p>
+            <a class="btn btn--outline" id="resume-btn">
+              Resume
+              <i
+                class="fa-solid fa-arrow-up-right-from-square"
+                aria-hidden="true"
+              ></i>
+            </a>
           </div>
         </div>
       </section>
 
-      <!-- ─── Experience ────────────────────────────── -->
-      <section id="experience" class="section-padding">
-        <div class="section-label" aria-hidden="true">02</div>
-        <div class="container">
-          <div id="experience-work-section">
-            <h2 class="section-title">Work Experience</h2>
-            <div class="timeline" id="timeline-container"></div>
+      <!-- ─── 02 Experience ────────────────────────── -->
+      <section
+        id="experience"
+        class="plate"
+        data-folio="02"
+        data-name="Experience"
+      >
+        <div id="experience-work-section">
+          <div class="plate__head">
+            <span class="plate__folio">02</span>
+            <h2 class="plate__title">Work Experience</h2>
           </div>
-          <div id="experience-hackathon-section">
-            <h2 class="section-title">Hackathons</h2>
-            <div class="hackathon-grid" id="hackathon-container"></div>
+          <div class="ledger" id="timeline-container"></div>
+        </div>
+
+        <div id="experience-hackathon-section">
+          <div class="plate__head plate__head--sub">
+            <span class="plate__folio">02b</span>
+            <h2 class="plate__title plate__title--sub">Hackathons</h2>
           </div>
+          <div class="hackathon-grid" id="hackathon-container"></div>
         </div>
       </section>
 
-      <!-- ─── Projects ──────────────────────────────── -->
-      <section id="projects" class="section-padding">
-        <div class="section-label" aria-hidden="true">03</div>
-        <div class="container">
-          <h2 class="section-title scroll-reveal">Featured Projects</h2>
-          <p class="section-subtitle scroll-reveal">
-            A collection of my recent projects.
-          </p>
-          <div class="projects-grid">
-            <!-- Injected by script.js -->
-          </div>
-          <div class="projects-show-more-wrapper">
-            <button
-              id="projects-show-more"
-              class="projects-show-more-btn"
-              style="display: none"
-            >
-              <span>Show more</span><i class="fa-solid fa-chevron-down"></i>
-            </button>
-            <button
-              id="projects-show-less"
-              class="projects-show-more-btn"
-              style="display: none"
-            >
-              <span>Show less</span><i class="fa-solid fa-chevron-up"></i>
-            </button>
-          </div>
+      <!-- ─── 03 Projects ──────────────────────────── -->
+      <section id="projects" class="plate" data-folio="03" data-name="Projects">
+        <div class="plate__head">
+          <span class="plate__folio">03</span>
+          <h2 class="plate__title">Featured Projects</h2>
+          <p class="plate__standfirst">A collection of my recent projects.</p>
+        </div>
+
+        <div class="projects-grid">
+          <!-- Injected by script.js -->
+        </div>
+
+        <div class="projects-show-more-wrapper">
+          <button
+            id="projects-show-more"
+            class="btn btn--outline"
+            style="display: none"
+          >
+            Show more <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+          <button
+            id="projects-show-less"
+            class="btn btn--outline"
+            style="display: none"
+          >
+            Show less <i class="fa-solid fa-minus" aria-hidden="true"></i>
+          </button>
         </div>
       </section>
 
-      <!-- ─── Skills ────────────────────────────────── -->
-      <section id="skills" class="section-padding">
-        <div class="section-label" aria-hidden="true">04</div>
-        <div class="container">
-          <h2 class="section-title scroll-reveal">Tech Stack</h2>
-          <p class="section-subtitle scroll-reveal">
+      <!-- ─── 04 Skills ────────────────────────────── -->
+      <section id="skills" class="plate" data-folio="04" data-name="Skills">
+        <div class="plate__head">
+          <span class="plate__folio">04</span>
+          <h2 class="plate__title">Tech Stack</h2>
+          <p class="plate__standfirst">
             Technologies and tools I work with to bring ideas to life.
           </p>
-          <div class="skills-container scroll-reveal" id="skills-wrapper">
-            <!-- Injected by script.js -->
-          </div>
+        </div>
+
+        <div class="skills-container" id="skills-wrapper">
+          <!-- Injected by script.js -->
         </div>
       </section>
 
-      <!-- ─── Contact ───────────────────────────────── -->
-      <section id="contact" class="section-padding">
-        <div class="section-label" aria-hidden="true">05</div>
-        <div class="container contact-wrapper">
-          <div class="contact-info scroll-reveal">
-            <h2 class="section-title">Let's Connect</h2>
-            <p
-              style="
-                color: var(--text-muted);
-                font-size: 1.02rem;
-                margin-bottom: 2rem;
-                line-height: 1.8;
-              "
-            >
+      <!-- ─── 05 Contact ───────────────────────────── -->
+      <section id="contact" class="plate" data-folio="05" data-name="Contact">
+        <div class="plate__head">
+          <span class="plate__folio">05</span>
+          <h2 class="plate__title">Let's Connect</h2>
+        </div>
+
+        <div class="plate__body contact">
+          <div class="contact__info">
+            <p class="lede">
               Interested in working together? Have a question or just want to
               say hi? Drop me a message and I'll get back to you as soon as
               possible.
             </p>
-            <div class="social-links">
-              <a
-                href="https://github.com/AtharvaZ"
-                class="social-icon"
-                aria-label="GitHub"
-              >
-                <i class="fa-brands fa-github"></i
-              ></a>
-              <a
-                href="https://www.linkedin.com/in/atharva-zaveri/"
-                class="social-icon"
-                aria-label="LinkedIn"
-                ><i class="fa-brands fa-linkedin"></i
-              ></a>
-              <a
-                href="mailto:atharvazaveri4@gmail.com"
-                class="social-icon"
-                aria-label="Email"
-              >
-                <i class="fa-solid fa-envelope"></i
-              ></a>
-            </div>
+            <ul class="directory">
+              <li>
+                <a
+                  href="https://github.com/AtharvaZ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="fa-brands fa-github" aria-hidden="true"></i>
+                  <span class="directory__name">GitHub</span>
+                  <span class="directory__handle">@AtharvaZ</span>
+                  <i
+                    class="fa-solid fa-arrow-right directory__go"
+                    aria-hidden="true"
+                  ></i>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.linkedin.com/in/atharva-zaveri/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+                  <span class="directory__name">LinkedIn</span>
+                  <span class="directory__handle">atharva-zaveri</span>
+                  <i
+                    class="fa-solid fa-arrow-right directory__go"
+                    aria-hidden="true"
+                  ></i>
+                </a>
+              </li>
+              <li>
+                <a href="mailto:atharvazaveri4@gmail.com">
+                  <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                  <span class="directory__name">Email</span>
+                  <span class="directory__handle"
+                    >atharvazaveri4@gmail.com</span
+                  >
+                  <i
+                    class="fa-solid fa-arrow-right directory__go"
+                    aria-hidden="true"
+                  ></i>
+                </a>
+              </li>
+            </ul>
           </div>
-          <form class="contact-form scroll-reveal">
+
+          <form class="contact-form">
             <div class="form-group">
+              <label class="form-label" for="cf-name">Name</label>
               <input
+                id="cf-name"
                 type="text"
                 class="form-input"
                 placeholder="Name"
+                autocomplete="name"
                 required
               />
             </div>
             <div class="form-group">
+              <label class="form-label" for="cf-email">Email</label>
               <input
+                id="cf-email"
                 type="email"
                 class="form-input"
                 placeholder="Email"
+                autocomplete="email"
                 required
               />
             </div>
             <div class="form-group">
+              <label class="form-label" for="cf-message">Message</label>
               <textarea
+                id="cf-message"
                 class="form-input"
-                rows="4"
+                rows="5"
                 placeholder="Message"
                 required
               ></textarea>
             </div>
-            <button type="submit" class="form-btn">
-              Send Message&nbsp;<i class="fa-solid fa-paper-plane"></i>
+            <button type="submit" class="btn btn--ink form-btn">
+              Send Message
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
             </button>
           </form>
         </div>
       </section>
     </main>
 
-    <footer>
-      <div class="container">
-        <div class="footer-inner">
-          <span class="gradient-text footer-logo">&lt;AZ/&gt;</span>
-          <p style="color: var(--text-muted)">
-            © 2025 Atharva Zaveri — Designed &amp; Built with Creativity.
-          </p>
+    <!-- ─── Colophon ──────────────────────────────── -->
+    <footer class="colophon-footer">
+      <div class="colophon-footer__grid">
+        <div>
+          <span class="colophon-footer__initials">AZ</span>
+          <p>© 2025 Atharva Zaveri — Designed &amp; Built with Creativity.</p>
         </div>
+
+        <dl class="colophon-footer__specs">
+          <div>
+            <dt>Set in</dt>
+            <dd>Archivo, Newsreader &amp; Space Mono</dd>
+          </div>
+          <div>
+            <dt>Built with</dt>
+            <dd>FastAPI, SQLAlchemy &amp; vanilla JS</dd>
+          </div>
+          <div>
+            <dt>Shortcuts</dt>
+            <dd>
+              <button class="linkish" id="palette-open">
+                Open quick actions
+              </button>
+              <kbd>K</kbd>
+            </dd>
+          </div>
+        </dl>
       </div>
     </footer>
 
-    <script src="script.js?v=1.3.5"></script>
+    <!-- Keyboard shortcut hint — dismissible, never required -->
+    <aside class="keys-hint" id="keys-hint" hidden>
+      <p>Press <kbd>K</kbd> for quick actions · <kbd>D</kbd> for dark paper</p>
+      <button
+        class="keys-hint__close"
+        id="keys-hint-close"
+        aria-label="Dismiss"
+      >
+        ×
+      </button>
+    </aside>
 
-    <!-- ─── Neural Network Canvas ────────────────────── -->
-    <script>
-      (function () {
-        const canvas = document.getElementById("neural-canvas");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        let W,
-          H,
-          nodes = [],
-          raf;
-        const CONNECT_DIST = 110;
-        const mouse = { x: -9999, y: -9999, active: false };
-
-        function isDark() {
-          return document.body.classList.contains("dark-mode");
-        }
-
-        function palette() {
-          return isDark()
-            ? {
-                n: [
-                  [129, 140, 248],
-                  [167, 139, 250],
-                  [34, 211, 238],
-                ],
-                l: [129, 140, 248],
-              }
-            : {
-                n: [
-                  [79, 70, 229],
-                  [124, 58, 237],
-                  [8, 145, 178],
-                ],
-                l: [79, 70, 229],
-              };
-        }
-
-        function resize() {
-          W = canvas.width = canvas.offsetWidth;
-          H = canvas.height = canvas.offsetHeight;
-        }
-
-        class Node {
-          constructor() {
-            this.x = Math.random() * W;
-            this.y = Math.random() * H;
-            this.vx = (Math.random() - 0.5) * 0.3;
-            this.vy = (Math.random() - 0.5) * 0.3;
-            this.r = Math.random() * 1.6 + 1.2;
-            this.ci = Math.floor(Math.random() * 3);
-            this.pulse = 0;
-            this.pulsing = false;
-            this.pt = 0;
-          }
-
-          update() {
-            this.x += this.vx;
-            this.y += this.vy;
-            if (this.x < 0 || this.x > W) this.vx *= -1;
-            if (this.y < 0 || this.y > H) this.vy *= -1;
-
-            if (mouse.active) {
-              const dx = mouse.x - this.x;
-              const dy = mouse.y - this.y;
-              const d2 = dx * dx + dy * dy;
-              const pullRadius = 170;
-              if (d2 < pullRadius * pullRadius) {
-                const d = Math.max(10, Math.sqrt(d2));
-                const force = (1 - d / pullRadius) * 0.03;
-                this.vx += (dx / d) * force;
-                this.vy += (dy / d) * force;
-              }
-            }
-
-            this.vx *= 0.985;
-            this.vy *= 0.985;
-
-            if (!this.pulsing && Math.random() < 0.0007) {
-              this.pulsing = true;
-              this.pt = 0;
-            }
-            if (this.pulsing) {
-              this.pt++;
-              this.pulse = Math.sin((this.pt * Math.PI) / 55);
-              if (this.pt >= 55) {
-                this.pulsing = false;
-                this.pulse = 0;
-              }
-            }
-          }
-
-          draw() {
-            const [r, g, b] = palette().n[this.ci];
-            const a = 0.55 + this.pulse * 0.45;
-
-            if (this.pulse > 0.25) {
-              const rr = this.r * 6 * this.pulse;
-              const gr = ctx.createRadialGradient(
-                this.x,
-                this.y,
-                0,
-                this.x,
-                this.y,
-                rr,
-              );
-              gr.addColorStop(0, `rgba(${r},${g},${b},${this.pulse * 0.3})`);
-              gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-              ctx.beginPath();
-              ctx.arc(this.x, this.y, rr, 0, Math.PI * 2);
-              ctx.fillStyle = gr;
-              ctx.fill();
-            }
-
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.r + this.pulse * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-            ctx.fill();
-          }
-        }
-
-        function init() {
-          resize();
-          const count = Math.max(30, Math.min(55, Math.floor((W * H) / 6500)));
-          nodes = Array.from({ length: count }, () => new Node());
-        }
-
-        function frame() {
-          ctx.clearRect(0, 0, W, H);
-          const [lr, lg, lb] = palette().l;
-
-          for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-              const dx = nodes[i].x - nodes[j].x;
-              const dy = nodes[i].y - nodes[j].y;
-              const d2 = dx * dx + dy * dy;
-              if (d2 < CONNECT_DIST * CONNECT_DIST) {
-                const d = Math.sqrt(d2);
-                const boost = (nodes[i].pulse + nodes[j].pulse) * 0.3;
-                const a = (1 - d / CONNECT_DIST) * 0.24 + boost;
-                ctx.strokeStyle = `rgba(${lr},${lg},${lb},${a})`;
-                ctx.lineWidth = 0.62 + boost * 1.35;
-                ctx.beginPath();
-                ctx.moveTo(nodes[i].x, nodes[i].y);
-                ctx.lineTo(nodes[j].x, nodes[j].y);
-                ctx.stroke();
-              }
-            }
-          }
-
-          nodes.forEach((n) => {
-            n.update();
-            n.draw();
-          });
-          raf = requestAnimationFrame(frame);
-        }
-
-        init();
-        frame();
-
-        canvas.addEventListener("mousemove", (e) => {
-          const rect = canvas.getBoundingClientRect();
-          mouse.x = e.clientX - rect.left;
-          mouse.y = e.clientY - rect.top;
-          mouse.active = true;
-        });
-
-        canvas.addEventListener("mouseleave", () => {
-          mouse.active = false;
-          mouse.x = -9999;
-          mouse.y = -9999;
-        });
-
-        let resizeTimer;
-        window.addEventListener("resize", () => {
-          clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(() => {
-            cancelAnimationFrame(raf);
-            init();
-            frame();
-          }, 100);
-        });
-      })();
-    </script>
-
-    <!-- ─── Motion.js Enhancements ───────────────────── -->
-    <script>
-      (function () {
-        const lib = window.Motion || window.motion;
-        if (!lib) return;
-        const { animate, inView } = lib;
-        const isCoarsePointer =
-          window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-
-        animate(
-          ".navbar",
-          { opacity: [0, 1], y: [-16, 0] },
-          { duration: 0.5, easing: "ease-out" },
-        );
-
-        animate(
-          ".hero-orb--1",
-          { y: [0, -26, 0] },
-          { duration: 7, repeat: Infinity, easing: "ease-in-out" },
-        );
-        animate(
-          ".hero-orb--2",
-          { y: [0, 20, 0], x: [0, 12, 0] },
-          { duration: 9, repeat: Infinity, easing: "ease-in-out", delay: 1.8 },
-        );
-        animate(
-          ".hero-orb--3",
-          { y: [0, -14, 0], x: [0, -8, 0] },
-          { duration: 11, repeat: Infinity, easing: "ease-in-out", delay: 3.2 },
-        );
-
-        animate(
-          ".hero-scroll-hint",
-          { opacity: [0, 1], y: [8, 0] },
-          { duration: 0.7, delay: 3.0 },
-        );
-
-        inView(
-          ".section-label",
-          function (el) {
-            animate(el, { opacity: [0, 0.12] }, { duration: 0.9 });
-          },
-          { amount: 0.2 },
-        );
-
-        if (!isCoarsePointer) {
-          // Project row slide on hover
-          document.addEventListener("mouseover", function (e) {
-            const card = e.target.closest(".project-card");
-            if (card)
-              animate(
-                card,
-                { x: 5 },
-                { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
-              );
-          });
-          document.addEventListener("mouseout", function (e) {
-            const card = e.target.closest(".project-card");
-            if (card && !card.contains(e.relatedTarget))
-              animate(card, { x: 0 }, { duration: 0.2 });
-          });
-
-          // Timeline item hover interaction
-          document.addEventListener("mouseover", function (e) {
-            const item = e.target.closest(".timeline-item");
-            if (item)
-              animate(
-                item,
-                { y: -3 },
-                { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
-              );
-          });
-          document.addEventListener("mouseout", function (e) {
-            const item = e.target.closest(".timeline-item");
-            if (item && !item.contains(e.relatedTarget))
-              animate(item, { y: 0 }, { duration: 0.2 });
-          });
-
-          // Hackathon card lift
-          document.addEventListener("mouseover", function (e) {
-            const card = e.target.closest(".hackathon-card");
-            if (card)
-              animate(
-                card,
-                { y: -5 },
-                { duration: 0.22, easing: [0.34, 1.56, 0.64, 1] },
-              );
-          });
-          document.addEventListener("mouseout", function (e) {
-            const card = e.target.closest(".hackathon-card");
-            if (card && !card.contains(e.relatedTarget))
-              animate(card, { y: 0 }, { duration: 0.2 });
-          });
-
-          // Skill pill pop
-          document.addEventListener("mouseover", function (e) {
-            const s = e.target.closest(".skill-item");
-            if (s)
-              animate(
-                s,
-                { scale: 1.05 },
-                { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] },
-              );
-          });
-          document.addEventListener("mouseout", function (e) {
-            const s = e.target.closest(".skill-item");
-            if (s && !s.contains(e.relatedTarget))
-              animate(s, { scale: 1 }, { duration: 0.18 });
-          });
-
-          // Hero social bounce
-          document.querySelectorAll(".hero-social-btn").forEach(function (btn) {
-            btn.addEventListener("mouseenter", function () {
-              animate(
-                btn,
-                { y: -3 },
-                { duration: 0.18, easing: [0.34, 1.56, 0.64, 1] },
-              );
-            });
-            btn.addEventListener("mouseleave", function () {
-              animate(btn, { y: 0 }, { duration: 0.18 });
-            });
-          });
-
-          // Social icon bounce
-          document.querySelectorAll(".social-icon").forEach(function (icon) {
-            icon.addEventListener("mouseenter", function () {
-              animate(
-                icon,
-                { scale: 1.14, y: -3 },
-                { duration: 0.2, easing: [0.34, 1.56, 0.64, 1] },
-              );
-            });
-            icon.addEventListener("mouseleave", function () {
-              animate(icon, { scale: 1, y: 0 }, { duration: 0.18 });
-            });
-          });
-        }
-      })();
-    </script>
+    <script src="script.js?v=5.8.0"></script>
   </body>
 </html>
