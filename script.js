@@ -131,25 +131,40 @@ const paletteOpenBtn = document.getElementById("palette-open");
 const EMAIL = "atharvazaveri4@gmail.com";
 
 const PALETTE_ACTIONS = [
-  { label: "About", kind: "Section", icon: "fa-solid fa-user", go: "#about" },
+  {
+    label: "About",
+    kind: "Section",
+    icon: "fa-solid fa-user",
+    go: "#about",
+    key: "1",
+  },
   {
     label: "Experience",
     kind: "Section",
     icon: "fa-solid fa-briefcase",
     go: "#experience",
+    key: "2",
   },
   {
     label: "Projects",
     kind: "Section",
     icon: "fa-solid fa-folder-open",
     go: "#projects",
+    key: "3",
   },
-  { label: "Tech Stack", kind: "Section", icon: "fa-solid fa-layer-group", go: "#skills" },
+  {
+    label: "Tech Stack",
+    kind: "Section",
+    icon: "fa-solid fa-layer-group",
+    go: "#skills",
+    key: "4",
+  },
   {
     label: "Contact",
     kind: "Section",
     icon: "fa-solid fa-envelope",
     go: "#contact",
+    key: "5",
   },
   {
     label: "Open GitHub",
@@ -206,6 +221,7 @@ function renderPalette(query = "") {
             <i class="${a.icon}" aria-hidden="true"></i>
             <span>${escapeHtml(a.label)}</span>
             <span class="palette__kind">${escapeHtml(a.kind)}</span>
+            ${a.key ? `<kbd class="palette__key">${a.key}</kbd>` : ""}
           </button>
         </li>`,
     )
@@ -304,10 +320,26 @@ document.addEventListener("keydown", (e) => {
   if (key === "k" || key === "/") {
     e.preventDefault();
     openPalette();
-  } else if (key === "d") {
+    return;
+  }
+  if (key === "d") {
     toggleTheme();
-  } else if (key === "escape") {
+    return;
+  }
+  if (key === "escape") {
     closePalette();
+    return;
+  }
+
+  // 1-5 jump straight to a section, same as the palette's section rows.
+  // The guard above already ignores this while a field is focused, so
+  // typing "1" into the palette filters instead of navigating.
+  const numbered = PALETTE_ACTIONS.find((a) => a.key === key && a.go);
+  if (numbered) {
+    e.preventDefault();
+    document
+      .querySelector(numbered.go)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 });
 

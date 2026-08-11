@@ -402,6 +402,19 @@ main,
   color: var(--ink-mute);
 }
 
+.palette__key {
+  flex: none;
+  min-width: 1.6rem;
+  margin-left: 0;
+  text-align: center;
+  color: var(--ink-mute);
+}
+
+.palette__item[aria-selected="true"] .palette__key {
+  color: var(--paper);
+  border-color: color-mix(in srgb, var(--paper) 45%, transparent);
+}
+
 .palette__empty {
   padding: 1.1rem;
   color: var(--ink-mute);
